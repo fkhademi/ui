@@ -1009,7 +1009,7 @@
   }
 
   .settings-card-body {
-    @apply border-t border-border;
+    @apply border-t border-border px-5 py-5;
   }
 
   /* ── Settings section (non-accordion alternative) ─────────────────── */
