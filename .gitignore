@@ -1,6 +1,9 @@
 node_modules
-dist
 .DS_Store
 *.log
 .env
 .env.local
+
+# dist/ IS committed — consumers install via git URL and don't run the
+# build step themselves. Keep it in sync via `npm run build` before
+# committing changes to src/.

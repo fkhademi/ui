@@ -960,4 +960,94 @@
     @apply opacity-50;
   }
 
+  /* ── Settings card (accordion) ────────────────────────────────────── */
+  /* Used for any "list of expandable config sections" surface — user
+     settings, platform admin, tenant detail. Each card has an icon,
+     title, one-line summary, and optionally expands to show form fields
+     or other body content. Pair with the SettingsCard React primitive
+     in @doon/ui. */
+
+  .settings-cards {
+    @apply flex flex-col gap-2;
+  }
+
+  .settings-card {
+    @apply rounded-xl border border-border bg-surface shadow-card overflow-hidden;
+  }
+
+  .settings-card-header {
+    @apply w-full flex items-center gap-3 px-4 py-3 text-left transition-colors;
+  }
+
+  .settings-card-header--clickable {
+    @apply cursor-pointer hover:bg-accent/50;
+  }
+
+  .settings-card-icon {
+    @apply w-9 h-9 rounded-lg bg-primary/10 text-primary
+           grid place-items-center shrink-0;
+  }
+
+  .settings-card-text {
+    @apply flex-1 min-w-0;
+  }
+
+  .settings-card-title {
+    @apply text-sm font-medium text-foreground;
+  }
+
+  .settings-card-summary {
+    @apply text-xs text-muted-foreground truncate mt-0.5;
+  }
+
+  .settings-card-chev {
+    @apply text-muted-foreground transition-transform shrink-0;
+  }
+
+  .settings-card--open .settings-card-chev {
+    @apply rotate-180;
+  }
+
+  .settings-card-body {
+    @apply border-t border-border;
+  }
+
+  /* ── Settings section (non-accordion alternative) ─────────────────── */
+  /* Use this when you want the body always visible — e.g. a tenant
+     detail page that's all one expanded section, or a single-card flow
+     where collapsing adds no value. */
+
+  .settings-section {
+    @apply mx-6 mb-6 rounded-2xl bg-foreground/[0.02] ring-1 ring-border
+           flex flex-col;
+  }
+
+  .settings-section-header {
+    @apply px-5 py-4 border-b border-border flex items-start gap-3;
+  }
+
+  .settings-section-icon {
+    @apply w-9 h-9 rounded-xl bg-foreground/[0.05] text-foreground grid place-items-center shrink-0;
+  }
+
+  .settings-section-title {
+    @apply text-sm font-semibold text-foreground;
+  }
+
+  .settings-section-sub {
+    @apply text-xs text-muted-foreground;
+  }
+
+  .settings-section-body {
+    @apply px-5 py-4 flex flex-col gap-4;
+  }
+
+  .settings-section-footer {
+    @apply px-5 py-3 border-t border-border flex items-center justify-end;
+  }
+
+  .settings-section-divider {
+    @apply mt-2 pt-3 border-t border-border text-xs uppercase tracking-wider text-muted-foreground;
+  }
+
 }
