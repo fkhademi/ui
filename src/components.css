@@ -1,0 +1,963 @@
+/* Semantic component classes.
+   Rule: visual identity lives here. Layout placement (w-full, flex, gap) may
+   still appear in JSX — that's *positioning for one site of use*, not style.
+
+   Conventions mirror pwsafe:
+     .thing            -> base
+     .thing--variant   -> modifier
+     .thing-part       -> sub-element
+*/
+
+@layer components {
+/* ── Buttons ────────────────────────────────────────────────────────── */
+
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 h-11 px-5
+           rounded-xl font-medium text-sm
+           transition-all duration-200
+           focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background
+           disabled:opacity-50 disabled:cursor-not-allowed
+           select-none;
+    transition-timing-function: var(--ease-out);
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-primary-foreground shadow-card
+           hover:bg-primary/90 hover:shadow-card-hover
+           active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-foreground
+           hover:bg-accent;
+  }
+
+  .btn-secondary {
+    @apply btn bg-foreground/[0.05] text-foreground
+           ring-1 ring-inset ring-foreground/10
+           hover:bg-foreground/[0.08] hover:ring-foreground/15
+           active:scale-[0.98];
+  }
+
+  .btn-danger {
+    @apply btn bg-destructive text-destructive-foreground
+           hover:bg-destructive/90
+           active:scale-[0.98];
+  }
+
+  .btn-icon {
+    @apply inline-flex items-center justify-center w-10 h-10 rounded-lg
+           text-muted-foreground
+           transition-all duration-200
+           hover:bg-accent hover:text-foreground
+           active:scale-[0.96];
+  }
+
+/* ── Fields ─────────────────────────────────────────────────────────── */
+
+
+  .field {
+    @apply h-11 w-full rounded-xl bg-surface border border-input
+           px-4 text-base text-foreground placeholder:text-muted-foreground
+           outline-none transition-all duration-200
+           focus:border-primary focus:ring-2 focus:ring-primary/20;
+  }
+
+  .field-mono {
+    @apply field font-mono text-sm;
+  }
+
+  .field-label {
+    @apply block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide;
+  }
+
+  .field-hint {
+    @apply text-xs text-muted-foreground mt-1;
+  }
+
+  .field-error {
+    @apply text-xs text-destructive mt-1;
+  }
+
+/* FieldHelp — small (i) icon beside a field label that pops a card
+     with a one-line title and a short explanation. Anchored absolute
+     so the popup doesn't reflow surrounding fields. */
+
+
+  .field-help {
+    @apply relative inline-flex items-center align-baseline ml-1;
+  }
+
+  .field-help-trigger {
+    @apply inline-flex items-center justify-center w-4 h-4 rounded-full
+           text-muted-foreground hover:text-foreground
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40
+           transition;
+  }
+
+  .field-help-pop {
+    /* fixed-positioned; inline `top` / `left` / `width` come from the
+       component's layout-effect (smart edge detection). */
+    @apply fixed z-50 rounded-xl bg-surface ring-1 ring-border shadow-lg
+           px-3.5 py-2.5;
+  }
+
+  .field-help-title {
+    @apply text-xs font-semibold text-foreground mb-1 normal-case tracking-normal;
+  }
+
+  .field-help-body {
+    @apply text-xs text-muted-foreground leading-relaxed normal-case tracking-normal;
+  }
+
+  .field-help-body code {
+    @apply font-mono text-[11px] bg-muted px-1 py-0.5 rounded;
+  }
+
+  .field-help-body strong { @apply text-foreground; }
+
+/* Native <select> chrome leaks through in light mode (macOS draws a
+     gradient + bevel; Windows draws a 3D border). Reset it and paint
+     our own chevron so the control matches text inputs. Two SVGs so
+     the arrow stays visible against light and dark backgrounds. */
+
+
+  select.field,
+  select.field-mono {
+    @apply appearance-none pr-10 bg-no-repeat;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-position: right 0.75rem center;
+    background-size: 0.75rem 0.75rem;
+  }
+
+  .dark select.field,
+  .dark select.field-mono {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  }
+
+/* ── App shell ──────────────────────────────────────────────────────── */
+
+
+  .app-shell {
+    @apply min-h-[100dvh] flex bg-background;
+  }
+
+  .app-sidebar {
+    /* `sticky top-0 h-[100dvh]` pins the sidebar to the viewport so it
+       no longer grows with long page content; `self-start` overrides
+       the flex parent's default `align-items: stretch` which would
+       defeat the sticky height. The sidebar itself scrolls when its
+       contents overflow the viewport. */
+    @apply hidden md:flex md:flex-col md:w-60 md:shrink-0
+           md:border-r md:border-border md:bg-surface
+           md:sticky md:top-0 md:h-[100dvh] md:self-start md:overflow-y-auto;
+  }
+
+  .app-sidebar-brand {
+    @apply flex items-center gap-2 px-4 h-14 border-b border-border
+           text-sm font-semibold tracking-tight text-foreground;
+  }
+
+  .app-sidebar-section {
+    @apply px-2 py-2 flex flex-col gap-0.5;
+  }
+
+  .app-sidebar-section--scroll {
+    @apply flex-1 overflow-y-auto border-t border-border;
+  }
+
+  .app-sidebar-heading {
+    @apply flex items-center gap-1.5 mt-3 mb-1 px-2 text-[10px]
+           uppercase tracking-wider text-muted-foreground;
+  }
+
+  .app-sidebar-item {
+    @apply flex items-center gap-2.5 px-2.5 py-1.5 rounded-md
+           text-sm text-foreground/80
+           cursor-pointer transition-colors
+           hover:bg-accent hover:text-foreground;
+  }
+
+  .app-sidebar-item--active {
+    @apply bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary;
+  }
+
+  .app-sidebar-footer {
+    @apply mt-auto px-2 py-2 border-t border-border flex flex-col gap-2;
+  }
+
+  .app-sidebar-user {
+    @apply px-2.5 py-2 text-xs;
+  }
+
+  .app-sidebar-user-name {
+    @apply text-foreground font-medium truncate;
+  }
+
+  .app-sidebar-user-email {
+    @apply text-muted-foreground truncate;
+  }
+
+  .app-sidebar-user-meta {
+    @apply flex items-center gap-1.5 mt-1;
+  }
+
+  .app-sidebar-user-plan {
+    @apply text-[10px] uppercase tracking-wider text-muted-foreground;
+  }
+
+  .app-sidebar-theme {
+    @apply px-2.5;
+  }
+
+  .app-sidebar-item--full {
+    @apply w-full text-left;
+  }
+
+  .bottom-tabs {
+    @apply md:hidden fixed bottom-0 inset-x-0 z-30
+           bg-surface/95 backdrop-blur-xl border-t border-border
+           flex justify-around pb-safe;
+  }
+
+  .bottom-tab {
+    @apply flex flex-col items-center gap-0.5 px-4 py-2 text-[10px] font-medium
+           text-muted-foreground transition-colors duration-150
+           cursor-pointer;
+  }
+
+  .bottom-tab--active {
+    @apply text-primary;
+  }
+
+  .app-content {
+    @apply flex-1 overflow-y-auto pb-20 md:pb-0;
+  }
+
+/* ── Page header ───────────────────────────────────────────────────── */
+
+
+  .page-header {
+    @apply flex items-center justify-between px-6 pt-8 pb-4 gap-3;
+  }
+
+  .page-title {
+    @apply text-2xl font-semibold tracking-tight text-foreground
+           flex items-center gap-2;
+  }
+
+  .page-title .field-help-trigger {
+    @apply text-muted-foreground/60 hover:text-foreground;
+  }
+
+  .page-subtitle {
+    @apply text-xs text-muted-foreground mt-0.5;
+  }
+
+  .stat-icon {
+    @apply w-11 h-11 rounded-xl grid place-items-center shrink-0;
+  }
+
+  .stat-icon--primary { @apply bg-primary/15 text-primary; }
+
+  .stat-icon--success { @apply bg-success/15 text-success; }
+
+  .stat-icon--warning { @apply bg-warning/15 text-warning; }
+
+  .stat-icon--danger { @apply bg-destructive/15 text-destructive; }
+
+  .stat-icon--info { @apply bg-foreground/10 text-foreground/80; }
+
+  .stat-label { @apply text-[11px] uppercase tracking-wider text-muted-foreground; }
+
+  .stat-value { @apply text-xl font-semibold text-foreground mt-0.5 num; }
+
+  .stat-sub { @apply text-xs text-muted-foreground mt-0.5 truncate; }
+
+/* ── List card surface (a rounded bordered container, used by data-table
+        and standalone single-item lists like the API-key reveal card) ──── */
+
+
+  .list-card {
+    @apply mx-6 rounded-2xl bg-surface ring-1 ring-border shadow-card
+           overflow-hidden;
+  }
+
+/* ── DataTable (universal list primitive) ──────────────────────────── */
+
+
+/* All list pages (zones, records, endpoints, api keys, audit, …) go
+     through this. Adding a new list is a column config, not a new CSS
+     class. */
+
+
+  .dt-toolbar {
+    @apply flex items-center gap-3 pb-3;
+  }
+
+  .dt-search-wrap {
+    @apply relative;
+  }
+
+  .dt-search {
+    @apply h-9 w-full md:w-72 rounded-lg bg-surface border border-input
+           pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground
+           outline-none transition-all duration-200
+           focus:border-primary focus:ring-2 focus:ring-primary/20;
+  }
+
+  .dt-search-icon {
+    @apply absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none;
+  }
+
+  .dt-count {
+    @apply text-xs text-muted-foreground ml-auto num;
+  }
+
+  .dt-card {
+    @apply rounded-2xl bg-surface ring-1 ring-border shadow-card overflow-hidden;
+  }
+
+  .dt-table {
+    @apply w-full text-sm border-collapse;
+  }
+
+  .dt-thead {
+    @apply bg-foreground/[0.02];
+  }
+
+  .dt-th {
+    @apply text-left text-[10px] uppercase tracking-wider font-medium
+           text-muted-foreground px-4 py-2.5 select-none border-b border-border;
+  }
+
+  .dt-th--right { @apply text-right; }
+
+  .dt-th--sortable {
+    @apply cursor-pointer hover:text-foreground transition-colors;
+  }
+
+  .dt-th--sorted { @apply text-foreground; }
+
+  .dt-th-inner {
+    @apply inline-flex items-center gap-1;
+  }
+
+  .dt-th--right .dt-th-inner {
+    @apply justify-end w-full;
+  }
+
+  .dt-tr {
+    @apply border-b border-border last:border-0 transition-colors select-none;
+  }
+
+  .dt-tr:hover {
+    @apply bg-foreground/[0.02];
+  }
+
+  .dt-tr--clickable {
+    @apply cursor-pointer;
+  }
+
+  .dt-tr--selected,
+  .dt-tr--selected:hover {
+    @apply bg-primary/[0.07];
+  }
+
+  .dt-td {
+    @apply px-4 py-3 text-foreground align-middle;
+  }
+
+  .dt-td--right { @apply text-right num; }
+
+  .dt-td--muted { @apply text-muted-foreground; }
+
+  .dt-td--mono { @apply font-mono text-xs; }
+
+  .dt-td--actions {
+    @apply w-px whitespace-nowrap;
+  }
+
+/* Truncated cell: hard-cap the td at ~32ch and ellipsis the inner span.
+     Full text stays accessible via the native tooltip (title attribute)
+     so nothing is hidden — it's just not stretching the row vertically. */
+
+
+  .dt-td--truncate {
+    @apply max-w-[32ch];
+  }
+
+  .dt-cell-truncate {
+    @apply block overflow-hidden text-ellipsis whitespace-nowrap;
+  }
+
+  .dt-empty {
+    @apply text-center py-12 px-4 text-sm text-muted-foreground;
+  }
+
+  .dt-pagination {
+    @apply flex items-center gap-2 pt-3 text-xs text-muted-foreground;
+  }
+
+  .dt-page-info { @apply num; }
+
+/* Compact select inside DataTable rows — used for the admin tenant
+     plan picker. Smaller than .field-mono, no border, blends into the
+     row. */
+
+
+  .dt-page-size {
+    @apply h-7 rounded-md bg-surface border border-input pl-2 pr-6 text-xs
+           text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/20
+           appearance-none bg-no-repeat;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-position: right 0.4rem center;
+    background-size: 0.6rem 0.6rem;
+  }
+
+  .dark .dt-page-size {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  }
+
+  .dt-page-buttons {
+    @apply flex items-center gap-1 ml-auto;
+  }
+
+  .dt-page-btn {
+    @apply inline-flex items-center justify-center min-w-7 h-7 px-2 rounded-md
+           text-xs font-medium text-foreground/80
+           transition-colors hover:bg-accent
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent;
+  }
+
+  .dt-page-btn--active {
+    @apply bg-primary/10 text-primary hover:bg-primary/15;
+  }
+
+/* ── DNS record-type chip ──────────────────────────────────────────── */
+
+
+/* ── Status badge (slow-changing state: activation, plan, billing) ─── */
+
+
+  .status-badge {
+    @apply inline-flex items-center px-1.5 py-0.5 rounded-full
+           text-[10px] font-medium uppercase tracking-wide shrink-0;
+  }
+
+  .status-badge--success { @apply bg-success/15 text-success; }
+
+  .status-badge--neutral { @apply bg-foreground/10 text-foreground/70; }
+
+  .status-badge--warning { @apply bg-warning/15 text-warning; }
+
+  .status-badge--danger { @apply bg-destructive/15 text-destructive; }
+
+/* ── Health badge (endpoints / monitors) ───────────────────────────── */
+
+
+  .health-dot { @apply inline-block w-1.5 h-1.5 rounded-full; }
+
+  .health-dot--up { @apply bg-success animate-pulse-soft; }
+
+  .health-dot--down { @apply bg-destructive; }
+
+  .health-dot--degraded { @apply bg-warning animate-pulse-soft; }
+
+  .health-dot--unknown { @apply bg-foreground/30; }
+
+/* Uptime chip — per-endpoint reliability summary in the table. */
+
+
+/* ── GSLB topology card (shown above the record editor) ────────────── */
+
+
+/* ── Pricing page ──────────────────────────────────────────────────── */
+
+
+/* ── Billing success page ──────────────────────────────────────────── */
+
+
+/* ── Settings page: Billing card ───────────────────────────────────── */
+
+
+/* ── Danger zone (delete workspace) ────────────────────────────────── */
+
+
+/* Used between the data-export and delete rows so the irreversible
+     action is visually separated from the reversible one. */
+
+
+/* ── Policies page ─────────────────────────────────────────────────── */
+
+
+/* ── Drawer (right side-in: edit zone, edit record) ────────────────── */
+
+
+  .drawer-overlay {
+    @apply fixed inset-0 z-40 bg-black/40 backdrop-blur-sm;
+  }
+
+  .drawer-panel {
+    @apply fixed right-0 top-0 z-50 h-[100dvh] w-full md:max-w-md
+           bg-surface text-foreground shadow-2xl
+           border-l border-border flex flex-col;
+  }
+
+  .drawer-header {
+    @apply flex items-center justify-between px-5 h-14 border-b border-border;
+  }
+
+  .drawer-title {
+    @apply text-sm font-semibold tracking-tight text-foreground;
+  }
+
+  .drawer-body {
+    @apply flex-1 overflow-y-auto px-5 py-5 space-y-4;
+  }
+
+  .drawer-loading {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .drawer-footer {
+    @apply px-5 h-16 border-t border-border flex items-center gap-3;
+  }
+
+/* ── Modal ─────────────────────────────────────────────────────────── */
+
+
+  .modal {
+    @apply fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2
+           w-[min(92vw,520px)] rounded-2xl
+           bg-surface ring-1 ring-border shadow-2xl overflow-hidden;
+  }
+
+  .modal-header {
+    @apply flex items-center justify-between px-5 h-14 border-b border-border;
+  }
+
+  .modal-body {
+    @apply px-5 py-5;
+  }
+
+  .modal-footer {
+    @apply px-5 h-16 border-t border-border flex items-center justify-end gap-2;
+  }
+
+/* ── Workspace dashboard ──────────────────────────────────────────── */
+
+
+/* Hero band: 4 vital-sign tiles in a row. Big numbers, motion. */
+
+
+/* Pulsing dot — the "this thing is live" cue. */
+
+
+  @keyframes dashboard-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(1.4); }
+  }
+
+/* Main grid (rows below the hero band). */
+
+
+/* Country leaderboard. Flag + code chip + bar + pct + raw count. */
+
+
+/* Incidents narrative — the GSLB outcome card. */
+
+
+/* Top-zones list (kept from the prior cut). */
+
+
+/* Activity feed (kept). */
+
+
+/* Quick actions (kept; gained pending-invites badge). */
+
+
+/* ── Zone sub-nav (Records / Insights tabs under header) ──────────── */
+
+
+/* ── Zone insights view ───────────────────────────────────────────── */
+
+
+/* Trend delta chip — sits in the toolbar to the right of the window picker. */
+
+
+/* Top names card — same shape as the bar list on the dashboard but
+     reuses the insights card frame. */
+
+
+/* Latency card — p50/p95/p99 row + log-spaced bar histogram. */
+
+
+/* ── Admin analytics ──────────────────────────────────────────────── */
+
+
+/* ── Onboarding checklist ─────────────────────────────────────────── */
+
+
+/* Surfaces under the page header on /zones for tenants who haven't
+     received their first query yet. Disappears once
+     onboarding.activated_at is stamped. */
+
+
+/* ── Members section ──────────────────────────────────────────────── */
+
+
+/* Inline invite row + per-member rows in /settings → Members card. */
+
+
+/* `.field` has w-full so the role select would otherwise eat the
+     row. Pin the role to a sensible width and let the email input
+     take the slack — flex-1 + min-w-0 so it actually shrinks down. */
+
+
+/* ── Settings cards (admin accordion) ─────────────────────────────── */
+
+
+/* Vertically-stacked, click-to-expand cards. Used on /admin/settings
+     so an operator can scan section state at a glance and drill into
+     one at a time, instead of scrolling a long form. */
+
+
+/* ── Theme toggle ──────────────────────────────────────────────────── */
+
+
+/* Three-segment switch (light / dark / system) — lives in the sidebar
+     footer. Mirrors the active state via .theme-toggle-btn--active. */
+
+
+  .theme-toggle {
+    @apply flex items-center gap-0.5 p-0.5 rounded-md
+           border border-border bg-surface;
+  }
+
+  .theme-toggle-btn {
+    @apply flex-1 flex items-center justify-center h-7 rounded
+           text-muted-foreground transition-colors
+           hover:text-foreground cursor-pointer;
+  }
+
+  .theme-toggle-btn--active {
+    @apply bg-accent text-foreground;
+  }
+
+/* ── Field checkbox row ────────────────────────────────────────────── */
+
+
+/* Used inside Field bodies that present a single boolean. Keeps the
+     checkbox + label aligned consistently across pages. */
+
+
+  .field-checkbox-row {
+    @apply flex items-center gap-2 text-sm text-foreground;
+  }
+
+/* ── Toggle ────────────────────────────────────────────────────────── */
+
+
+  .toggle {
+    @apply relative w-11 h-6 rounded-full bg-foreground/15
+           transition-colors duration-200 shrink-0;
+  }
+
+  .toggle--on { @apply bg-primary; }
+
+  .toggle-thumb {
+    @apply absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white
+           shadow-card transition-transform duration-200;
+  }
+
+  .toggle--on .toggle-thumb { @apply translate-x-5; }
+
+/* ── Tag chips ─────────────────────────────────────────────────────── */
+
+
+  .tag-chips-row {
+    @apply flex flex-wrap items-center gap-1.5 min-h-11
+           rounded-xl bg-surface border border-input px-2.5 py-1.5;
+  }
+
+  .tag-chip {
+    @apply inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-full
+           bg-primary/10 text-primary text-xs font-medium;
+  }
+
+  .tag-chip button {
+    @apply inline-flex items-center justify-center w-4 h-4 rounded-full
+           hover:bg-primary/20;
+  }
+
+/* ── Context menu / popover ────────────────────────────────────────── */
+
+
+  .menu {
+    @apply fixed z-50 min-w-[220px] rounded-xl
+           bg-surface ring-1 ring-border shadow-2xl
+           p-1 text-sm;
+  }
+
+  .menu-item {
+    @apply flex items-center gap-2.5 w-full px-3 py-2 rounded-lg
+           text-foreground/90 text-left
+           cursor-pointer transition-colors
+           hover:bg-accent;
+  }
+
+  .menu-item--danger {
+    @apply text-destructive hover:bg-destructive/10;
+  }
+
+  .menu-sep {
+    @apply h-px bg-border my-1 mx-2;
+  }
+
+  .menu-heading {
+    @apply px-2.5 py-1 text-[10px] uppercase tracking-wider text-muted-foreground;
+  }
+
+/* ── Command palette ───────────────────────────────────────────────── */
+
+
+  .cmdk-overlay {
+    @apply fixed inset-0 z-50 bg-black/40 backdrop-blur-sm
+           grid place-items-start pt-[15vh];
+  }
+
+  .cmdk-panel {
+    @apply w-full max-w-lg mx-4 rounded-2xl
+           bg-surface ring-1 ring-border shadow-2xl overflow-hidden;
+  }
+
+  .cmdk-input {
+    @apply w-full h-12 px-5 text-base bg-transparent text-foreground
+           placeholder:text-muted-foreground outline-none
+           border-b border-border;
+  }
+
+  .cmdk-list {
+    @apply max-h-[60vh] overflow-y-auto p-2;
+  }
+
+  .cmdk-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+           text-foreground cursor-pointer transition-colors
+           data-[selected=true]:bg-accent;
+  }
+
+  .cmdk-empty {
+    @apply p-6 text-center text-sm text-muted-foreground;
+  }
+
+  .cmdk-group-heading {
+    @apply px-3 pt-3 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground;
+  }
+
+/* ── Toast / countdown ─────────────────────────────────────────────── */
+
+
+  .toast {
+    @apply flex items-center gap-3 min-w-[280px] px-4 py-3 rounded-xl
+           bg-surface ring-1 ring-border shadow-card-hover;
+  }
+
+  .toast-icon--ok { @apply w-7 h-7 rounded-full bg-success/15 text-success grid place-items-center; }
+
+  .toast-icon--info { @apply w-7 h-7 rounded-full bg-primary/15 text-primary grid place-items-center; }
+
+  .toast-icon--warning { @apply w-7 h-7 rounded-full bg-warning/15 text-warning grid place-items-center; }
+
+  .toast-icon--danger { @apply w-7 h-7 rounded-full bg-destructive/15 text-destructive grid place-items-center; }
+
+/* ── Empty state ───────────────────────────────────────────────────── */
+
+
+  .empty-state {
+    @apply flex flex-col items-center justify-center text-center px-6 py-16 gap-3;
+  }
+
+  .empty-state-icon {
+    @apply w-12 h-12 rounded-2xl bg-foreground/[0.06] grid place-items-center text-muted-foreground;
+  }
+
+  .empty-state-title {
+    @apply text-sm font-medium text-foreground;
+  }
+
+  .empty-state-sub {
+    @apply text-xs text-muted-foreground max-w-sm;
+  }
+
+/* ── Confirm dialog (replaces window.confirm) ─────────────────────── */
+
+
+  .confirm-overlay {
+    @apply fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm
+           flex items-center justify-center px-4;
+  }
+
+  .confirm-panel {
+    @apply w-full max-w-md rounded-2xl
+           bg-surface ring-1 ring-border shadow-2xl
+           p-6 flex flex-col gap-3;
+  }
+
+  .confirm-title {
+    @apply text-base font-semibold text-foreground;
+  }
+
+  .confirm-body {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .confirm-actions {
+    @apply flex items-center justify-end gap-2 mt-2;
+  }
+
+/* ── Selection toolbar (floating top pill) ─────────────────────────── */
+
+
+/* Visible whenever 1+ rows are selected in a DataTable. Anchored to the
+     top center of the viewport so it doesn't fight with the page header
+     and stays in the same place across pages. */
+
+
+  .toolbar-btn {
+    @apply inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg
+           text-sm text-foreground/80
+           transition-colors hover:bg-foreground/[0.06] shrink-0;
+  }
+
+  .toolbar-btn--danger {
+    @apply text-destructive hover:bg-destructive/10;
+  }
+
+/* ── Context menu (right-click) ────────────────────────────────────── */
+
+
+  .menu {
+    @apply fixed z-50 rounded-xl
+           bg-surface ring-1 ring-border shadow-2xl
+           p-1 text-sm min-w-[160px];
+  }
+
+  .menu-item {
+    @apply flex items-center gap-2.5 w-full px-3 py-2 rounded-lg
+           text-foreground/90 text-left
+           cursor-pointer transition-colors
+           hover:bg-accent
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .menu-item kbd {
+    @apply ml-auto text-[10px] text-muted-foreground font-mono;
+  }
+
+  .menu-item--danger {
+    @apply text-destructive hover:bg-destructive/10;
+  }
+
+  .menu-sep {
+    @apply my-1 h-px bg-foreground/10;
+  }
+
+/* ── Audit page filter bar ─────────────────────────────────────────── */
+
+
+/* ── Settings page sections ───────────────────────────────────────── */
+
+
+/* Admin → billing → per-plan price-id rows. Two stacked inputs
+     (monthly + yearly) with a plan-name header. */
+
+
+/* ── MFA challenge + Security page ────────────────────────────────── */
+
+
+  .auth-card {
+    @apply w-full max-w-sm rounded-2xl bg-surface ring-1 ring-border shadow-xl
+           p-6 flex flex-col gap-3;
+  }
+
+  .auth-icon {
+    @apply w-10 h-10 rounded-xl bg-primary/15 text-primary grid place-items-center;
+  }
+
+  .auth-title {
+    @apply text-base font-semibold text-foreground;
+  }
+
+  .auth-sub {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .auth-form {
+    @apply mt-2 flex flex-col gap-2;
+  }
+
+  .auth-footer {
+    @apply mt-3 pt-3 border-t border-border flex items-center justify-between;
+  }
+
+/* ── Delegation hint (NS records the customer must set at registrar) */
+
+
+/* Info-icon popover that re-surfaces the delegation snippet after
+     the banner is dismissed. Native <details>: the summary is the
+     trigger, the body is positioned absolutely below it. */
+
+
+/* ── Zone header ───────────────────────────────────────────────────── */
+
+
+/* ── Notification channel event picker + reveal card ──────────────── */
+
+
+  .reveal-card {
+    @apply mx-6 mb-6 rounded-2xl bg-primary/5 ring-1 ring-primary/30 p-5
+           flex items-start gap-3;
+  }
+
+  .reveal-icon {
+    @apply w-10 h-10 rounded-xl bg-primary/15 text-primary grid place-items-center shrink-0;
+  }
+
+  .reveal-body {
+    @apply min-w-0 flex-1 flex flex-col gap-2;
+  }
+
+  .reveal-title {
+    @apply text-sm font-semibold text-foreground;
+  }
+
+  .reveal-sub {
+    @apply text-xs text-muted-foreground;
+  }
+
+  .reveal-secret-row {
+    @apply mt-1 flex items-center gap-2;
+  }
+
+  .reveal-secret {
+    @apply flex-1 font-mono text-xs bg-foreground/[0.04] border border-border
+           rounded-lg px-3 py-2 break-all;
+  }
+
+/* ── Live-dig result panel ─────────────────────────────────────────── */
+
+
+/* ── Admin dashboard tabs + stat tiles ─────────────────────────────── */
+
+
+/* ── Disabled-record affordance (used in record list rows) ─────────── */
+
+
+  .chip--dimmed {
+    @apply opacity-50;
+  }
+
+}

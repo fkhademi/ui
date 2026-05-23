@@ -1,0 +1,84 @@
+/* Design tokens — single source of truth for color, radius, motion.
+ *
+ * Override pattern: consuming apps import this file first, then their own
+ * `app-tokens.css` redefines the few variables they care to differ on
+ * (typically just `--primary`). Everything else stays consistent across
+ * the *.app family.
+ *
+ * Color values are HSL channels (no `hsl()` wrapper) so the Tailwind
+ * preset can compose them with `<alpha-value>` and per-utility opacity
+ * works as expected.
+ */
+
+:root {
+  /* Surfaces & ink */
+  --background: 0 0% 98%;
+  --foreground: 240 10% 4%;
+  --surface: 0 0% 100%;
+  --border: 240 6% 90%;
+  --input: 240 6% 90%;
+  --ring: 240 6% 90%;
+
+  /* Brand — neutral indigo default. Apps override. */
+  --primary: 240 6% 10%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 240 5% 96%;
+  --secondary-foreground: 240 6% 10%;
+
+  --muted: 240 5% 96%;
+  --muted-foreground: 240 4% 46%;
+
+  --accent: 240 5% 96%;
+  --accent-foreground: 240 6% 10%;
+
+  /* Semantic state */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 100%;
+
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
+
+  /* Shape */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.dark {
+  --background: 240 10% 4%;
+  --foreground: 0 0% 98%;
+  --surface: 240 6% 10%;
+  --border: 240 4% 16%;
+  --input: 240 4% 16%;
+  --ring: 240 4% 16%;
+
+  --primary: 0 0% 98%;
+  --primary-foreground: 240 6% 10%;
+
+  --secondary: 240 4% 16%;
+  --secondary-foreground: 0 0% 98%;
+
+  --muted: 240 4% 16%;
+  --muted-foreground: 240 5% 65%;
+
+  --accent: 240 4% 16%;
+  --accent-foreground: 0 0% 98%;
+
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 0 0% 98%;
+
+  --success: 142 60% 50%;
+  --success-foreground: 0 0% 8%;
+
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 98%;
+}
