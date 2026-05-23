@@ -1,0 +1,11 @@
+@layer utilities {
+  /* Safe-area utilities for iOS notch / Android nav */
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { scrollbar-width: none; }
+
+  /* Tabular numerals for QPS / latency / counts */
+  .num { font-variant-numeric: tabular-nums; }
+}
