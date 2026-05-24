@@ -157,12 +157,22 @@
   }
 
   /* Collapsed-rail state — consumer app toggles the modifier; the CSS
-     hides the labels (so JSX stays unchanged) and centers everything.
-     Apps that don't want a collapse toggle simply never add the class. */
+     hides the wordmark / labels (so JSX stays unchanged) and centers
+     everything. Apps that don't want a collapse toggle simply never
+     add the class.
+     Width is `md:w-16` (4rem / 64px) — a hair wider than the previous
+     w-14 so icons + the collapse chevron have breathing room. */
   .app-sidebar--collapsed {
-    @apply md:w-14;
+    @apply md:w-16;
   }
-  .app-sidebar--collapsed .app-sidebar-brand > :not(:first-child),
+  /* Hide *labels* (any <span>) inside the brand and nav items, plus
+     the entire user-info block / theme strip. The collapse toggle
+     uses a <button> and never a <span>, so it survives this rule —
+     consumers can place it inline with the brand without it being
+     suppressed. (Previous rule used `:not(:first-child)` which also
+     hid sibling buttons; that prevented the recommended top-row
+     placement.) */
+  .app-sidebar--collapsed .app-sidebar-brand span,
   .app-sidebar--collapsed .app-sidebar-item > span,
   .app-sidebar--collapsed .app-sidebar-heading > span,
   .app-sidebar--collapsed .app-sidebar-user,
@@ -180,13 +190,15 @@
     @apply px-1;
   }
 
-  /* Collapse-toggle button — small chevron at the bottom of the
-     sidebar. Survives the collapsed-state hide rules so the user
-     can always click to expand again. */
+  /* Collapse-toggle button — small chevron, recommended placement is
+     the brand row's right edge so it never moves between states.
+     `w-7 h-7` matches the brand's home-icon size; uses the same
+     hover-accent treatment as nav items. The 180° flip on collapse
+     is the universal directional hint. */
   .app-sidebar-collapse {
-    @apply flex items-center justify-center w-full h-8 rounded-md
+    @apply inline-flex items-center justify-center w-7 h-7 rounded-md
            text-muted-foreground hover:text-foreground hover:bg-accent
-           cursor-pointer transition-colors;
+           cursor-pointer transition-colors shrink-0;
   }
   .app-sidebar-collapse-icon {
     @apply transition-transform duration-200;
@@ -196,7 +208,8 @@
   }
 
   .app-sidebar-brand {
-    @apply flex items-center gap-2 px-4 h-14 border-b border-border
+    @apply flex items-center justify-between gap-2 px-4 h-14
+           border-b border-border
            text-sm font-semibold tracking-tight text-foreground;
   }
 

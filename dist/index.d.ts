@@ -124,20 +124,29 @@ declare function EmptyState({ icon, title, subtitle, action, }: {
  *
  *   const [collapsed, setCollapsed] = useSidebarCollapsed('myapp');
  *   <aside className={`app-sidebar${collapsed ? ' app-sidebar--collapsed' : ''}`}>
+ *     <div className="app-sidebar-brand">
+ *       <Link to="/">...brand...</Link>
+ *       <SidebarCollapseToggle collapsed={collapsed}
+ *                              onToggle={() => setCollapsed(v => !v)} />
+ *     </div>
  *     ...
- *     <SidebarCollapseToggle collapsed={collapsed} onToggle={() => setCollapsed(v => !v)} />
  *   </aside>
+ *
+ * Recommended placement is the right edge of the brand row — that's
+ * the only spot in the rail that never moves between collapsed and
+ * expanded states. Hide rules for the collapsed state target spans
+ * specifically so the <button> here survives.
  *
  * State persists per-app to localStorage under `<key>-sidebar-collapsed`
  * so each app keeps its own preference.
  */
 declare function useSidebarCollapsed(storageKey: string): [boolean, (next: boolean | ((v: boolean) => boolean)) => void];
 /**
- * Visual toggle. Drop it inside the sidebar footer:
- *   <SidebarCollapseToggle collapsed={collapsed} onToggle={() => ...} />
+ * Visual toggle. Drop it on the right edge of the .app-sidebar-brand
+ * row (see useSidebarCollapsed comment above for the recommended JSX).
  *
- * The chevron rotates 180° in the collapsed state via .app-sidebar--collapsed
- * scoping the icon class.
+ * The chevron rotates 180° in the collapsed state via
+ * .app-sidebar--collapsed scoping the icon class.
  */
 declare function SidebarCollapseToggle({ collapsed, onToggle, }: {
     collapsed: boolean;
