@@ -16,3 +16,4 @@ export { SettingsCard, SettingsCards } from './components/SettingsCard';
 export { Field } from './components/Field';
 export { FieldHelp } from './components/FieldHelp';
 export { EmptyState } from './components/EmptyState';
+export { useSidebarCollapsed, SidebarCollapseToggle } from './components/SidebarCollapse';

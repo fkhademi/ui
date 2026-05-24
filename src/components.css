@@ -148,10 +148,51 @@
        no longer grows with long page content; `self-start` overrides
        the flex parent's default `align-items: stretch` which would
        defeat the sticky height. The sidebar itself scrolls when its
-       contents overflow the viewport. */
+       contents overflow the viewport. The width transition runs when
+       the .app-sidebar--collapsed modifier is toggled. */
     @apply hidden md:flex md:flex-col md:w-60 md:shrink-0
            md:border-r md:border-border md:bg-surface
-           md:sticky md:top-0 md:h-[100dvh] md:self-start md:overflow-y-auto;
+           md:sticky md:top-0 md:h-[100dvh] md:self-start md:overflow-y-auto
+           md:transition-[width] md:duration-200;
+  }
+
+  /* Collapsed-rail state — consumer app toggles the modifier; the CSS
+     hides the labels (so JSX stays unchanged) and centers everything.
+     Apps that don't want a collapse toggle simply never add the class. */
+  .app-sidebar--collapsed {
+    @apply md:w-14;
+  }
+  .app-sidebar--collapsed .app-sidebar-brand > :not(:first-child),
+  .app-sidebar--collapsed .app-sidebar-item > span,
+  .app-sidebar--collapsed .app-sidebar-heading > span,
+  .app-sidebar--collapsed .app-sidebar-user,
+  .app-sidebar--collapsed .app-sidebar-theme {
+    @apply hidden;
+  }
+  .app-sidebar--collapsed .app-sidebar-brand {
+    @apply justify-center px-0;
+  }
+  .app-sidebar--collapsed .app-sidebar-item {
+    @apply justify-center px-2;
+  }
+  .app-sidebar--collapsed .app-sidebar-section,
+  .app-sidebar--collapsed .app-sidebar-footer {
+    @apply px-1;
+  }
+
+  /* Collapse-toggle button — small chevron at the bottom of the
+     sidebar. Survives the collapsed-state hide rules so the user
+     can always click to expand again. */
+  .app-sidebar-collapse {
+    @apply flex items-center justify-center w-full h-8 rounded-md
+           text-muted-foreground hover:text-foreground hover:bg-accent
+           cursor-pointer transition-colors;
+  }
+  .app-sidebar-collapse-icon {
+    @apply transition-transform duration-200;
+  }
+  .app-sidebar--collapsed .app-sidebar-collapse-icon {
+    @apply rotate-180;
   }
 
   .app-sidebar-brand {
