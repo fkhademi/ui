@@ -17,3 +17,10 @@ export { Field } from './components/Field';
 export { FieldHelp } from './components/FieldHelp';
 export { EmptyState } from './components/EmptyState';
 export { useSidebarCollapsed, SidebarCollapseToggle } from './components/SidebarCollapse';
+export { AppShell } from './components/AppShell';
+export type {
+  AppShellProps,
+  AppShellBrand,
+  AppShellNavItem,
+  AppShellUser,
+} from './components/AppShell';
