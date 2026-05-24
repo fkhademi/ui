@@ -118,4 +118,30 @@ declare function EmptyState({ icon, title, subtitle, action, }: {
     action?: ReactNode;
 }): react_jsx_runtime.JSX.Element;
 
-export { EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards };
+/**
+ * Small wrapper hook + button for collapsing the .app-sidebar rail.
+ * Apps that use the shared `.app-sidebar` class can opt in by:
+ *
+ *   const [collapsed, setCollapsed] = useSidebarCollapsed('myapp');
+ *   <aside className={`app-sidebar${collapsed ? ' app-sidebar--collapsed' : ''}`}>
+ *     ...
+ *     <SidebarCollapseToggle collapsed={collapsed} onToggle={() => setCollapsed(v => !v)} />
+ *   </aside>
+ *
+ * State persists per-app to localStorage under `<key>-sidebar-collapsed`
+ * so each app keeps its own preference.
+ */
+declare function useSidebarCollapsed(storageKey: string): [boolean, (next: boolean | ((v: boolean) => boolean)) => void];
+/**
+ * Visual toggle. Drop it inside the sidebar footer:
+ *   <SidebarCollapseToggle collapsed={collapsed} onToggle={() => ...} />
+ *
+ * The chevron rotates 180° in the collapsed state via .app-sidebar--collapsed
+ * scoping the icon class.
+ */
+declare function SidebarCollapseToggle({ collapsed, onToggle, }: {
+    collapsed: boolean;
+    onToggle: () => void;
+}): react_jsx_runtime.JSX.Element;
+
+export { EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, useSidebarCollapsed };
