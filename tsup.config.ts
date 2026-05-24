@@ -14,5 +14,5 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['react', 'react-dom', 'lucide-react'],
+  external: ['react', 'react-dom', 'react-router-dom', 'lucide-react'],
 });
