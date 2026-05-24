@@ -160,10 +160,19 @@
      hides the wordmark / labels (so JSX stays unchanged) and centers
      everything. Apps that don't want a collapse toggle simply never
      add the class.
-     Width is `md:w-16` (4rem / 64px) — a hair wider than the previous
-     w-14 so icons + the collapse chevron have breathing room. */
+     Width is `md:w-20` (5rem / 80px). Wide enough that 20px icons
+     (see `svg` rule below) have margin on each side; narrow enough
+     that the rail still reads as a rail and not a half-open panel. */
   .app-sidebar--collapsed {
-    @apply md:w-16;
+    @apply md:w-20;
+  }
+  /* Bump nav-item icons from their JSX-default 16px to 20px when
+     collapsed. The labels are hidden in this state, so the icon IS
+     the affordance — under-sized icons in a wider rail look adrift.
+     Expanded state keeps the JSX size (typically 16) for the
+     icon-plus-label rhythm. */
+  .app-sidebar--collapsed .app-sidebar-item > svg {
+    @apply w-5 h-5;
   }
   /* Hide *labels* (any <span>) inside the brand and nav items, plus
      the entire user-info block / theme strip. The collapse toggle
