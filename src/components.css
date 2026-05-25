@@ -590,23 +590,33 @@
 
 /* ── Modal ─────────────────────────────────────────────────────────── */
 
+/* Positioning lives on `.modal-positioner` (a fixed-inset overlay that
+   centers via flex) and styling/sizing lives on `.modal`. Split so a
+   consumer can wrap the inner element in `<motion.div>` for scale/y
+   entrance animations without the framer-motion transform fighting a
+   `-translate-x/y-1/2` centering trick on the same element.
+   The positioner is `pointer-events-none` so the backdrop click stays
+   on its own overlay; `.modal` re-enables pointer events on the panel. */
+  .modal-positioner {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none;
+  }
 
   .modal {
-    @apply fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2
-           w-[min(92vw,520px)] rounded-2xl
-           bg-surface ring-1 ring-border shadow-2xl overflow-hidden;
+    @apply w-[min(92vw,520px)] max-h-[90vh] rounded-2xl
+           bg-surface ring-1 ring-border shadow-2xl
+           flex flex-col overflow-hidden pointer-events-auto;
   }
 
   .modal-header {
-    @apply flex items-center justify-between px-5 h-14 border-b border-border;
+    @apply flex items-center justify-between px-5 h-14 border-b border-border shrink-0;
   }
 
   .modal-body {
-    @apply px-5 py-5;
+    @apply px-5 py-5 overflow-y-auto;
   }
 
   .modal-footer {
-    @apply px-5 h-16 border-t border-border flex items-center justify-end gap-2;
+    @apply px-5 h-16 border-t border-border flex items-center justify-end gap-2 shrink-0;
   }
 
 /* ── Workspace dashboard ──────────────────────────────────────────── */
