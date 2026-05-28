@@ -1,5 +1,5 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { ReactNode } from 'react';
+import { ReactNode, RefObject, CSSProperties } from 'react';
 
 /**
  * Standard page header used at the top of every authenticated page.
@@ -201,4 +201,69 @@ interface AppShellProps {
  */
 declare function AppShell({ brand, navItems, user, onLogout, collapseKey, children, }: AppShellProps): react_jsx_runtime.JSX.Element;
 
-export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, useSidebarCollapsed };
+/**
+ * Anchored-popover plumbing. Tracks a trigger's bounding rect so a
+ * portal-rendered menu can be positioned with `position: fixed`,
+ * floating over any `overflow-hidden` ancestor (settings cards, drawer
+ * bodies, scroll containers).
+ *
+ * Typical use:
+ *
+ *   const [open, setOpen] = useState(false);
+ *   const { triggerRef, menuRef, menuStyle } = useFloatingMenu({
+ *     open,
+ *     onClose: () => setOpen(false),
+ *     align: 'stretch',
+ *   });
+ *
+ *   return (
+ *     <>
+ *       <button ref={triggerRef} onClick={() => setOpen(v => !v)}>…</button>
+ *       {open && createPortal(
+ *         <div ref={menuRef} className="menu" style={menuStyle}>
+ *           …items…
+ *         </div>,
+ *         document.body,
+ *       )}
+ *     </>
+ *   );
+ *
+ * The hook handles three concerns the caller would otherwise repeat:
+ *   1. Recomputing the menu position on resize and scroll (capture phase,
+ *      so nested scrollers like a drawer body trigger updates too).
+ *   2. Dismissing on outside-click. Both the trigger and the portaled
+ *      menu are treated as "inside" — clicks within either keep the
+ *      menu open.
+ *   3. Dismissing on Escape.
+ *
+ * The returned `menuStyle` is undefined when the menu is closed or the
+ * trigger hasn't measured yet — guard your render with `{open && style && …}`
+ * to avoid a brief un-positioned flash.
+ *
+ * Alignment:
+ *   - 'stretch' (default): menu matches the trigger's width. Right for
+ *     full-width select-style triggers.
+ *   - 'left':  menu's left edge aligns with the trigger's left edge,
+ *     menu sizes to its content.
+ *   - 'right': menu's right edge aligns with the trigger's right edge,
+ *     menu sizes to its content. Right for icon-button triggers anchored
+ *     to a header's right side.
+ */
+interface UseFloatingMenuOptions {
+    open: boolean;
+    onClose: () => void;
+    /** How the menu's horizontal position relates to the trigger. */
+    align?: 'stretch' | 'left' | 'right';
+    /** Vertical gap between trigger bottom and menu top, in px. Default 4. */
+    gap?: number;
+}
+interface UseFloatingMenuResult<TriggerEl extends HTMLElement, MenuEl extends HTMLElement> {
+    triggerRef: RefObject<TriggerEl>;
+    menuRef: RefObject<MenuEl>;
+    /** `undefined` until the trigger has been measured. Spread onto the
+     *  menu element to position it. */
+    menuStyle: CSSProperties | undefined;
+}
+declare function useFloatingMenu<TriggerEl extends HTMLElement = HTMLButtonElement, MenuEl extends HTMLElement = HTMLDivElement>({ open, onClose, align, gap, }: UseFloatingMenuOptions): UseFloatingMenuResult<TriggerEl, MenuEl>;
+
+export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, useFloatingMenu, useSidebarCollapsed };

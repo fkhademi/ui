@@ -24,3 +24,8 @@ export type {
   AppShellNavItem,
   AppShellUser,
 } from './components/AppShell';
+export { useFloatingMenu } from './components/FloatingMenu';
+export type {
+  UseFloatingMenuOptions,
+  UseFloatingMenuResult,
+} from './components/FloatingMenu';

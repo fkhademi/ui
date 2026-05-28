@@ -252,7 +252,76 @@ function AppShellNavLink({ to, icon, label, badge }) {
     }
   );
 }
+function useFloatingMenu({
+  open,
+  onClose,
+  align = "stretch",
+  gap = 4
+}) {
+  const triggerRef = useRef(null);
+  const menuRef = useRef(null);
+  const [rect, setRect] = useState(null);
+  useEffect(() => {
+    if (!open || !triggerRef.current) {
+      setRect(null);
+      return;
+    }
+    const update = () => setRect(triggerRef.current?.getBoundingClientRect() ?? null);
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    const onMouseDown = (e) => {
+      const t = e.target;
+      if (triggerRef.current?.contains(t)) return;
+      if (menuRef.current?.contains(t)) return;
+      onClose();
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+  const menuStyle = rect ? computeStyle(rect, align, gap) : void 0;
+  return { triggerRef, menuRef, menuStyle };
+}
+function computeStyle(rect, align, gap) {
+  const top = rect.bottom + gap;
+  switch (align) {
+    case "right":
+      return {
+        position: "fixed",
+        top,
+        right: window.innerWidth - rect.right
+      };
+    case "left":
+      return {
+        position: "fixed",
+        top,
+        left: rect.left
+      };
+    case "stretch":
+    default:
+      return {
+        position: "fixed",
+        top,
+        left: rect.left,
+        width: rect.width
+      };
+  }
+}
 
-export { AppShell, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, useSidebarCollapsed };
+export { AppShell, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, useFloatingMenu, useSidebarCollapsed };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
