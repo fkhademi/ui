@@ -1,6 +1,6 @@
 {
   "name": "@doon/ui",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Shared design tokens, base styles, semantic component classes, React primitives, and Tailwind preset.",
   "license": "MIT",
   "author": "fkhademi",
