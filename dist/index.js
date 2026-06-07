@@ -322,6 +322,97 @@ function computeStyle(rect, align, gap) {
   }
 }
 
-export { AppShell, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, useFloatingMenu, useSidebarCollapsed };
+// src/brands/dnswiz.ts
+var dnswizBrand = {
+  name: "dnswiz",
+  palette: {
+    accent: "#4ade80",
+    ink: "#0a0a0a"
+  },
+  favicon: {
+    viewBox: "0 0 32 32",
+    inner: `
+      <rect width="32" height="32" rx="7" fill="#0a0a0a"/>
+      <circle cx="16" cy="16" r="10.5" fill="none" stroke="#4ade80" stroke-width="2"/>
+      <circle cx="16" cy="16" r="4" fill="#4ade80"/>
+    `.trim()
+  },
+  mark: {
+    viewBox: "0 0 16 16",
+    inner: `
+      <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="8" cy="8" r="2.5" fill="currentColor"/>
+    `.trim()
+  },
+  wordmark: {
+    viewBox: "0 0 320 96",
+    inner: `
+      <text x="0" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui, sans-serif" font-size="84" font-weight="700" letter-spacing="-3.6" fill="#0a0a0a">dnswiz</text>
+      <circle cx="296" cy="68" r="12" fill="none" stroke="#4ade80" stroke-width="2.5"/>
+      <circle cx="296" cy="68" r="5" fill="#4ade80"/>
+    `.trim()
+  }
+};
+
+// src/brands/doon.ts
+var doonBrand = {
+  name: "doon",
+  palette: {
+    accent: "#c2410c",
+    ink: "#0a0a0a"
+  },
+  favicon: {
+    viewBox: "0 0 32 32",
+    inner: `
+      <rect width="32" height="32" rx="7" fill="#0a0a0a"/>
+      <circle cx="16" cy="16" r="6" fill="#c2410c"/>
+    `.trim()
+  },
+  mark: {
+    viewBox: "0 0 16 16",
+    inner: `
+      <circle cx="8" cy="8" r="3.5" fill="currentColor"/>
+    `.trim()
+  },
+  wordmark: {
+    viewBox: "0 0 320 96",
+    inner: `
+      <text x="0" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui, sans-serif" font-size="84" font-weight="700" letter-spacing="-3.6" fill="#0a0a0a">doon</text>
+      <circle cx="278" cy="68" r="12" fill="#c2410c"/>
+    `.trim()
+  }
+};
+
+// src/brands/index.ts
+var brands = {
+  dnswiz: dnswizBrand,
+  doon: doonBrand
+};
+function BrandMark({
+  name,
+  variant = "mark",
+  size = 16,
+  className
+}) {
+  const spec = brands[name][variant];
+  const [, , vbWStr, vbHStr] = spec.viewBox.split(/\s+/);
+  const vbW = Number(vbWStr) || 1;
+  const vbH = Number(vbHStr) || 1;
+  const height = Math.round(size * vbH / vbW);
+  return /* @__PURE__ */ jsx(
+    "svg",
+    {
+      viewBox: spec.viewBox,
+      width: size,
+      height,
+      role: "img",
+      "aria-label": name,
+      className,
+      dangerouslySetInnerHTML: { __html: spec.inner }
+    }
+  );
+}
+
+export { AppShell, BrandMark, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, brands, dnswizBrand, doonBrand, useFloatingMenu, useSidebarCollapsed };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
