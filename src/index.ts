@@ -29,3 +29,7 @@ export type {
   UseFloatingMenuOptions,
   UseFloatingMenuResult,
 } from './components/FloatingMenu';
+export { BrandMark } from './components/BrandMark';
+export type { BrandMarkProps } from './components/BrandMark';
+export { brands, dnswizBrand, doonBrand } from './brands';
+export type { BrandName, BrandSpec, BrandPalette, BrandSvgSpec } from './brands';

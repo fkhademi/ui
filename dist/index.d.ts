@@ -266,4 +266,116 @@ interface UseFloatingMenuResult<TriggerEl extends HTMLElement, MenuEl extends HT
 }
 declare function useFloatingMenu<TriggerEl extends HTMLElement = HTMLButtonElement, MenuEl extends HTMLElement = HTMLDivElement>({ open, onClose, align, gap, }: UseFloatingMenuOptions): UseFloatingMenuResult<TriggerEl, MenuEl>;
 
-export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, useFloatingMenu, useSidebarCollapsed };
+/**
+ * Brand specification shape. Each doon-family product (doon, dnswiz,
+ * pgwiz, pwwiz, …) ships a BrandSpec describing its palette and the
+ * three canonical SVG renditions of its mark.
+ *
+ * SVG inner markup is a string so the same spec drives:
+ *   - React consumers (BrandMark with dangerouslySetInnerHTML)
+ *   - Astro consumers (set:html with the same string)
+ *   - Build-time emitters that write favicon.svg / mark.svg /
+ *     wordmark.svg out to a public/ dir for static serving
+ *
+ * Keep the strings free of script content and event handlers — they
+ * are pure shape + color declarations only.
+ */
+interface BrandPalette {
+    /** Accent hex (the brand's primary expressive color). */
+    accent: string;
+    /** Ink hex (the dark surface for favicon tiles, wordmark text). */
+    ink: string;
+}
+interface BrandSvgSpec {
+    /** SVG viewBox attribute, e.g. "0 0 32 32". */
+    viewBox: string;
+    /** SVG inner content as raw markup. No <svg> wrapper. */
+    inner: string;
+}
+interface BrandSpec {
+    /** Brand name used as the BrandMark `name` prop. */
+    name: string;
+    palette: BrandPalette;
+    /**
+     * Tile variant for tab icons and favicons. Includes the ink-tile
+     * background, so it works on any surface. Colors are hardcoded since
+     * the favicon SVG must look identical at every render site.
+     */
+    favicon: BrandSvgSpec;
+    /**
+     * Mark only, no background. Uses `currentColor` so consumers can
+     * theme it via the parent text color. The default sidebar / inline
+     * variant.
+     */
+    mark: BrandSvgSpec;
+    /**
+     * Wordmark: brand name in system-font bold with the accent shape at
+     * the end. Used for footers, social cards, hero illustrations.
+     */
+    wordmark: BrandSvgSpec;
+}
+
+/**
+ * dnswiz brand: dot inside a ring (the authoritative answer everyone
+ * resolves to). Sister to the doon.io mark which is the bare dot.
+ * Accent is dnswiz green (Tailwind green-400); ink is the standard
+ * near-black surface used across the doon family.
+ */
+declare const dnswizBrand: BrandSpec;
+
+/**
+ * doon.io brand: a single accent-orange dot. The parent brand of the
+ * doon-family products; dnswiz / pgwiz / pwwiz marks extend this with
+ * their own shapes around the same dot anchor.
+ */
+declare const doonBrand: BrandSpec;
+
+declare const brands: {
+    readonly dnswiz: BrandSpec;
+    readonly doon: BrandSpec;
+};
+type BrandName = keyof typeof brands;
+
+interface BrandMarkProps {
+    /** Which doon-family brand to render. */
+    name: BrandName;
+    /**
+     * Which rendition.
+     *
+     *   `mark` (default) — the symbol only, uses `currentColor` so the
+     *     consumer can theme it via parent text color. Use inside a
+     *     colored tile (e.g. `bg-primary/15 text-primary`).
+     *
+     *   `favicon` — ink-square tile with the mark inside, brand colors
+     *     hardcoded. Use when there's no surrounding tile (tab icons,
+     *     sign-in pages, og images).
+     *
+     *   `wordmark` — brand name in system-font bold with the accent
+     *     shape at the end. Use for footers, hero illustrations.
+     */
+    variant?: 'mark' | 'favicon' | 'wordmark';
+    /**
+     * Width in CSS px. Height is derived from the viewBox aspect ratio.
+     * Default 16 (matches favicon / sidebar inline use). Set to 28 for
+     * the sign-in hero tile, 64+ for hero illustrations.
+     */
+    size?: number;
+    /** Optional className passthrough so the consumer can tweak color
+     *  on `mark` (uses currentColor), or add hover effects. */
+    className?: string;
+}
+/**
+ * Brand-mark renderer for the doon family. Single source of truth for
+ * every dnswiz / doon / pgwiz / pwwiz logo render across React and
+ * Astro consumers.
+ *
+ *   <BrandMark name="dnswiz" />                  inline 16px mark
+ *   <BrandMark name="dnswiz" variant="favicon" size={28} />
+ *   <BrandMark name="dnswiz" variant="wordmark" size={120} />
+ *
+ * The SVG inner markup comes from `src/brands/<name>.ts`. Update there
+ * to update everywhere.
+ */
+declare function BrandMark({ name, variant, size, className, }: BrandMarkProps): react_jsx_runtime.JSX.Element;
+
+export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useFloatingMenu, useSidebarCollapsed };
