@@ -267,6 +267,48 @@ interface UseFloatingMenuResult<TriggerEl extends HTMLElement, MenuEl extends HT
 declare function useFloatingMenu<TriggerEl extends HTMLElement = HTMLButtonElement, MenuEl extends HTMLElement = HTMLDivElement>({ open, onClose, align, gap, }: UseFloatingMenuOptions): UseFloatingMenuResult<TriggerEl, MenuEl>;
 
 /**
+ * Show/hide-columns control for data tables. The presentational half of
+ * "optional columns": a `.btn-secondary` trigger that opens a `.menu`
+ * popover (positioned via useFloatingMenu) listing each hideable column
+ * with a checkbox. The table owns the actual visibility state — this
+ * component is deliberately framework-agnostic (no @tanstack/react-table
+ * dependency); it just renders items and reports toggles.
+ *
+ * Pair it with `useColumnVisibility` below to persist the choice.
+ */
+interface ColumnToggleItem {
+    id: string;
+    label: string;
+    visible: boolean;
+    /** When false the row is shown but locked on (can't be hidden). */
+    canHide?: boolean;
+}
+interface ColumnToggleProps {
+    items: ColumnToggleItem[];
+    onToggle: (id: string) => void;
+    /** Trigger label + menu heading. Default "Columns". */
+    label?: string;
+    className?: string;
+}
+declare function ColumnToggle({ items, onToggle, label, className }: ColumnToggleProps): react_jsx_runtime.JSX.Element;
+/**
+ * Persisted column-visibility state, shaped to drop straight into
+ * @tanstack/react-table's `state.columnVisibility` /
+ * `onColumnVisibilityChange` (a plain `id -> visible` map where a `false`
+ * entry hides the column; absent means visible). Kept tanstack-shaped but
+ * tanstack-free so the hook has no table-library dependency.
+ *
+ * Persists per `storageKey` to localStorage (`<key>-cols`), mirroring
+ * `useSidebarCollapsed`. `defaultHidden` seeds columns that should start
+ * hidden the first time, before the user has expressed a preference.
+ */
+type ColumnVisibility = Record<string, boolean>;
+declare function useColumnVisibility(storageKey: string, defaultHidden?: string[]): {
+    columnVisibility: ColumnVisibility;
+    setColumnVisibility: (updater: ColumnVisibility | ((prev: ColumnVisibility) => ColumnVisibility)) => void;
+};
+
+/**
  * Brand specification shape. Each doon-family product (doon, dnswiz,
  * pgwiz, pwwiz, …) ships a BrandSpec describing its palette and the
  * three canonical SVG renditions of its mark.
@@ -378,4 +420,4 @@ interface BrandMarkProps {
  */
 declare function BrandMark({ name, variant, size, className, }: BrandMarkProps): react_jsx_runtime.JSX.Element;
 
-export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useFloatingMenu, useSidebarCollapsed };
+export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };

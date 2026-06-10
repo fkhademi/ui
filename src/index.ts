@@ -29,6 +29,12 @@ export type {
   UseFloatingMenuOptions,
   UseFloatingMenuResult,
 } from './components/FloatingMenu';
+export { ColumnToggle, useColumnVisibility } from './components/ColumnToggle';
+export type {
+  ColumnToggleItem,
+  ColumnToggleProps,
+  ColumnVisibility,
+} from './components/ColumnToggle';
 export { BrandMark } from './components/BrandMark';
 export type { BrandMarkProps } from './components/BrandMark';
 export { brands, dnswizBrand, doonBrand } from './brands';
