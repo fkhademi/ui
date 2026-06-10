@@ -1,5 +1,5 @@
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
-import { HelpCircle, ChevronLeft, LogOut, ChevronDown } from 'lucide-react';
+import { HelpCircle, ChevronLeft, LogOut, SlidersHorizontal, Check, ChevronDown } from 'lucide-react';
 import { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
@@ -321,6 +321,79 @@ function computeStyle(rect, align, gap) {
       };
   }
 }
+function ColumnToggle({ items, onToggle, label = "Columns", className }) {
+  const [open, setOpen] = useState(false);
+  const { triggerRef, menuRef, menuStyle } = useFloatingMenu({
+    open,
+    onClose: () => setOpen(false),
+    align: "right"
+  });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(
+      "button",
+      {
+        ref: triggerRef,
+        type: "button",
+        className: `btn-secondary h-9 px-3.5 text-xs${className ? ` ${className}` : ""}`,
+        onClick: () => setOpen((v) => !v),
+        "aria-haspopup": "menu",
+        "aria-expanded": open,
+        children: [
+          /* @__PURE__ */ jsx(SlidersHorizontal, { className: "w-4 h-4 mr-2" }),
+          label
+        ]
+      }
+    ),
+    open && menuStyle && // Rendered inline rather than portaled — `.menu` is position:fixed
+    // (via menuStyle) so it floats over the page without a react-dom
+    // dependency. The trigger sits in a table toolbar with no
+    // transformed/clipping ancestor, so fixed positioning is enough.
+    /* @__PURE__ */ jsxs("div", { ref: menuRef, className: "menu", style: menuStyle, role: "menu", children: [
+      /* @__PURE__ */ jsx("div", { className: "menu-heading", children: label }),
+      items.map((item) => {
+        const locked = item.canHide === false;
+        return /* @__PURE__ */ jsxs(
+          "button",
+          {
+            type: "button",
+            role: "menuitemcheckbox",
+            "aria-checked": item.visible,
+            className: "menu-item",
+            disabled: locked,
+            onClick: () => {
+              if (!locked) onToggle(item.id);
+            },
+            children: [
+              /* @__PURE__ */ jsx("span", { className: `column-toggle-check${item.visible ? " column-toggle-check--on" : ""}`, children: item.visible && /* @__PURE__ */ jsx(Check, { className: "w-3 h-3" }) }),
+              /* @__PURE__ */ jsx("span", { className: "flex-1", children: item.label })
+            ]
+          },
+          item.id
+        );
+      })
+    ] })
+  ] });
+}
+function useColumnVisibility(storageKey, defaultHidden = []) {
+  const fullKey = `${storageKey}-cols`;
+  const [columnVisibility, setColumnVisibility] = useState(() => {
+    try {
+      const raw = localStorage.getItem(fullKey);
+      if (raw) return JSON.parse(raw);
+    } catch {
+    }
+    const init = {};
+    for (const id of defaultHidden) init[id] = false;
+    return init;
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(fullKey, JSON.stringify(columnVisibility));
+    } catch {
+    }
+  }, [fullKey, columnVisibility]);
+  return { columnVisibility, setColumnVisibility };
+}
 
 // src/brands/dnswiz.ts
 var dnswizBrand = {
@@ -413,6 +486,6 @@ function BrandMark({
   );
 }
 
-export { AppShell, BrandMark, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, brands, dnswizBrand, doonBrand, useFloatingMenu, useSidebarCollapsed };
+export { AppShell, BrandMark, ColumnToggle, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
