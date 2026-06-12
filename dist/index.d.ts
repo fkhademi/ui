@@ -420,4 +420,154 @@ interface BrandMarkProps {
  */
 declare function BrandMark({ name, variant, size, className, }: BrandMarkProps): react_jsx_runtime.JSX.Element;
 
-export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, EmptyState, Field, FieldHelp, PageHeader, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
+/**
+ * Universal list primitive for the app.
+ *
+ * Selection model (Finder/Linear/Gmail-style):
+ *   click          → replace selection with just this row
+ *   Cmd/Ctrl+click → toggle this row in the current selection
+ *   Shift+click    → range-extend from the last clicked row
+ *   double-click   → activate (open edit drawer, navigate, …)
+ *   right-click    → context menu (caller renders), switches selection
+ *                    to the right-clicked row if it wasn't already in
+ *                    the selection
+ *
+ * Keyboard nav (when the table has focus — click any row first):
+ *   ↑ / ↓        move selection
+ *   Enter        activate single-selected row
+ *   Delete /
+ *   Backspace    fire onSelectionDelete
+ *   Esc          clear selection
+ *   Cmd/Ctrl+A   select all visible
+ */
+type Column<T> = {
+    /** Stable key used for sort + react keying. */
+    key: string;
+    /** Header label. */
+    label: string;
+    /** Whether the header is clickable to sort. */
+    sortable?: boolean;
+    /** Right-align (numeric/timestamp columns). */
+    align?: 'left' | 'right';
+    /** Custom cell renderer. If absent, renders String(row[key]). */
+    render?: (row: T) => ReactNode;
+    /** Returns a value to sort by. If absent, uses row[key]. */
+    sortValue?: (row: T) => string | number | null | undefined;
+    /** Returns text used for substring search on this column. If absent
+     *  but the column is listed in searchKeys, we fall back to row[key]. */
+    searchValue?: (row: T) => string | null | undefined;
+    /** Truncate the cell to one line with ellipsis and put the full text in
+     *  the native tooltip (title attribute). Uses searchValue when set,
+     *  otherwise falls back to the raw row[key]. Keeps long comments and
+     *  GSLB data summaries from blowing the row height up. */
+    truncate?: boolean;
+    /** Extra td className. */
+    className?: string;
+    /** Fixed column width (CSS, e.g. "60px" or "8rem"). Applied to both
+     *  th and td via inline style. Use for tight glyph-only columns
+     *  (gauge, icon) so they don't share the table's flex budget. */
+    width?: string;
+};
+type SortState = {
+    key: string;
+    dir: 'asc' | 'desc';
+} | null;
+type DataTableProps<T> = {
+    columns: Column<T>[];
+    rows: T[] | undefined;
+    getRowId: (row: T) => string;
+    isLoading?: boolean;
+    error?: Error | null;
+    /** Column keys that participate in substring search. Uses Column.searchValue
+     *  when defined, otherwise the raw row[key]. */
+    searchKeys?: string[];
+    defaultSort?: SortState;
+    defaultPageSize?: number;
+    pageSizes?: number[];
+    /** Owned by the parent so SelectionToolbar can render against it. */
+    selectedIds?: Set<string>;
+    onSelectionChange?: (ids: Set<string>) => void;
+    /** Double-click + Enter handler. Use for "open detail" / "open edit". */
+    onRowActivate?: (row: T) => void;
+    /** Plain single-click handler. Use when the table is read-only and
+     *  the row IS the detail target (e.g. audit log). Modifier-click
+     *  (Cmd/Ctrl/Shift) still goes through the selection path so users
+     *  can multi-select if the table also wires selection. */
+    onRowClick?: (row: T) => void;
+    /** Right-click. We give you cursor coords; you render the menu. */
+    onRowContext?: (row: T, x: number, y: number) => void;
+    /** Delete/Backspace key fires this with the current selection (or
+     *  with just the focused row if nothing's selected yet). The caller
+     *  is responsible for confirm + the actual delete. */
+    onSelectionDelete?: () => void;
+    /** Rendered when the dataset is empty (zero rows total, ignoring filter). */
+    emptyState?: ReactNode;
+    /** Slot rendered to the right of the toolbar (after the row count).
+     *  Use for low-frequency table-scoped actions (Import, Export, …) so
+     *  they don't compete with the primary page-header action. */
+    extraActions?: ReactNode;
+};
+type LegacyProps<T> = DataTableProps<T> & {
+    searchableKeys?: string[];
+};
+declare function DataTable<T>(p: LegacyProps<T>): react_jsx_runtime.JSX.Element;
+
+/**
+ * Floating top-pill toolbar that appears whenever 1+ rows are selected
+ * in a DataTable. Reuses the .selection-toolbar primitives lifted from
+ * pwsafe (see styles/components.css).
+ *
+ * Edit is enabled iff exactly one row is selected — multi-row edit is
+ * a feature, not a primitive. Bulk delete works on any count.
+ *
+ * Disable/Enable is shown when the caller provides both `anyActive` and
+ * the corresponding handler. If any selected row is active we show
+ * "Disable"; if every selected row is inactive we show "Enable". The
+ * caller decides what "active" means for its entity type.
+ *
+ * Extra actions go in `extra` between Edit and Delete.
+ */
+declare function SelectionToolbar(props: {
+    count: number;
+    onEdit?: () => void;
+    onDelete: () => void;
+    onClear: () => void;
+    /** Optional disable/enable controls. Both can be omitted for entities
+     *  that don't support being deactivated. */
+    anyActive?: boolean;
+    onDisable?: () => void;
+    onEnable?: () => void;
+    extra?: ReactNode;
+}): react_jsx_runtime.JSX.Element | null;
+
+/**
+ * Right-click menu, anchored to the cursor at the time of the
+ * contextmenu event. Reuses the .menu/.menu-item primitives lifted
+ * from pwsafe (see styles/components.css).
+ *
+ * Closes on:
+ *  - escape
+ *  - outside click
+ *  - any item click (caller closes after action)
+ *
+ * Position is auto-adjusted to stay on-screen.
+ */
+type ContextMenuItem = {
+    kind: 'action';
+    label: string;
+    icon?: ReactNode;
+    onClick: () => void;
+    danger?: boolean;
+    shortcut?: string;
+    disabled?: boolean;
+} | {
+    kind: 'sep';
+};
+declare function ContextMenu(props: {
+    x: number;
+    y: number;
+    items: ContextMenuItem[];
+    onClose: () => void;
+}): react_jsx_runtime.JSX.Element;
+
+export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, EmptyState, Field, FieldHelp, PageHeader, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
