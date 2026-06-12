@@ -950,6 +950,29 @@
     @apply my-1 h-px bg-foreground/10;
   }
 
+  /* ── Selection toolbar (floating top pill) ─────────────────────────── */
+  /* Visible whenever 1+ rows are selected in a DataTable. Anchored to the
+     top center of the viewport so it doesn't fight with the page header
+     and stays in the same place across pages. */
+  .selection-toolbar {
+    @apply fixed z-40
+           left-1/2 -translate-x-1/2
+           top-3
+           flex items-center gap-2 px-3 py-2 rounded-2xl
+           bg-surface/90 backdrop-blur-xl
+           ring-1 ring-border shadow-xl shadow-black/10
+           max-w-[calc(100vw-2rem)] overflow-hidden;
+  }
+  .selection-count {
+    @apply text-sm font-medium text-primary px-2 shrink-0;
+  }
+  .selection-actions {
+    @apply flex items-center gap-0.5 min-w-0 overflow-x-auto;
+  }
+  .selection-sep {
+    @apply w-px h-5 bg-foreground/15 mx-1 shrink-0;
+  }
+
 /* ── Audit page filter bar ─────────────────────────────────────────── */
 
 
