@@ -148,6 +148,7 @@ function Select({
   placeholder = "Select...",
   size = "md",
   block = false,
+  disabled = false,
   className = ""
 }) {
   const [open, setOpen] = useState(false);
@@ -193,11 +194,12 @@ function Select({
       "button",
       {
         type: "button",
+        disabled,
         "aria-haspopup": "listbox",
         "aria-expanded": open,
         onClick: () => setOpen((o) => !o),
         onKeyDown,
-        className: `flex ${block ? "w-full" : ""} items-center justify-between gap-2 rounded-lg border border-border bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 ${pad}`,
+        className: `flex ${block ? "w-full" : ""} items-center justify-between gap-2 rounded-lg border border-border bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${pad}`,
         children: [
           /* @__PURE__ */ jsx("span", { className: `truncate ${selected ? "" : "text-muted-foreground"}`, children: selected ? selected.label : placeholder }),
           /* @__PURE__ */ jsx(ChevronDown, { size: 14, className: "shrink-0 text-muted-foreground" })
