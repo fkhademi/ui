@@ -94,7 +94,7 @@ type SelectOption = {
  *
  *   <Select value={region} onChange={setRegion} options={[{value:'eu',label:'EU'}]} />
  */
-declare function Select({ value, onChange, options, placeholder, size, block, className, }: {
+declare function Select({ value, onChange, options, placeholder, size, block, disabled, className, }: {
     value: string;
     onChange: (value: string) => void;
     options: SelectOption[];
@@ -102,6 +102,7 @@ declare function Select({ value, onChange, options, placeholder, size, block, cl
     size?: 'sm' | 'md';
     /** Fill the container width (and left-align like a form field). */
     block?: boolean;
+    disabled?: boolean;
     className?: string;
 }): react_jsx_runtime.JSX.Element;
 

@@ -19,6 +19,7 @@ export function Select({
   placeholder = 'Select...',
   size = 'md',
   block = false,
+  disabled = false,
   className = '',
 }: {
   value: string;
@@ -28,6 +29,7 @@ export function Select({
   size?: 'sm' | 'md';
   /** Fill the container width (and left-align like a form field). */
   block?: boolean;
+  disabled?: boolean;
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -76,11 +78,12 @@ export function Select({
     <div ref={ref} className={`relative ${block ? 'block' : 'inline-block'} ${className}`}>
       <button
         type="button"
+        disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onKeyDown}
-        className={`flex ${block ? 'w-full' : ''} items-center justify-between gap-2 rounded-lg border border-border bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 ${pad}`}
+        className={`flex ${block ? 'w-full' : ''} items-center justify-between gap-2 rounded-lg border border-border bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${pad}`}
       >
         <span className={`truncate ${selected ? '' : 'text-muted-foreground'}`}>
           {selected ? selected.label : placeholder}
