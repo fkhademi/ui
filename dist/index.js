@@ -1,5 +1,5 @@
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
-import { HelpCircle, ChevronLeft, LogOut, SlidersHorizontal, Check, Search, ChevronUp, ChevronDown, X, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
+import { HelpCircle, ChevronDown, Check, ChevronLeft, LogOut, SlidersHorizontal, Search, ChevronUp, X, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
 import { useState, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
@@ -139,6 +139,97 @@ function Field({
     ] }),
     children,
     error ? /* @__PURE__ */ jsx("div", { className: "field-error", children: error }) : hint ? /* @__PURE__ */ jsx("div", { className: "field-hint", children: hint }) : null
+  ] });
+}
+function Select({
+  value,
+  onChange,
+  options,
+  placeholder = "Select...",
+  size = "md",
+  block = false,
+  className = ""
+}) {
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const ref = useRef(null);
+  const selected = options.find((o) => o.value === value);
+  useEffect(() => {
+    if (!open) return;
+    setActive(Math.max(0, options.findIndex((o) => o.value === value)));
+    const onClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    window.addEventListener("mousedown", onClick);
+    return () => window.removeEventListener("mousedown", onClick);
+  }, [open]);
+  function onKeyDown(e) {
+    if (!open) {
+      if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
+        e.preventDefault();
+        setOpen(true);
+      }
+      return;
+    }
+    if (e.key === "Escape") setOpen(false);
+    else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActive((a) => Math.min(options.length - 1, a + 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive((a) => Math.max(0, a - 1));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const o = options[active];
+      if (o) {
+        onChange(o.value);
+        setOpen(false);
+      }
+    }
+  }
+  const pad = size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-2 text-sm";
+  return /* @__PURE__ */ jsxs("div", { ref, className: `relative ${block ? "block" : "inline-block"} ${className}`, children: [
+    /* @__PURE__ */ jsxs(
+      "button",
+      {
+        type: "button",
+        "aria-haspopup": "listbox",
+        "aria-expanded": open,
+        onClick: () => setOpen((o) => !o),
+        onKeyDown,
+        className: `flex ${block ? "w-full" : ""} items-center justify-between gap-2 rounded-lg border border-border bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 ${pad}`,
+        children: [
+          /* @__PURE__ */ jsx("span", { className: `truncate ${selected ? "" : "text-muted-foreground"}`, children: selected ? selected.label : placeholder }),
+          /* @__PURE__ */ jsx(ChevronDown, { size: 14, className: "shrink-0 text-muted-foreground" })
+        ]
+      }
+    ),
+    open && /* @__PURE__ */ jsx(
+      "div",
+      {
+        role: "listbox",
+        className: "absolute z-50 mt-1 max-h-64 min-w-full overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg",
+        children: options.map((o, i) => /* @__PURE__ */ jsxs(
+          "button",
+          {
+            type: "button",
+            role: "option",
+            "aria-selected": o.value === value,
+            onMouseEnter: () => setActive(i),
+            onClick: () => {
+              onChange(o.value);
+              setOpen(false);
+            },
+            className: `flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${i === active ? "bg-accent" : ""} ${o.value === value ? "text-foreground" : "text-muted-foreground"}`,
+            children: [
+              /* @__PURE__ */ jsx(Check, { size: 14, className: o.value === value ? "text-primary" : "opacity-0" }),
+              /* @__PURE__ */ jsx("span", { className: "whitespace-nowrap", children: o.label })
+            ]
+          },
+          o.value
+        ))
+      }
+    )
   ] });
 }
 function EmptyState({
@@ -1001,6 +1092,6 @@ function ContextMenu(props) {
   );
 }
 
-export { AppShell, BrandMark, ColumnToggle, ContextMenu, DataTable, EmptyState, Field, FieldHelp, PageHeader, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
+export { AppShell, BrandMark, ColumnToggle, ContextMenu, DataTable, EmptyState, Field, FieldHelp, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
