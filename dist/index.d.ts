@@ -81,6 +81,30 @@ declare function Field({ label, hint, error, help, children, }: {
     children: ReactNode;
 }): react_jsx_runtime.JSX.Element;
 
+type SelectOption = {
+    value: string;
+    label: string;
+};
+/**
+ * Styled dropdown select - a trigger button plus a popover list, to replace the
+ * native <select> for visual consistency across the product. Closes on
+ * outside-click and Escape. Keyboard: Enter/Space toggles, arrows move, Escape
+ * closes. Visual identity uses the consuming app's CSS vars (border, surface,
+ * accent, foreground, primary).
+ *
+ *   <Select value={region} onChange={setRegion} options={[{value:'eu',label:'EU'}]} />
+ */
+declare function Select({ value, onChange, options, placeholder, size, block, className, }: {
+    value: string;
+    onChange: (value: string) => void;
+    options: SelectOption[];
+    placeholder?: string;
+    size?: 'sm' | 'md';
+    /** Fill the container width (and left-align like a form field). */
+    block?: boolean;
+    className?: string;
+}): react_jsx_runtime.JSX.Element;
+
 /**
  * Small (i) icon you place beside a form label. Click pops a card with
  * one or two sentences. Use sparingly — every (i) you add is a thing
@@ -570,4 +594,4 @@ declare function ContextMenu(props: {
     onClose: () => void;
 }): react_jsx_runtime.JSX.Element;
 
-export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, EmptyState, Field, FieldHelp, PageHeader, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
+export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, EmptyState, Field, FieldHelp, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
