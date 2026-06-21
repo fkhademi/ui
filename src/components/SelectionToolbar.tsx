@@ -19,7 +19,8 @@ import { Pencil, Power, PowerOff, Trash2, X } from 'lucide-react';
 export function SelectionToolbar(props: {
   count: number;
   onEdit?: () => void;
-  onDelete: () => void;
+  /** Bulk delete. Omit for entities that have no delete concept. */
+  onDelete?: () => void;
   onClear: () => void;
   /** Optional disable/enable controls. Both can be omitted for entities
    *  that don't support being deactivated. */
@@ -71,15 +72,17 @@ export function SelectionToolbar(props: {
           </button>
         )}
         {props.extra}
-        <button
-          type="button"
-          className="toolbar-btn toolbar-btn--danger"
-          onClick={props.onDelete}
-          aria-label="Delete selected"
-        >
-          <Trash2 size={14} />
-          Delete
-        </button>
+        {props.onDelete && (
+          <button
+            type="button"
+            className="toolbar-btn toolbar-btn--danger"
+            onClick={props.onDelete}
+            aria-label="Delete selected"
+          >
+            <Trash2 size={14} />
+            Delete
+          </button>
+        )}
         <span className="selection-sep" />
         <button
           type="button"

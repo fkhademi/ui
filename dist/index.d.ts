@@ -555,7 +555,8 @@ declare function DataTable<T>(p: LegacyProps<T>): react_jsx_runtime.JSX.Element;
 declare function SelectionToolbar(props: {
     count: number;
     onEdit?: () => void;
-    onDelete: () => void;
+    /** Bulk delete. Omit for entities that have no delete concept. */
+    onDelete?: () => void;
     onClear: () => void;
     /** Optional disable/enable controls. Both can be omitted for entities
      *  that don't support being deactivated. */

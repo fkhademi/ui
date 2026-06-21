@@ -1010,7 +1010,7 @@ function SelectionToolbar(props) {
         }
       ),
       props.extra,
-      /* @__PURE__ */ jsxs(
+      props.onDelete && /* @__PURE__ */ jsxs(
         "button",
         {
           type: "button",
