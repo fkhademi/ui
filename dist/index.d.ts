@@ -385,7 +385,7 @@ interface BrandSpec {
 /**
  * dnswiz brand: dot inside a ring (the authoritative answer everyone
  * resolves to). Sister to the doon.io mark which is the bare dot.
- * Accent is dnswiz green (Tailwind green-400); ink is the standard
+ * Accent is dnswiz blue (Tailwind blue-500); ink is the standard
  * near-black surface used across the doon family.
  */
 declare const dnswizBrand: BrandSpec;
