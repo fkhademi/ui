@@ -609,14 +609,32 @@ function DataTable(p) {
   const searchCols = searchKeys ?? searchableKeys ?? [];
   const selected = selectedIds ?? /* @__PURE__ */ new Set();
   const [sort, setSort] = useState(defaultSort);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(sp?.search ?? "");
   const [pageSize, setPageSize] = useState(defaultPageSize);
   const [page, setPage] = useState(0);
   const tableRef = useRef(null);
+  const serverSort = !!sp?.onSortChange;
+  const serverSearch = !!sp?.onSearchChange;
+  const effSort = serverSort ? sp.sort ?? null : sort;
+  const onSearchRef = useRef(sp?.onSearchChange);
+  onSearchRef.current = sp?.onSearchChange;
+  const spSearchRef = useRef(sp?.search);
+  spSearchRef.current = sp?.search;
+  useEffect(() => {
+    if (serverSearch) setSearch(sp?.search ?? "");
+  }, [sp?.search, serverSearch]);
+  useEffect(() => {
+    if (!serverSearch) return;
+    const t = setTimeout(() => {
+      if (search !== (spSearchRef.current ?? "")) onSearchRef.current?.(search);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search, serverSearch]);
   useEffect(() => {
     if (!server) setPage(0);
   }, [search, pageSize, rows, server]);
   const filtered = useMemo(() => {
+    if (serverSearch) return rows;
     if (!search.trim() || searchCols.length === 0) return rows;
     const q = search.trim().toLowerCase();
     return rows.filter(
@@ -628,8 +646,9 @@ function DataTable(p) {
         return v != null && String(v).toLowerCase().includes(q);
       })
     );
-  }, [rows, search, searchCols, columns]);
+  }, [rows, search, searchCols, columns, serverSearch]);
   const sorted = useMemo(() => {
+    if (serverSort) return filtered;
     if (!sort) return filtered;
     const col = columns.find((c) => c.key === sort.key);
     if (!col) return filtered;
@@ -641,7 +660,7 @@ function DataTable(p) {
       if (typeof av === "number" && typeof bv === "number") return (av - bv) * dir;
       return String(av).localeCompare(String(bv)) * dir;
     });
-  }, [filtered, sort, columns]);
+  }, [filtered, sort, columns, serverSort]);
   const effPageSize = server ? sp.pageSize : pageSize;
   const totalRows = server ? sp.total : sorted.length;
   const totalPages = Math.max(1, Math.ceil(totalRows / effPageSize));
@@ -653,6 +672,12 @@ function DataTable(p) {
   const showingFrom = totalRows === 0 ? 0 : safePage * effPageSize + 1;
   const showingTo = Math.min(totalRows, (safePage + 1) * effPageSize);
   function toggleSort(key) {
+    if (serverSort) {
+      const cur = sp.sort;
+      const dir = cur && cur.key === key && cur.dir === "desc" ? "asc" : "desc";
+      sp.onSortChange(key, dir);
+      return;
+    }
     setSort(
       (s) => !s || s.key !== key ? { key, dir: "asc" } : s.dir === "asc" ? { key, dir: "desc" } : null
     );
@@ -791,7 +816,7 @@ function DataTable(p) {
       onClick: onSurfaceClick,
       children: [
         /* @__PURE__ */ jsxs("div", { className: "dt-toolbar", children: [
-          searchCols.length > 0 && /* @__PURE__ */ jsxs("div", { className: "dt-search-wrap", children: [
+          (searchCols.length > 0 || serverSearch) && /* @__PURE__ */ jsxs("div", { className: "dt-search-wrap", children: [
             /* @__PURE__ */ jsx(Search, { size: 14, className: "dt-search-icon" }),
             /* @__PURE__ */ jsx(
               "input",
@@ -816,7 +841,7 @@ function DataTable(p) {
         ] }),
         /* @__PURE__ */ jsx("div", { className: "dt-card", children: /* @__PURE__ */ jsxs("table", { className: "dt-table", children: [
           /* @__PURE__ */ jsx("thead", { className: "dt-thead", children: /* @__PURE__ */ jsx("tr", { children: columns.map((c) => {
-            const isSorted = sort?.key === c.key;
+            const isSorted = effSort?.key === c.key;
             return /* @__PURE__ */ jsx(
               "th",
               {
@@ -825,7 +850,7 @@ function DataTable(p) {
                 className: `dt-th${c.align === "right" ? " dt-th--right" : ""}` + (c.sortable ? " dt-th--sortable" : "") + (isSorted ? " dt-th--sorted" : ""),
                 children: /* @__PURE__ */ jsxs("span", { className: "dt-th-inner", children: [
                   c.label,
-                  isSorted && (sort.dir === "asc" ? /* @__PURE__ */ jsx(ChevronUp, { size: 11 }) : /* @__PURE__ */ jsx(ChevronDown, { size: 11 }))
+                  isSorted && effSort && (effSort.dir === "asc" ? /* @__PURE__ */ jsx(ChevronUp, { size: 11 }) : /* @__PURE__ */ jsx(ChevronDown, { size: 11 }))
                 ] })
               },
               c.key

@@ -541,6 +541,15 @@ type DataTableProps<T> = {
         total: number;
         onPageChange: (page: number) => void;
         onPageSizeChange?: (size: number) => void;
+        /** Controlled sort. When onSortChange is set, a header click calls it and
+         *  the table does NOT sort locally (rows arrive already server-sorted); the
+         *  header indicator reflects `sort`. */
+        sort?: SortState;
+        onSortChange?: (key: string, dir: 'asc' | 'desc') => void;
+        /** Controlled/server search. When onSearchChange is set, the search box is
+         *  controlled + debounced and the table does NOT filter rows locally. */
+        search?: string;
+        onSearchChange?: (q: string) => void;
     };
 };
 type LegacyProps<T> = DataTableProps<T> & {

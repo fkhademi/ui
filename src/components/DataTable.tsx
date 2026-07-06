@@ -107,6 +107,15 @@ export type DataTableProps<T> = {
     total: number;
     onPageChange: (page: number) => void;
     onPageSizeChange?: (size: number) => void;
+    /** Controlled sort. When onSortChange is set, a header click calls it and
+     *  the table does NOT sort locally (rows arrive already server-sorted); the
+     *  header indicator reflects `sort`. */
+    sort?: SortState;
+    onSortChange?: (key: string, dir: 'asc' | 'desc') => void;
+    /** Controlled/server search. When onSearchChange is set, the search box is
+     *  controlled + debounced and the table does NOT filter rows locally. */
+    search?: string;
+    onSearchChange?: (q: string) => void;
   };
 };
 
@@ -145,10 +154,34 @@ export function DataTable<T>(p: LegacyProps<T>) {
   const selected = selectedIds ?? new Set<string>();
 
   const [sort, setSort] = useState<SortState>(defaultSort);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(sp?.search ?? '');
   const [pageSize, setPageSize] = useState(defaultPageSize);
   const [page, setPage] = useState(0);
   const tableRef = useRef<HTMLDivElement>(null);
+
+  // Controlled sort/search (server mode): the parent owns them; the table emits
+  // changes instead of sorting/filtering the current page locally.
+  const serverSort = !!sp?.onSortChange;
+  const serverSearch = !!sp?.onSearchChange;
+  const effSort: SortState = serverSort ? sp!.sort ?? null : sort;
+
+  // Server search: keep the input responsive locally, push to the parent
+  // debounced. Refs avoid re-arming the timer when the parent re-renders.
+  const onSearchRef = useRef(sp?.onSearchChange);
+  onSearchRef.current = sp?.onSearchChange;
+  const spSearchRef = useRef(sp?.search);
+  spSearchRef.current = sp?.search;
+  useEffect(() => {
+    if (serverSearch) setSearch(sp?.search ?? '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sp?.search, serverSearch]);
+  useEffect(() => {
+    if (!serverSearch) return;
+    const t = setTimeout(() => {
+      if (search !== (spSearchRef.current ?? '')) onSearchRef.current?.(search);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search, serverSearch]);
 
   // Reset to page 0 whenever the dataset or filter changes (client mode only;
   // in server mode the parent owns the page).
@@ -157,6 +190,7 @@ export function DataTable<T>(p: LegacyProps<T>) {
   }, [search, pageSize, rows, server]);
 
   const filtered = useMemo(() => {
+    if (serverSearch) return rows; // server already filtered
     if (!search.trim() || searchCols.length === 0) return rows;
     const q = search.trim().toLowerCase();
     return rows.filter((r) =>
@@ -168,9 +202,10 @@ export function DataTable<T>(p: LegacyProps<T>) {
         return v != null && String(v).toLowerCase().includes(q);
       }),
     );
-  }, [rows, search, searchCols, columns]);
+  }, [rows, search, searchCols, columns, serverSearch]);
 
   const sorted = useMemo(() => {
+    if (serverSort) return filtered; // server already sorted
     if (!sort) return filtered;
     const col = columns.find((c) => c.key === sort.key);
     if (!col) return filtered;
@@ -182,7 +217,7 @@ export function DataTable<T>(p: LegacyProps<T>) {
       if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
       return String(av).localeCompare(String(bv)) * dir;
     });
-  }, [filtered, sort, columns]);
+  }, [filtered, sort, columns, serverSort]);
 
   // Server mode: the parent owns page/size/total; `sorted` is already just the
   // current page (search/sort act on the visible page only). Client mode: slice.
@@ -199,6 +234,12 @@ export function DataTable<T>(p: LegacyProps<T>) {
   const showingTo = Math.min(totalRows, (safePage + 1) * effPageSize);
 
   function toggleSort(key: string) {
+    if (serverSort) {
+      const cur = sp!.sort;
+      const dir: 'asc' | 'desc' = cur && cur.key === key && cur.dir === 'desc' ? 'asc' : 'desc';
+      sp!.onSortChange!(key, dir);
+      return;
+    }
     setSort((s) =>
       !s || s.key !== key
         ? { key, dir: 'asc' }
@@ -364,7 +405,7 @@ export function DataTable<T>(p: LegacyProps<T>) {
       onClick={onSurfaceClick}
     >
       <div className="dt-toolbar">
-        {searchCols.length > 0 && (
+        {(searchCols.length > 0 || serverSearch) && (
           <div className="dt-search-wrap">
             <Search size={14} className="dt-search-icon" />
             <input
@@ -395,7 +436,7 @@ export function DataTable<T>(p: LegacyProps<T>) {
           <thead className="dt-thead">
             <tr>
               {columns.map((c) => {
-                const isSorted = sort?.key === c.key;
+                const isSorted = effSort?.key === c.key;
                 return (
                   <th
                     key={c.key}
@@ -409,8 +450,8 @@ export function DataTable<T>(p: LegacyProps<T>) {
                   >
                     <span className="dt-th-inner">
                       {c.label}
-                      {isSorted &&
-                        (sort.dir === 'asc' ? (
+                      {isSorted && effSort &&
+                        (effSort.dir === 'asc' ? (
                           <ChevronUp size={11} />
                         ) : (
                           <ChevronDown size={11} />
