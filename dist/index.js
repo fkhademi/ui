@@ -600,9 +600,12 @@ function DataTable(p) {
     onRowContext,
     onSelectionDelete,
     emptyState,
-    extraActions
+    extraActions,
+    serverPagination
   } = p;
   const rows = rawRows ?? [];
+  const sp = serverPagination;
+  const server = !!sp;
   const searchCols = searchKeys ?? searchableKeys ?? [];
   const selected = selectedIds ?? /* @__PURE__ */ new Set();
   const [sort, setSort] = useState(defaultSort);
@@ -610,7 +613,9 @@ function DataTable(p) {
   const [pageSize, setPageSize] = useState(defaultPageSize);
   const [page, setPage] = useState(0);
   const tableRef = useRef(null);
-  useEffect(() => setPage(0), [search, pageSize, rows]);
+  useEffect(() => {
+    if (!server) setPage(0);
+  }, [search, pageSize, rows, server]);
   const filtered = useMemo(() => {
     if (!search.trim() || searchCols.length === 0) return rows;
     const q = search.trim().toLowerCase();
@@ -637,11 +642,16 @@ function DataTable(p) {
       return String(av).localeCompare(String(bv)) * dir;
     });
   }, [filtered, sort, columns]);
-  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
-  const safePage = Math.min(page, totalPages - 1);
-  const paged = sorted.slice(safePage * pageSize, safePage * pageSize + pageSize);
-  const showingFrom = sorted.length === 0 ? 0 : safePage * pageSize + 1;
-  const showingTo = Math.min(sorted.length, (safePage + 1) * pageSize);
+  const effPageSize = server ? sp.pageSize : pageSize;
+  const totalRows = server ? sp.total : sorted.length;
+  const totalPages = Math.max(1, Math.ceil(totalRows / effPageSize));
+  const safePage = server ? sp.page : Math.min(page, totalPages - 1);
+  const paged = server ? sorted : sorted.slice(safePage * effPageSize, safePage * effPageSize + effPageSize);
+  const goToPage = (p2) => server ? sp.onPageChange(Math.max(0, Math.min(p2, totalPages - 1))) : setPage(p2);
+  const changePageSize = (n) => server ? sp.onPageSizeChange?.(n) : setPageSize(n);
+  const showSizeSelect = !server || !!sp.onPageSizeChange;
+  const showingFrom = totalRows === 0 ? 0 : safePage * effPageSize + 1;
+  const showingTo = Math.min(totalRows, (safePage + 1) * effPageSize);
   function toggleSort(key) {
     setSort(
       (s) => !s || s.key !== key ? { key, dir: "asc" } : s.dir === "asc" ? { key, dir: "desc" } : null
@@ -758,11 +768,13 @@ function DataTable(p) {
     }
   }
   function scrollRowIntoView(sortedIdx) {
-    const targetPage = Math.floor(sortedIdx / pageSize);
-    if (targetPage !== safePage) setPage(targetPage);
+    if (!server) {
+      const targetPage = Math.floor(sortedIdx / effPageSize);
+      if (targetPage !== safePage) setPage(targetPage);
+    }
     requestAnimationFrame(() => {
       const el = tableRef.current?.querySelector(
-        `tr.dt-tr[data-row-idx="${sortedIdx % pageSize}"]`
+        `tr.dt-tr[data-row-idx="${sortedIdx % effPageSize}"]`
       );
       el?.scrollIntoView({ block: "nearest" });
     });
@@ -845,7 +857,7 @@ function DataTable(p) {
             !isLoading && !error && paged.map((row, idx) => {
               const id = getRowId(row);
               const isSelected = selected.has(id);
-              const sortedIdx = safePage * pageSize + idx;
+              const sortedIdx = safePage * effPageSize + idx;
               return /* @__PURE__ */ jsx(
                 "tr",
                 {
@@ -888,20 +900,20 @@ function DataTable(p) {
             })
           ] })
         ] }) }),
-        sorted.length > 0 && /* @__PURE__ */ jsxs("div", { className: "dt-pagination", children: [
+        totalRows > 0 && /* @__PURE__ */ jsxs("div", { className: "dt-pagination", children: [
           /* @__PURE__ */ jsxs("span", { className: "dt-page-info", children: [
             showingFrom,
             "\u2013",
             showingTo,
             " of ",
-            sorted.length
+            totalRows
           ] }),
-          /* @__PURE__ */ jsx(
+          showSizeSelect && /* @__PURE__ */ jsx(
             "select",
             {
               className: "dt-page-size",
-              value: pageSize,
-              onChange: (e) => setPageSize(parseInt(e.target.value, 10)),
+              value: effPageSize,
+              onChange: (e) => changePageSize(parseInt(e.target.value, 10)),
               "aria-label": "Rows per page",
               children: pageSizes.map((n) => /* @__PURE__ */ jsxs("option", { value: n, children: [
                 n,
@@ -915,7 +927,7 @@ function DataTable(p) {
               {
                 type: "button",
                 className: "dt-page-btn",
-                onClick: () => setPage(safePage - 1),
+                onClick: () => goToPage(safePage - 1),
                 disabled: safePage === 0,
                 "aria-label": "Previous page",
                 children: "\u2039"
@@ -927,7 +939,7 @@ function DataTable(p) {
                 {
                   type: "button",
                   className: `dt-page-btn ${p2 === safePage ? "dt-page-btn--active" : ""}`,
-                  onClick: () => setPage(p2),
+                  onClick: () => goToPage(p2),
                   children: p2 + 1
                 },
                 p2
@@ -938,7 +950,7 @@ function DataTable(p) {
               {
                 type: "button",
                 className: "dt-page-btn",
-                onClick: () => setPage(safePage + 1),
+                onClick: () => goToPage(safePage + 1),
                 disabled: safePage >= totalPages - 1,
                 "aria-label": "Next page",
                 children: "\u203A"

@@ -96,6 +96,18 @@ export type DataTableProps<T> = {
    *  Use for low-frequency table-scoped actions (Import, Export, …) so
    *  they don't compete with the primary page-header action. */
   extraActions?: ReactNode;
+
+  /** Controlled / server-side pagination. When set, the parent owns paging:
+   *  `rows` is the current page as-is (no client slicing), the footer is
+   *  driven by these values, and page/size controls call back. Omit for the
+   *  default client-side pagination. */
+  serverPagination?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    onPageChange: (page: number) => void;
+    onPageSizeChange?: (size: number) => void;
+  };
 };
 
 // Back-compat alias — some pages still pass `searchableKeys`.
@@ -124,8 +136,11 @@ export function DataTable<T>(p: LegacyProps<T>) {
     onSelectionDelete,
     emptyState,
     extraActions,
+    serverPagination,
   } = p;
   const rows = rawRows ?? [];
+  const sp = serverPagination;
+  const server = !!sp;
   const searchCols = searchKeys ?? searchableKeys ?? [];
   const selected = selectedIds ?? new Set<string>();
 
@@ -135,8 +150,11 @@ export function DataTable<T>(p: LegacyProps<T>) {
   const [page, setPage] = useState(0);
   const tableRef = useRef<HTMLDivElement>(null);
 
-  // Reset to page 0 whenever the dataset or filter changes.
-  useEffect(() => setPage(0), [search, pageSize, rows]);
+  // Reset to page 0 whenever the dataset or filter changes (client mode only;
+  // in server mode the parent owns the page).
+  useEffect(() => {
+    if (!server) setPage(0);
+  }, [search, pageSize, rows, server]);
 
   const filtered = useMemo(() => {
     if (!search.trim() || searchCols.length === 0) return rows;
@@ -166,12 +184,19 @@ export function DataTable<T>(p: LegacyProps<T>) {
     });
   }, [filtered, sort, columns]);
 
-  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
-  const safePage = Math.min(page, totalPages - 1);
-  const paged = sorted.slice(safePage * pageSize, safePage * pageSize + pageSize);
+  // Server mode: the parent owns page/size/total; `sorted` is already just the
+  // current page (search/sort act on the visible page only). Client mode: slice.
+  const effPageSize = server ? sp!.pageSize : pageSize;
+  const totalRows = server ? sp!.total : sorted.length;
+  const totalPages = Math.max(1, Math.ceil(totalRows / effPageSize));
+  const safePage = server ? sp!.page : Math.min(page, totalPages - 1);
+  const paged = server ? sorted : sorted.slice(safePage * effPageSize, safePage * effPageSize + effPageSize);
+  const goToPage = (p2: number) => (server ? sp!.onPageChange(Math.max(0, Math.min(p2, totalPages - 1))) : setPage(p2));
+  const changePageSize = (n: number) => (server ? sp!.onPageSizeChange?.(n) : setPageSize(n));
+  const showSizeSelect = !server || !!sp!.onPageSizeChange;
 
-  const showingFrom = sorted.length === 0 ? 0 : safePage * pageSize + 1;
-  const showingTo = Math.min(sorted.length, (safePage + 1) * pageSize);
+  const showingFrom = totalRows === 0 ? 0 : safePage * effPageSize + 1;
+  const showingTo = Math.min(totalRows, (safePage + 1) * effPageSize);
 
   function toggleSort(key: string) {
     setSort((s) =>
@@ -313,12 +338,15 @@ export function DataTable<T>(p: LegacyProps<T>) {
   }
 
   function scrollRowIntoView(sortedIdx: number) {
-    // Make sure the row is on the current page; if not, jump.
-    const targetPage = Math.floor(sortedIdx / pageSize);
-    if (targetPage !== safePage) setPage(targetPage);
+    // Make sure the row is on the current page; if not, jump (client mode only -
+    // in server mode all current-page rows are already rendered).
+    if (!server) {
+      const targetPage = Math.floor(sortedIdx / effPageSize);
+      if (targetPage !== safePage) setPage(targetPage);
+    }
     requestAnimationFrame(() => {
       const el = tableRef.current?.querySelector<HTMLTableRowElement>(
-        `tr.dt-tr[data-row-idx="${sortedIdx % pageSize}"]`,
+        `tr.dt-tr[data-row-idx="${sortedIdx % effPageSize}"]`,
       );
       el?.scrollIntoView({ block: 'nearest' });
     });
@@ -434,7 +462,7 @@ export function DataTable<T>(p: LegacyProps<T>) {
                 const id = getRowId(row);
                 const isSelected = selected.has(id);
                 // sortedIdx so range-extend works across the whole filtered list.
-                const sortedIdx = safePage * pageSize + idx;
+                const sortedIdx = safePage * effPageSize + idx;
                 return (
                   <tr
                     key={id}
@@ -499,28 +527,30 @@ export function DataTable<T>(p: LegacyProps<T>) {
         </table>
       </div>
 
-      {sorted.length > 0 && (
+      {totalRows > 0 && (
         <div className="dt-pagination">
           <span className="dt-page-info">
-            {showingFrom}–{showingTo} of {sorted.length}
+            {showingFrom}–{showingTo} of {totalRows}
           </span>
-          <select
-            className="dt-page-size"
-            value={pageSize}
-            onChange={(e) => setPageSize(parseInt(e.target.value, 10))}
-            aria-label="Rows per page"
-          >
-            {pageSizes.map((n) => (
-              <option key={n} value={n}>
-                {n} / page
-              </option>
-            ))}
-          </select>
+          {showSizeSelect && (
+            <select
+              className="dt-page-size"
+              value={effPageSize}
+              onChange={(e) => changePageSize(parseInt(e.target.value, 10))}
+              aria-label="Rows per page"
+            >
+              {pageSizes.map((n) => (
+                <option key={n} value={n}>
+                  {n} / page
+                </option>
+              ))}
+            </select>
+          )}
           <div className="dt-page-buttons">
             <button
               type="button"
               className="dt-page-btn"
-              onClick={() => setPage(safePage - 1)}
+              onClick={() => goToPage(safePage - 1)}
               disabled={safePage === 0}
               aria-label="Previous page"
             >
@@ -536,7 +566,7 @@ export function DataTable<T>(p: LegacyProps<T>) {
                   key={p2}
                   type="button"
                   className={`dt-page-btn ${p2 === safePage ? 'dt-page-btn--active' : ''}`}
-                  onClick={() => setPage(p2 as number)}
+                  onClick={() => goToPage(p2 as number)}
                 >
                   {(p2 as number) + 1}
                 </button>
@@ -545,7 +575,7 @@ export function DataTable<T>(p: LegacyProps<T>) {
             <button
               type="button"
               className="dt-page-btn"
-              onClick={() => setPage(safePage + 1)}
+              onClick={() => goToPage(safePage + 1)}
               disabled={safePage >= totalPages - 1}
               aria-label="Next page"
             >

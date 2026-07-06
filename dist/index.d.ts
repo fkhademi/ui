@@ -531,6 +531,17 @@ type DataTableProps<T> = {
      *  Use for low-frequency table-scoped actions (Import, Export, …) so
      *  they don't compete with the primary page-header action. */
     extraActions?: ReactNode;
+    /** Controlled / server-side pagination. When set, the parent owns paging:
+     *  `rows` is the current page as-is (no client slicing), the footer is
+     *  driven by these values, and page/size controls call back. Omit for the
+     *  default client-side pagination. */
+    serverPagination?: {
+        page: number;
+        pageSize: number;
+        total: number;
+        onPageChange: (page: number) => void;
+        onPageSizeChange?: (size: number) => void;
+    };
 };
 type LegacyProps<T> = DataTableProps<T> & {
     searchableKeys?: string[];
