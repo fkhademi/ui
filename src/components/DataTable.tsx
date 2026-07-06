@@ -378,8 +378,12 @@ export function DataTable<T>(p: LegacyProps<T>) {
           </div>
         )}
         <div className="dt-count">
-          {isLoading ? 'loading…' : `${sorted.length} ${sorted.length === 1 ? 'row' : 'rows'}`}
-          {search && rows.length !== sorted.length && (
+          {isLoading
+            ? 'loading…'
+            : sp
+              ? `${sp.total.toLocaleString()} ${sp.total === 1 ? 'row' : 'rows'}`
+              : `${sorted.length} ${sorted.length === 1 ? 'row' : 'rows'}`}
+          {!sp && search && rows.length !== sorted.length && (
             <> · filtered from {rows.length}</>
           )}
         </div>

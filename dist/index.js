@@ -806,8 +806,8 @@ function DataTable(p) {
             )
           ] }),
           /* @__PURE__ */ jsxs("div", { className: "dt-count", children: [
-            isLoading ? "loading\u2026" : `${sorted.length} ${sorted.length === 1 ? "row" : "rows"}`,
-            search && rows.length !== sorted.length && /* @__PURE__ */ jsxs(Fragment, { children: [
+            isLoading ? "loading\u2026" : sp ? `${sp.total.toLocaleString()} ${sp.total === 1 ? "row" : "rows"}` : `${sorted.length} ${sorted.length === 1 ? "row" : "rows"}`,
+            !sp && search && rows.length !== sorted.length && /* @__PURE__ */ jsxs(Fragment, { children: [
               " \xB7 filtered from ",
               rows.length
             ] })
