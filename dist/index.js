@@ -1,7 +1,6 @@
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { HelpCircle, ChevronDown, Check, ChevronLeft, LogOut, SlidersHorizontal, Search, ChevronUp, X, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
 import { useState, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
-import { createPortal } from 'react-dom';
 import { Link, NavLink } from 'react-router-dom';
 
 // src/components/PageHeader.tsx
@@ -262,36 +261,33 @@ function Select({
         ]
       }
     ),
-    open && menuStyle && createPortal(
-      /* @__PURE__ */ jsx(
-        "div",
-        {
-          ref: menuRef,
-          role: "listbox",
-          style: menuStyle,
-          className: "z-50 min-w-[8rem] overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg",
-          children: options.map((o, i) => /* @__PURE__ */ jsxs(
-            "button",
-            {
-              type: "button",
-              role: "option",
-              "aria-selected": o.value === value,
-              onMouseEnter: () => setActive(i),
-              onClick: () => {
-                onChange(o.value);
-                setOpen(false);
-              },
-              className: `flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${i === active ? "bg-accent" : ""} ${o.value === value ? "text-foreground" : "text-muted-foreground"}`,
-              children: [
-                /* @__PURE__ */ jsx(Check, { size: 14, className: o.value === value ? "text-primary" : "opacity-0" }),
-                /* @__PURE__ */ jsx("span", { className: "whitespace-nowrap", children: o.label })
-              ]
+    open && menuStyle && /* @__PURE__ */ jsx(
+      "div",
+      {
+        ref: menuRef,
+        role: "listbox",
+        style: menuStyle,
+        className: "z-50 min-w-[8rem] overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg",
+        children: options.map((o, i) => /* @__PURE__ */ jsxs(
+          "button",
+          {
+            type: "button",
+            role: "option",
+            "aria-selected": o.value === value,
+            onMouseEnter: () => setActive(i),
+            onClick: () => {
+              onChange(o.value);
+              setOpen(false);
             },
-            o.value
-          ))
-        }
-      ),
-      document.body
+            className: `flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${i === active ? "bg-accent" : ""} ${o.value === value ? "text-foreground" : "text-muted-foreground"}`,
+            children: [
+              /* @__PURE__ */ jsx(Check, { size: 14, className: o.value === value ? "text-primary" : "opacity-0" }),
+              /* @__PURE__ */ jsx("span", { className: "whitespace-nowrap", children: o.label })
+            ]
+          },
+          o.value
+        ))
+      }
     )
   ] });
 }

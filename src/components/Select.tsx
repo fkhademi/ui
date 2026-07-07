@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { ChevronDown, Check } from 'lucide-react';
 import { useFloatingMenu } from './FloatingMenu';
 
@@ -94,37 +93,34 @@ export function Select({
         </span>
         <ChevronDown size={14} className="shrink-0 text-muted-foreground" />
       </button>
-      {open &&
-        menuStyle &&
-        createPortal(
-          <div
-            ref={menuRef}
-            role="listbox"
-            style={menuStyle}
-            className="z-50 min-w-[8rem] overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg"
-          >
-            {options.map((o, i) => (
-              <button
-                key={o.value}
-                type="button"
-                role="option"
-                aria-selected={o.value === value}
-                onMouseEnter={() => setActive(i)}
-                onClick={() => {
-                  onChange(o.value);
-                  setOpen(false);
-                }}
-                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${
-                  i === active ? 'bg-accent' : ''
-                } ${o.value === value ? 'text-foreground' : 'text-muted-foreground'}`}
-              >
-                <Check size={14} className={o.value === value ? 'text-primary' : 'opacity-0'} />
-                <span className="whitespace-nowrap">{o.label}</span>
-              </button>
-            ))}
-          </div>,
-          document.body,
-        )}
+      {open && menuStyle && (
+        <div
+          ref={menuRef}
+          role="listbox"
+          style={menuStyle}
+          className="z-50 min-w-[8rem] overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg"
+        >
+          {options.map((o, i) => (
+            <button
+              key={o.value}
+              type="button"
+              role="option"
+              aria-selected={o.value === value}
+              onMouseEnter={() => setActive(i)}
+              onClick={() => {
+                onChange(o.value);
+                setOpen(false);
+              }}
+              className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${
+                i === active ? 'bg-accent' : ''
+              } ${o.value === value ? 'text-foreground' : 'text-muted-foreground'}`}
+            >
+              <Check size={14} className={o.value === value ? 'text-primary' : 'opacity-0'} />
+              <span className="whitespace-nowrap">{o.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
