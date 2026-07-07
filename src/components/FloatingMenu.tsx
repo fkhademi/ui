@@ -113,43 +113,55 @@ export function useFloatingMenu<
     };
   }, [open, onClose]);
 
-  // Measure the menu's height so we can flip it above the trigger when there is
-  // not enough room below (location-aware). useLayoutEffect runs before paint,
-  // so the flip happens without a visible jump.
-  const [menuH, setMenuH] = useState(0);
+  // Measure the menu so we can (a) flip it above the trigger when it will not
+  // fit below and (b) clamp it into the viewport horizontally. useLayoutEffect
+  // runs before paint, so the reposition happens without a visible jump.
+  const [size, setSize] = useState({ h: 0, w: 0 });
   useLayoutEffect(() => {
-    setMenuH(open && menuRef.current ? menuRef.current.offsetHeight : 0);
+    const el = open ? menuRef.current : null;
+    setSize(el ? { h: el.offsetHeight, w: el.offsetWidth } : { h: 0, w: 0 });
   }, [open, rect]);
 
-  const menuStyle = rect ? computeStyle(rect, align, gap, menuH) : undefined;
+  const menuStyle = rect ? computeStyle(rect, align, gap, size) : undefined;
 
   return { triggerRef, menuRef, menuStyle };
 }
 
-// Position a fixed, portaled menu relative to its trigger. Location-aware: it
-// opens downward by default, but flips ABOVE the trigger when the menu would
-// not fit below and there is more room above, and always caps its height to the
-// available space so it never spills off-screen or clips inside a scroll box.
+// Position a fixed menu relative to its trigger. Location-aware: opens downward
+// by default but flips ABOVE the trigger when it will not fit below (more room
+// above), caps its height to the available space, grows to fit its content
+// (minWidth = trigger, never forced to a too-narrow trigger width), and clamps
+// horizontally so it never spills off either screen edge.
 function computeStyle(
   rect: DOMRect,
   align: 'stretch' | 'left' | 'right',
   gap: number,
-  menuH: number,
+  size: { h: number; w: number },
 ): CSSProperties {
-  const spaceBelow = window.innerHeight - rect.bottom - gap;
-  const spaceAbove = rect.top - gap;
-  const openUp = menuH > 0 && menuH > spaceBelow && spaceAbove > spaceBelow;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const margin = 8;
 
+  const spaceBelow = vh - rect.bottom - gap;
+  const spaceAbove = rect.top - gap;
+  const openUp = size.h > 0 && size.h > spaceBelow && spaceAbove > spaceBelow;
   const vertical: CSSProperties = openUp
-    ? { bottom: window.innerHeight - rect.top + gap, maxHeight: Math.max(0, spaceAbove) }
+    ? { bottom: vh - rect.top + gap, maxHeight: Math.max(0, spaceAbove) }
     : { top: rect.bottom + gap, maxHeight: Math.max(0, spaceBelow) };
 
-  const horizontal: CSSProperties =
-    align === 'right'
-      ? { right: window.innerWidth - rect.right }
-      : align === 'left'
-        ? { left: rect.left }
-        : { left: rect.left, width: rect.width };
+  // Width used only to keep the menu on-screen; menu itself grows to content.
+  const w = size.w || rect.width;
+  let horizontal: CSSProperties;
+  if (align === 'right') {
+    // Anchor to the trigger's right edge; if that pushes the left edge off-screen,
+    // fall back to a left-anchored, clamped position.
+    const rightGap = vw - rect.right;
+    horizontal = rightGap + w > vw - margin ? { left: margin } : { right: Math.max(margin, rightGap) };
+  } else {
+    // stretch/left: anchor left to the trigger, clamped so the right edge stays on screen.
+    const left = Math.max(margin, Math.min(rect.left, vw - w - margin));
+    horizontal = align === 'stretch' ? { left, minWidth: rect.width } : { left };
+  }
 
-  return { position: 'fixed', overflowY: 'auto', ...vertical, ...horizontal };
+  return { position: 'fixed', overflowY: 'auto', maxWidth: vw - 2 * margin, ...vertical, ...horizontal };
 }

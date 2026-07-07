@@ -182,20 +182,32 @@ function useFloatingMenu({
       window.removeEventListener("keydown", onKey);
     };
   }, [open, onClose]);
-  const [menuH, setMenuH] = useState(0);
+  const [size, setSize] = useState({ h: 0, w: 0 });
   useLayoutEffect(() => {
-    setMenuH(open && menuRef.current ? menuRef.current.offsetHeight : 0);
+    const el = open ? menuRef.current : null;
+    setSize(el ? { h: el.offsetHeight, w: el.offsetWidth } : { h: 0, w: 0 });
   }, [open, rect]);
-  const menuStyle = rect ? computeStyle(rect, align, gap, menuH) : void 0;
+  const menuStyle = rect ? computeStyle(rect, align, gap, size) : void 0;
   return { triggerRef, menuRef, menuStyle };
 }
-function computeStyle(rect, align, gap, menuH) {
-  const spaceBelow = window.innerHeight - rect.bottom - gap;
+function computeStyle(rect, align, gap, size) {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const margin = 8;
+  const spaceBelow = vh - rect.bottom - gap;
   const spaceAbove = rect.top - gap;
-  const openUp = menuH > 0 && menuH > spaceBelow && spaceAbove > spaceBelow;
-  const vertical = openUp ? { bottom: window.innerHeight - rect.top + gap, maxHeight: Math.max(0, spaceAbove) } : { top: rect.bottom + gap, maxHeight: Math.max(0, spaceBelow) };
-  const horizontal = align === "right" ? { right: window.innerWidth - rect.right } : align === "left" ? { left: rect.left } : { left: rect.left, width: rect.width };
-  return { position: "fixed", overflowY: "auto", ...vertical, ...horizontal };
+  const openUp = size.h > 0 && size.h > spaceBelow && spaceAbove > spaceBelow;
+  const vertical = openUp ? { bottom: vh - rect.top + gap, maxHeight: Math.max(0, spaceAbove) } : { top: rect.bottom + gap, maxHeight: Math.max(0, spaceBelow) };
+  const w = size.w || rect.width;
+  let horizontal;
+  if (align === "right") {
+    const rightGap = vw - rect.right;
+    horizontal = rightGap + w > vw - margin ? { left: margin } : { right: Math.max(margin, rightGap) };
+  } else {
+    const left = Math.max(margin, Math.min(rect.left, vw - w - margin));
+    horizontal = align === "stretch" ? { left, minWidth: rect.width } : { left };
+  }
+  return { position: "fixed", overflowY: "auto", maxWidth: vw - 2 * margin, ...vertical, ...horizontal };
 }
 function Select({
   value,
