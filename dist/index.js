@@ -1,6 +1,7 @@
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { HelpCircle, ChevronDown, Check, ChevronLeft, LogOut, SlidersHorizontal, Search, ChevronUp, X, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
 import { useState, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, NavLink } from 'react-router-dom';
 
 // src/components/PageHeader.tsx
@@ -141,6 +142,62 @@ function Field({
     error ? /* @__PURE__ */ jsx("div", { className: "field-error", children: error }) : hint ? /* @__PURE__ */ jsx("div", { className: "field-hint", children: hint }) : null
   ] });
 }
+function useFloatingMenu({
+  open,
+  onClose,
+  align = "stretch",
+  gap = 4
+}) {
+  const triggerRef = useRef(null);
+  const menuRef = useRef(null);
+  const [rect, setRect] = useState(null);
+  useEffect(() => {
+    if (!open || !triggerRef.current) {
+      setRect(null);
+      return;
+    }
+    const update = () => setRect(triggerRef.current?.getBoundingClientRect() ?? null);
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    const onMouseDown = (e) => {
+      const t = e.target;
+      if (triggerRef.current?.contains(t)) return;
+      if (menuRef.current?.contains(t)) return;
+      onClose();
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+  const [menuH, setMenuH] = useState(0);
+  useLayoutEffect(() => {
+    setMenuH(open && menuRef.current ? menuRef.current.offsetHeight : 0);
+  }, [open, rect]);
+  const menuStyle = rect ? computeStyle(rect, align, gap, menuH) : void 0;
+  return { triggerRef, menuRef, menuStyle };
+}
+function computeStyle(rect, align, gap, menuH) {
+  const spaceBelow = window.innerHeight - rect.bottom - gap;
+  const spaceAbove = rect.top - gap;
+  const openUp = menuH > 0 && menuH > spaceBelow && spaceAbove > spaceBelow;
+  const vertical = openUp ? { bottom: window.innerHeight - rect.top + gap, maxHeight: Math.max(0, spaceAbove) } : { top: rect.bottom + gap, maxHeight: Math.max(0, spaceBelow) };
+  const horizontal = align === "right" ? { right: window.innerWidth - rect.right } : align === "left" ? { left: rect.left } : { left: rect.left, width: rect.width };
+  return { position: "fixed", overflowY: "auto", ...vertical, ...horizontal };
+}
 function Select({
   value,
   onChange,
@@ -153,16 +210,14 @@ function Select({
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
-  const ref = useRef(null);
+  const { triggerRef, menuRef, menuStyle } = useFloatingMenu({
+    open,
+    onClose: () => setOpen(false),
+    align: "stretch"
+  });
   const selected = options.find((o) => o.value === value);
   useEffect(() => {
-    if (!open) return;
-    setActive(Math.max(0, options.findIndex((o) => o.value === value)));
-    const onClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    window.addEventListener("mousedown", onClick);
-    return () => window.removeEventListener("mousedown", onClick);
+    if (open) setActive(Math.max(0, options.findIndex((o) => o.value === value)));
   }, [open]);
   function onKeyDown(e) {
     if (!open) {
@@ -189,10 +244,11 @@ function Select({
     }
   }
   const pad = size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-2 text-sm";
-  return /* @__PURE__ */ jsxs("div", { ref, className: `relative ${block ? "block" : "inline-block"} ${className}`, children: [
+  return /* @__PURE__ */ jsxs("div", { className: `${block ? "block" : "inline-block"} ${className}`, children: [
     /* @__PURE__ */ jsxs(
       "button",
       {
+        ref: triggerRef,
         type: "button",
         disabled,
         "aria-haspopup": "listbox",
@@ -206,31 +262,36 @@ function Select({
         ]
       }
     ),
-    open && /* @__PURE__ */ jsx(
-      "div",
-      {
-        role: "listbox",
-        className: "absolute z-50 mt-1 max-h-64 min-w-full overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg",
-        children: options.map((o, i) => /* @__PURE__ */ jsxs(
-          "button",
-          {
-            type: "button",
-            role: "option",
-            "aria-selected": o.value === value,
-            onMouseEnter: () => setActive(i),
-            onClick: () => {
-              onChange(o.value);
-              setOpen(false);
+    open && menuStyle && createPortal(
+      /* @__PURE__ */ jsx(
+        "div",
+        {
+          ref: menuRef,
+          role: "listbox",
+          style: menuStyle,
+          className: "z-50 min-w-[8rem] overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg",
+          children: options.map((o, i) => /* @__PURE__ */ jsxs(
+            "button",
+            {
+              type: "button",
+              role: "option",
+              "aria-selected": o.value === value,
+              onMouseEnter: () => setActive(i),
+              onClick: () => {
+                onChange(o.value);
+                setOpen(false);
+              },
+              className: `flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${i === active ? "bg-accent" : ""} ${o.value === value ? "text-foreground" : "text-muted-foreground"}`,
+              children: [
+                /* @__PURE__ */ jsx(Check, { size: 14, className: o.value === value ? "text-primary" : "opacity-0" }),
+                /* @__PURE__ */ jsx("span", { className: "whitespace-nowrap", children: o.label })
+              ]
             },
-            className: `flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${i === active ? "bg-accent" : ""} ${o.value === value ? "text-foreground" : "text-muted-foreground"}`,
-            children: [
-              /* @__PURE__ */ jsx(Check, { size: 14, className: o.value === value ? "text-primary" : "opacity-0" }),
-              /* @__PURE__ */ jsx("span", { className: "whitespace-nowrap", children: o.label })
-            ]
-          },
-          o.value
-        ))
-      }
+            o.value
+          ))
+        }
+      ),
+      document.body
     )
   ] });
 }
@@ -344,75 +405,6 @@ function AppShellNavLink({ to, icon, label, badge }) {
       ]
     }
   );
-}
-function useFloatingMenu({
-  open,
-  onClose,
-  align = "stretch",
-  gap = 4
-}) {
-  const triggerRef = useRef(null);
-  const menuRef = useRef(null);
-  const [rect, setRect] = useState(null);
-  useEffect(() => {
-    if (!open || !triggerRef.current) {
-      setRect(null);
-      return;
-    }
-    const update = () => setRect(triggerRef.current?.getBoundingClientRect() ?? null);
-    update();
-    window.addEventListener("resize", update);
-    window.addEventListener("scroll", update, true);
-    return () => {
-      window.removeEventListener("resize", update);
-      window.removeEventListener("scroll", update, true);
-    };
-  }, [open]);
-  useEffect(() => {
-    if (!open) return;
-    const onMouseDown = (e) => {
-      const t = e.target;
-      if (triggerRef.current?.contains(t)) return;
-      if (menuRef.current?.contains(t)) return;
-      onClose();
-    };
-    const onKey = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose]);
-  const menuStyle = rect ? computeStyle(rect, align, gap) : void 0;
-  return { triggerRef, menuRef, menuStyle };
-}
-function computeStyle(rect, align, gap) {
-  const top = rect.bottom + gap;
-  switch (align) {
-    case "right":
-      return {
-        position: "fixed",
-        top,
-        right: window.innerWidth - rect.right
-      };
-    case "left":
-      return {
-        position: "fixed",
-        top,
-        left: rect.left
-      };
-    case "stretch":
-    default:
-      return {
-        position: "fixed",
-        top,
-        left: rect.left,
-        width: rect.width
-      };
-  }
 }
 function ColumnToggle({ items, onToggle, label = "Columns", className }) {
   const [open, setOpen] = useState(false);

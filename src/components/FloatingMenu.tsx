@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject, type CSSProperties } from 'react';
 
 /**
  * Anchored-popover plumbing. Tracks a trigger's bounding rect so a
@@ -113,34 +113,43 @@ export function useFloatingMenu<
     };
   }, [open, onClose]);
 
-  const menuStyle = rect ? computeStyle(rect, align, gap) : undefined;
+  // Measure the menu's height so we can flip it above the trigger when there is
+  // not enough room below (location-aware). useLayoutEffect runs before paint,
+  // so the flip happens without a visible jump.
+  const [menuH, setMenuH] = useState(0);
+  useLayoutEffect(() => {
+    setMenuH(open && menuRef.current ? menuRef.current.offsetHeight : 0);
+  }, [open, rect]);
+
+  const menuStyle = rect ? computeStyle(rect, align, gap, menuH) : undefined;
 
   return { triggerRef, menuRef, menuStyle };
 }
 
-function computeStyle(rect: DOMRect, align: 'stretch' | 'left' | 'right', gap: number): CSSProperties {
-  const top = rect.bottom + gap;
-  switch (align) {
-    case 'right':
-      // Anchor by right edge so menu opens to the left of the trigger.
-      return {
-        position: 'fixed',
-        top,
-        right: window.innerWidth - rect.right,
-      };
-    case 'left':
-      return {
-        position: 'fixed',
-        top,
-        left: rect.left,
-      };
-    case 'stretch':
-    default:
-      return {
-        position: 'fixed',
-        top,
-        left: rect.left,
-        width: rect.width,
-      };
-  }
+// Position a fixed, portaled menu relative to its trigger. Location-aware: it
+// opens downward by default, but flips ABOVE the trigger when the menu would
+// not fit below and there is more room above, and always caps its height to the
+// available space so it never spills off-screen or clips inside a scroll box.
+function computeStyle(
+  rect: DOMRect,
+  align: 'stretch' | 'left' | 'right',
+  gap: number,
+  menuH: number,
+): CSSProperties {
+  const spaceBelow = window.innerHeight - rect.bottom - gap;
+  const spaceAbove = rect.top - gap;
+  const openUp = menuH > 0 && menuH > spaceBelow && spaceAbove > spaceBelow;
+
+  const vertical: CSSProperties = openUp
+    ? { bottom: window.innerHeight - rect.top + gap, maxHeight: Math.max(0, spaceAbove) }
+    : { top: rect.bottom + gap, maxHeight: Math.max(0, spaceBelow) };
+
+  const horizontal: CSSProperties =
+    align === 'right'
+      ? { right: window.innerWidth - rect.right }
+      : align === 'left'
+        ? { left: rect.left }
+        : { left: rect.left, width: rect.width };
+
+  return { position: 'fixed', overflowY: 'auto', ...vertical, ...horizontal };
 }

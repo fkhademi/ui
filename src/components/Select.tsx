@@ -1,14 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Check } from 'lucide-react';
+import { useFloatingMenu } from './FloatingMenu';
 
 export type SelectOption = { value: string; label: string };
 
 /**
  * Styled dropdown select - a trigger button plus a popover list, to replace the
- * native <select> for visual consistency across the product. Closes on
- * outside-click and Escape. Keyboard: Enter/Space toggles, arrows move, Escape
- * closes. Visual identity uses the consuming app's CSS vars (border, surface,
- * accent, foreground, primary).
+ * native <select> for visual consistency across the product. The list is
+ * PORTALED and positioned by useFloatingMenu, so it is location-aware: it opens
+ * downward, flips above the trigger when there is not enough room below, escapes
+ * any overflow-hidden ancestor (drawers, settings cards, scroll boxes), and caps
+ * its height to the available space. Closes on outside-click and Escape.
+ * Keyboard: Enter/Space/ArrowDown opens, arrows move, Enter selects, Escape
+ * closes. Visual identity uses the consuming app's CSS vars.
  *
  *   <Select value={region} onChange={setRegion} options={[{value:'eu',label:'EU'}]} />
  */
@@ -34,17 +39,15 @@ export function Select({
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
+  const { triggerRef, menuRef, menuStyle } = useFloatingMenu<HTMLButtonElement, HTMLDivElement>({
+    open,
+    onClose: () => setOpen(false),
+    align: 'stretch',
+  });
   const selected = options.find((o) => o.value === value);
 
   useEffect(() => {
-    if (!open) return;
-    setActive(Math.max(0, options.findIndex((o) => o.value === value)));
-    const onClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    window.addEventListener('mousedown', onClick);
-    return () => window.removeEventListener('mousedown', onClick);
+    if (open) setActive(Math.max(0, options.findIndex((o) => o.value === value)));
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -75,8 +78,9 @@ export function Select({
   const pad = size === 'sm' ? 'px-2.5 py-1 text-xs' : 'px-3 py-2 text-sm';
 
   return (
-    <div ref={ref} className={`relative ${block ? 'block' : 'inline-block'} ${className}`}>
+    <div className={`${block ? 'block' : 'inline-block'} ${className}`}>
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
         aria-haspopup="listbox"
@@ -90,32 +94,37 @@ export function Select({
         </span>
         <ChevronDown size={14} className="shrink-0 text-muted-foreground" />
       </button>
-      {open && (
-        <div
-          role="listbox"
-          className="absolute z-50 mt-1 max-h-64 min-w-full overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg"
-        >
-          {options.map((o, i) => (
-            <button
-              key={o.value}
-              type="button"
-              role="option"
-              aria-selected={o.value === value}
-              onMouseEnter={() => setActive(i)}
-              onClick={() => {
-                onChange(o.value);
-                setOpen(false);
-              }}
-              className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${
-                i === active ? 'bg-accent' : ''
-              } ${o.value === value ? 'text-foreground' : 'text-muted-foreground'}`}
-            >
-              <Check size={14} className={o.value === value ? 'text-primary' : 'opacity-0'} />
-              <span className="whitespace-nowrap">{o.label}</span>
-            </button>
-          ))}
-        </div>
-      )}
+      {open &&
+        menuStyle &&
+        createPortal(
+          <div
+            ref={menuRef}
+            role="listbox"
+            style={menuStyle}
+            className="z-50 min-w-[8rem] overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg"
+          >
+            {options.map((o, i) => (
+              <button
+                key={o.value}
+                type="button"
+                role="option"
+                aria-selected={o.value === value}
+                onMouseEnter={() => setActive(i)}
+                onClick={() => {
+                  onChange(o.value);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${
+                  i === active ? 'bg-accent' : ''
+                } ${o.value === value ? 'text-foreground' : 'text-muted-foreground'}`}
+              >
+                <Check size={14} className={o.value === value ? 'text-primary' : 'opacity-0'} />
+                <span className="whitespace-nowrap">{o.label}</span>
+              </button>
+            ))}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
