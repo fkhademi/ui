@@ -1008,7 +1008,7 @@
   }
 
   .auth-footer {
-    @apply mt-3 pt-3 border-t border-border flex items-center justify-between;
+    @apply mt-3 pt-3 border-t border-border flex flex-col items-center gap-1.5 text-center;
   }
 
 /* ── Delegation hint (NS records the customer must set at registrar) */
