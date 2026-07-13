@@ -1076,7 +1076,7 @@
      in @doon/ui. */
 
   .settings-cards {
-    @apply flex flex-col gap-2;
+    @apply flex flex-col gap-2 px-6;
   }
 
   .settings-card {
@@ -1151,7 +1151,7 @@
   }
 
   .settings-section-footer {
-    @apply px-5 py-3 border-t border-border flex items-center justify-end;
+    @apply px-5 py-3 border-t border-border flex items-center justify-end gap-2;
   }
 
   .settings-section-divider {
