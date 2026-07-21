@@ -25,8 +25,7 @@ declare function PageHeader({ title, subtitle, actions, }: {
 
 /**
  * Card-shaped collapsible section. Use for any "list of expandable
- * config sections" surface — user settings, platform admin, tenant
- * detail page.
+ * config sections" surface — e.g. settings and detail pages.
  *
  * Two modes:
  *   1. Accordion (default): pass `children` + `open` + `onToggle`. The
@@ -338,8 +337,8 @@ declare function useColumnVisibility(storageKey: string, defaultHidden?: string[
 
 /**
  * Brand specification shape. Each doon-family product (doon, dnswiz,
- * pgwiz, pwwiz, …) ships a BrandSpec describing its palette and the
- * three canonical SVG renditions of its mark.
+ * …) ships a BrandSpec describing its palette and the three canonical
+ * SVG renditions of its mark.
  *
  * SVG inner markup is a string so the same spec drives:
  *   - React consumers (BrandMark with dangerouslySetInnerHTML)
@@ -395,7 +394,7 @@ declare const dnswizBrand: BrandSpec;
 
 /**
  * doon.io brand: a single accent-orange dot. The parent brand of the
- * doon-family products; dnswiz / pgwiz / pwwiz marks extend this with
+ * doon-family products; sibling marks (e.g. dnswiz) extend this with
  * their own shapes around the same dot anchor.
  */
 declare const doonBrand: BrandSpec;
@@ -436,7 +435,7 @@ interface BrandMarkProps {
 }
 /**
  * Brand-mark renderer for the doon family. Single source of truth for
- * every dnswiz / doon / pgwiz / pwwiz logo render across React and
+ * every doon-family logo render (doon, dnswiz, …) across React and
  * Astro consumers.
  *
  *   <BrandMark name="dnswiz" />                  inline 16px mark

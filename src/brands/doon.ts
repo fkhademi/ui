@@ -2,7 +2,7 @@ import type { BrandSpec } from './types';
 
 /**
  * doon.io brand: a single accent-orange dot. The parent brand of the
- * doon-family products; dnswiz / pgwiz / pwwiz marks extend this with
+ * doon-family products; sibling marks (e.g. dnswiz) extend this with
  * their own shapes around the same dot anchor.
  */
 export const doonBrand: BrandSpec = {

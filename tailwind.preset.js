@@ -89,8 +89,8 @@ export default {
         'fade-in': 'fadeIn 0.2s var(--ease-out)',
         'slide-up': 'slideUp 0.25s var(--ease-out)',
         // Slower-cycling pulse used by status dots (.health-dot--up,
-        // .health-dot--degraded). Borrowed from dnswiz's local config —
-        // moved here so any consumer that pulls components.css gets it.
+        // .health-dot--degraded). Lives here so any consumer that pulls
+        // components.css gets it.
         'pulse-soft': 'pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },

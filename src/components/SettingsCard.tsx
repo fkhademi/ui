@@ -3,8 +3,7 @@ import type { ReactNode } from 'react';
 
 /**
  * Card-shaped collapsible section. Use for any "list of expandable
- * config sections" surface — user settings, platform admin, tenant
- * detail page.
+ * config sections" surface — e.g. settings and detail pages.
  *
  * Two modes:
  *   1. Accordion (default): pass `children` + `open` + `onToggle`. The

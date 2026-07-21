@@ -31,7 +31,7 @@ export interface BrandMarkProps {
 
 /**
  * Brand-mark renderer for the doon family. Single source of truth for
- * every dnswiz / doon / pgwiz / pwwiz logo render across React and
+ * every doon-family logo render (doon, dnswiz, …) across React and
  * Astro consumers.
  *
  *   <BrandMark name="dnswiz" />                  inline 16px mark

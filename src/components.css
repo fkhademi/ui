@@ -339,7 +339,7 @@
   .stat-sub { @apply text-xs text-muted-foreground mt-0.5 truncate; }
 
 /* ── List card surface (a rounded bordered container, used by data-table
-        and standalone single-item lists like the API-key reveal card) ──── */
+        and standalone single-item lists like a value-reveal row) ──── */
 
 
   .list-card {
@@ -465,9 +465,8 @@
 
   .dt-page-info { @apply num; }
 
-/* Compact select inside DataTable rows — used for the admin tenant
-     plan picker. Smaller than .field-mono, no border, blends into the
-     row. */
+/* Compact select inside DataTable rows — a compact in-row picker.
+     Smaller than .field-mono, no border, blends into the row. */
 
 
   .dt-page-size {
@@ -501,7 +500,7 @@
 /* ── DNS record-type chip ──────────────────────────────────────────── */
 
 
-/* ── Status badge (slow-changing state: activation, plan, billing) ─── */
+/* ── Status badge (slow-changing state: status, plan, activation) ─── */
 
 
   .status-badge {
@@ -539,10 +538,10 @@
 /* ── Pricing page ──────────────────────────────────────────────────── */
 
 
-/* ── Billing success page ──────────────────────────────────────────── */
+/* ── Success confirmation page ─────────────────────────────────────── */
 
 
-/* ── Settings page: Billing card ───────────────────────────────────── */
+/* ── Settings page: billing card ───────────────────────────────────── */
 
 
 /* ── Danger zone (delete workspace) ────────────────────────────────── */
@@ -673,9 +672,8 @@
 /* ── Onboarding checklist ─────────────────────────────────────────── */
 
 
-/* Surfaces under the page header on /zones for tenants who haven't
-     received their first query yet. Disappears once
-     onboarding.activated_at is stamped. */
+/* Empty/onboarding surface shown under the page header before a
+     resource has any data. Hidden once the first item exists. */
 
 
 /* ── Members section ──────────────────────────────────────────────── */
@@ -979,8 +977,8 @@
 /* ── Settings page sections ───────────────────────────────────────── */
 
 
-/* Admin → billing → per-plan price-id rows. Two stacked inputs
-     (monthly + yearly) with a plan-name header. */
+/* Per-plan price-id rows. Two stacked inputs (monthly + yearly)
+     with a plan-name header. */
 
 
 /* ── MFA challenge + Security page ────────────────────────────────── */
@@ -1069,8 +1067,8 @@
   }
 
   /* ── Settings card (accordion) ────────────────────────────────────── */
-  /* Used for any "list of expandable config sections" surface — user
-     settings, platform admin, tenant detail. Each card has an icon,
+  /* Used for any "list of expandable config sections" surface — e.g.
+     settings and detail pages. Each card has an icon,
      title, one-line summary, and optionally expands to show form fields
      or other body content. Pair with the SettingsCard React primitive
      in @doon/ui. */
@@ -1121,8 +1119,8 @@
   }
 
   /* ── Settings section (non-accordion alternative) ─────────────────── */
-  /* Use this when you want the body always visible — e.g. a tenant
-     detail page that's all one expanded section, or a single-card flow
+  /* Use this when you want the body always visible — e.g. a detail
+     page that's all one expanded section, or a single-card flow
      where collapsing adds no value. */
 
   .settings-section {

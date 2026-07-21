@@ -1,7 +1,7 @@
 /**
  * Brand specification shape. Each doon-family product (doon, dnswiz,
- * pgwiz, pwwiz, …) ships a BrandSpec describing its palette and the
- * three canonical SVG renditions of its mark.
+ * …) ships a BrandSpec describing its palette and the three canonical
+ * SVG renditions of its mark.
  *
  * SVG inner markup is a string so the same spec drives:
  *   - React consumers (BrandMark with dangerouslySetInnerHTML)
