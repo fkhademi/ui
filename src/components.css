@@ -54,6 +54,13 @@
            active:scale-[0.96];
   }
 
+  /* Compact modifier for any .btn variant. Defined after the variants so it
+     overrides the base height/padding/text. Matches the ColumnToggle trigger
+     and a small Select, so filters, actions, and toggles line up in a toolbar. */
+  .btn-sm {
+    @apply h-9 px-3.5 text-xs;
+  }
+
 /* ── Fields ─────────────────────────────────────────────────────────── */
 
 
