@@ -109,6 +109,21 @@ declare function Select({ value, onChange, options, placeholder, size, block, di
 }): react_jsx_runtime.JSX.Element;
 
 /**
+ * Styled checkbox that replaces the native <input type="checkbox"> so the
+ * control matches the rest of the UI instead of the OS chrome. The real
+ * input stays in the DOM (screen-reader friendly, keeps native focus and
+ * space-to-toggle); a sibling box is styled off its checked/focus state via
+ * peer- utilities. Pass a label to get the whole row clickable.
+ */
+declare function Checkbox({ checked, onChange, label, disabled, className, }: {
+    checked: boolean;
+    onChange: (checked: boolean) => void;
+    label?: ReactNode;
+    disabled?: boolean;
+    className?: string;
+}): react_jsx_runtime.JSX.Element;
+
+/**
  * Small (i) icon you place beside a form label. Click pops a card with
  * one or two sentences. Use sparingly — every (i) you add is a thing
  * the user has to scan past.
@@ -618,4 +633,4 @@ declare function ContextMenu(props: {
     onClose: () => void;
 }): react_jsx_runtime.JSX.Element;
 
-export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, EmptyState, Field, FieldHelp, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
+export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, EmptyState, Field, FieldHelp, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };

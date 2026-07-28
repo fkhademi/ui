@@ -303,6 +303,40 @@ function Select({
     )
   ] });
 }
+function Checkbox({
+  checked,
+  onChange,
+  label,
+  disabled = false,
+  className = ""
+}) {
+  return /* @__PURE__ */ jsxs(
+    "label",
+    {
+      className: `inline-flex items-start gap-2 text-sm text-foreground ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${className}`,
+      children: [
+        /* @__PURE__ */ jsx(
+          "input",
+          {
+            type: "checkbox",
+            className: "peer sr-only",
+            checked,
+            disabled,
+            onChange: (e) => onChange(e.target.checked)
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "span",
+          {
+            className: "mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded border border-input bg-surface text-transparent transition\n                   peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground\n                   peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40",
+            children: /* @__PURE__ */ jsx(Check, { size: 12, strokeWidth: 3 })
+          }
+        ),
+        label != null && /* @__PURE__ */ jsx("span", { children: label })
+      ]
+    }
+  );
+}
 function EmptyState({
   icon,
   title,
@@ -1131,6 +1165,6 @@ function ContextMenu(props) {
   );
 }
 
-export { AppShell, BrandMark, ColumnToggle, ContextMenu, DataTable, EmptyState, Field, FieldHelp, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
+export { AppShell, BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, EmptyState, Field, FieldHelp, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

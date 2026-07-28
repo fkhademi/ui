@@ -16,6 +16,7 @@ export { SettingsCard, SettingsCards } from './components/SettingsCard';
 export { Field } from './components/Field';
 export { Select } from './components/Select';
 export type { SelectOption } from './components/Select';
+export { Checkbox } from './components/Checkbox';
 export { FieldHelp } from './components/FieldHelp';
 export { EmptyState } from './components/EmptyState';
 export { useSidebarCollapsed, SidebarCollapseToggle } from './components/SidebarCollapse';
