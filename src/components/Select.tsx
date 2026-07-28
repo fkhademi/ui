@@ -74,7 +74,11 @@ export function Select({
     }
   }
 
-  const pad = size === 'sm' ? 'px-2.5 py-1 text-xs' : 'px-3 py-2 text-sm';
+  // Fixed heights so the trigger lines up with the rest of the control system:
+  // md matches a .field input / default button (h-11), sm matches a compact
+  // toolbar button like ColumnToggle (h-9). Height, not padding, drives the box
+  // so it never disagrees with a sibling input or button.
+  const sz = size === 'sm' ? 'h-9 px-3 text-xs' : 'h-11 px-4 text-sm';
 
   return (
     <div className={`${block ? 'block' : 'inline-block'} ${className}`}>
@@ -86,7 +90,7 @@ export function Select({
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onKeyDown}
-        className={`flex ${block ? 'w-full' : ''} items-center justify-between gap-2 rounded-lg border border-border bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${pad}`}
+        className={`flex ${block ? 'w-full' : ''} items-center justify-between gap-2 rounded-xl border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`}
       >
         <span className={`truncate ${selected ? '' : 'text-muted-foreground'}`}>
           {selected ? selected.label : placeholder}

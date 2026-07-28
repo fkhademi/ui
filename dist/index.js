@@ -254,7 +254,7 @@ function Select({
       }
     }
   }
-  const pad = size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-2 text-sm";
+  const sz = size === "sm" ? "h-9 px-3 text-xs" : "h-11 px-4 text-sm";
   return /* @__PURE__ */ jsxs("div", { className: `${block ? "block" : "inline-block"} ${className}`, children: [
     /* @__PURE__ */ jsxs(
       "button",
@@ -266,7 +266,7 @@ function Select({
         "aria-expanded": open,
         onClick: () => setOpen((o) => !o),
         onKeyDown,
-        className: `flex ${block ? "w-full" : ""} items-center justify-between gap-2 rounded-lg border border-border bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${pad}`,
+        className: `flex ${block ? "w-full" : ""} items-center justify-between gap-2 rounded-xl border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`,
         children: [
           /* @__PURE__ */ jsx("span", { className: `truncate ${selected ? "" : "text-muted-foreground"}`, children: selected ? selected.label : placeholder }),
           /* @__PURE__ */ jsx(ChevronDown, { size: 14, className: "shrink-0 text-muted-foreground" })
