@@ -1,5 +1,5 @@
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
-import { HelpCircle, ChevronDown, Check, ChevronLeft, LogOut, SlidersHorizontal, Search, ChevronUp, X, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
+import { HelpCircle, ChevronDown, Check, Calendar, ChevronLeft, ChevronRight, LogOut, SlidersHorizontal, Search, ChevronUp, X, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
 import { useState, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
@@ -337,6 +337,134 @@ function Checkbox({
       ]
     }
   );
+}
+function DatePicker({
+  value,
+  onChange,
+  placeholder = "Pick a date",
+  disabled = false,
+  block = false,
+  className = ""
+}) {
+  const [open, setOpen] = useState(false);
+  const { triggerRef, menuRef, menuStyle } = useFloatingMenu({
+    open,
+    onClose: () => setOpen(false),
+    align: "left"
+  });
+  const selected = parseISO(value);
+  const [view, setView] = useState(() => selected ?? /* @__PURE__ */ new Date());
+  const today = /* @__PURE__ */ new Date();
+  const first = new Date(view.getFullYear(), view.getMonth(), 1);
+  const startPad = first.getDay();
+  const daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < startPad; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(view.getFullYear(), view.getMonth(), d));
+  function pick(d) {
+    onChange(toISO(d));
+    setOpen(false);
+  }
+  function shiftMonth(delta) {
+    setView((v) => new Date(v.getFullYear(), v.getMonth() + delta, 1));
+  }
+  return /* @__PURE__ */ jsxs("div", { className: `${block ? "block" : "inline-block"} ${className}`, children: [
+    /* @__PURE__ */ jsxs(
+      "button",
+      {
+        ref: triggerRef,
+        type: "button",
+        disabled,
+        "aria-haspopup": "dialog",
+        "aria-expanded": open,
+        onClick: () => {
+          if (selected) setView(selected);
+          setOpen((o) => !o);
+        },
+        className: `flex ${block ? "w-full" : ""} h-11 items-center justify-between gap-2 rounded-xl border border-input bg-surface px-4 text-sm text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50`,
+        children: [
+          /* @__PURE__ */ jsx("span", { className: selected ? "" : "text-muted-foreground", children: selected ? selected.toLocaleDateString(void 0, { year: "numeric", month: "short", day: "numeric" }) : placeholder }),
+          /* @__PURE__ */ jsx(Calendar, { size: 14, className: "shrink-0 text-muted-foreground" })
+        ]
+      }
+    ),
+    open && menuStyle && /* @__PURE__ */ jsxs(
+      "div",
+      {
+        ref: menuRef,
+        role: "dialog",
+        style: menuStyle,
+        className: "z-50 rounded-xl border border-border bg-surface p-3 shadow-lg",
+        children: [
+          /* @__PURE__ */ jsxs("div", { className: "mb-2 flex items-center justify-between", children: [
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                className: "grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:bg-accent",
+                onClick: () => shiftMonth(-1),
+                "aria-label": "Previous month",
+                children: /* @__PURE__ */ jsx(ChevronLeft, { size: 16 })
+              }
+            ),
+            /* @__PURE__ */ jsx("span", { className: "text-sm font-medium", children: view.toLocaleDateString(void 0, { month: "long", year: "numeric" }) }),
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                type: "button",
+                className: "grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:bg-accent",
+                onClick: () => shiftMonth(1),
+                "aria-label": "Next month",
+                children: /* @__PURE__ */ jsx(ChevronRight, { size: 16 })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-7 gap-0.5 text-center", children: [
+            WEEKDAYS.map((w) => /* @__PURE__ */ jsx("div", { className: "py-1 text-[10px] font-medium uppercase text-muted-foreground", children: w }, w)),
+            cells.map(
+              (d, i) => d === null ? /* @__PURE__ */ jsx("div", {}, i) : /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => pick(d),
+                  className: `grid h-8 w-8 place-items-center rounded-lg text-sm transition hover:bg-accent ${selected && sameDay(d, selected) ? "bg-primary text-primary-foreground hover:bg-primary" : sameDay(d, today) ? "ring-1 ring-inset ring-border" : ""}`,
+                  children: d.getDate()
+                },
+                i
+              )
+            )
+          ] }),
+          selected && /* @__PURE__ */ jsx(
+            "button",
+            {
+              type: "button",
+              className: "mt-2 w-full rounded-lg py-1 text-xs text-muted-foreground hover:bg-accent",
+              onClick: () => {
+                onChange("");
+                setOpen(false);
+              },
+              children: "Clear"
+            }
+          )
+        ]
+      }
+    )
+  ] });
+}
+var WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+function toISO(d) {
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+function parseISO(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (!m) return null;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return isNaN(d.getTime()) ? null : d;
+}
+function sameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 function EmptyState({
   icon,
@@ -1166,6 +1294,6 @@ function ContextMenu(props) {
   );
 }
 
-export { AppShell, BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, EmptyState, Field, FieldHelp, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
+export { AppShell, BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, EmptyState, Field, FieldHelp, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

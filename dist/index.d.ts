@@ -126,6 +126,24 @@ declare function Checkbox({ checked, onChange, label, disabled, block, className
 }): react_jsx_runtime.JSX.Element;
 
 /**
+ * Styled date picker that replaces the native <input type="date"> so the
+ * control matches the rest of the UI. value / onChange use an ISO
+ * "YYYY-MM-DD" string (empty = no date), exactly like the native input, so
+ * it drops in without touching the surrounding form logic. The calendar is
+ * portaled and positioned by useFloatingMenu (opens down, flips up, clamps
+ * on-screen) and toggles shut on a second trigger click.
+ */
+declare function DatePicker({ value, onChange, placeholder, disabled, block, className, }: {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+    disabled?: boolean;
+    /** Fill the container width. */
+    block?: boolean;
+    className?: string;
+}): react_jsx_runtime.JSX.Element;
+
+/**
  * Small (i) icon you place beside a form label. Click pops a card with
  * one or two sentences. Use sparingly — every (i) you add is a thing
  * the user has to scan past.
@@ -635,4 +653,4 @@ declare function ContextMenu(props: {
     onClose: () => void;
 }): react_jsx_runtime.JSX.Element;
 
-export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, EmptyState, Field, FieldHelp, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
+export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, EmptyState, Field, FieldHelp, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
