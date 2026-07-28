@@ -13,17 +13,20 @@ export function Checkbox({
   onChange,
   label,
   disabled = false,
+  block = false,
   className = '',
 }: {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label?: ReactNode;
   disabled?: boolean;
+  /** Fill the container width — for full-width form rows / list items. */
+  block?: boolean;
   className?: string;
 }) {
   return (
     <label
-      className={`inline-flex items-start gap-2 text-sm text-foreground ${
+      className={`${block ? 'flex w-full' : 'inline-flex'} items-start gap-2 text-sm text-foreground ${
         disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
       } ${className}`}
     >

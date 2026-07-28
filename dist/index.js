@@ -308,12 +308,13 @@ function Checkbox({
   onChange,
   label,
   disabled = false,
+  block = false,
   className = ""
 }) {
   return /* @__PURE__ */ jsxs(
     "label",
     {
-      className: `inline-flex items-start gap-2 text-sm text-foreground ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${className}`,
+      className: `${block ? "flex w-full" : "inline-flex"} items-start gap-2 text-sm text-foreground ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${className}`,
       children: [
         /* @__PURE__ */ jsx(
           "input",

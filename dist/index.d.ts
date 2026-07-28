@@ -115,11 +115,13 @@ declare function Select({ value, onChange, options, placeholder, size, block, di
  * space-to-toggle); a sibling box is styled off its checked/focus state via
  * peer- utilities. Pass a label to get the whole row clickable.
  */
-declare function Checkbox({ checked, onChange, label, disabled, className, }: {
+declare function Checkbox({ checked, onChange, label, disabled, block, className, }: {
     checked: boolean;
     onChange: (checked: boolean) => void;
     label?: ReactNode;
     disabled?: boolean;
+    /** Fill the container width — for full-width form rows / list items. */
+    block?: boolean;
     className?: string;
 }): react_jsx_runtime.JSX.Element;
 
