@@ -655,15 +655,15 @@ function useColumnVisibility(storageKey, defaultHidden = []) {
 var aigwBrand = {
   name: "aigw",
   palette: {
-    accent: "#c2410c",
+    accent: "#4f46e5",
     ink: "#0a0a0a"
   },
   favicon: {
     viewBox: "0 0 32 32",
     inner: `
       <rect width="32" height="32" rx="7" fill="#0a0a0a"/>
-      <circle cx="16" cy="16" r="10.5" fill="none" stroke="#c2410c" stroke-width="2"/>
-      <circle cx="16" cy="16" r="4" fill="#c2410c"/>
+      <circle cx="16" cy="16" r="10.5" fill="none" stroke="#4f46e5" stroke-width="2"/>
+      <circle cx="16" cy="16" r="4" fill="#4f46e5"/>
     `.trim()
   },
   mark: {
@@ -677,8 +677,8 @@ var aigwBrand = {
     viewBox: "0 0 320 96",
     inner: `
       <text x="0" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui, sans-serif" font-size="84" font-weight="700" letter-spacing="-3.6" fill="#0a0a0a">aigw</text>
-      <circle cx="258" cy="68" r="12" fill="none" stroke="#c2410c" stroke-width="2.5"/>
-      <circle cx="258" cy="68" r="5" fill="#c2410c"/>
+      <circle cx="258" cy="68" r="12" fill="none" stroke="#4f46e5" stroke-width="2.5"/>
+      <circle cx="258" cy="68" r="5" fill="#4f46e5"/>
     `.trim()
   }
 };
