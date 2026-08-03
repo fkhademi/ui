@@ -6,15 +6,17 @@
  * the export below. The BrandSpec interface keeps everyone honest.
  */
 
+import { aigwBrand } from './aigw';
 import { dnswizBrand } from './dnswiz';
 import { doonBrand } from './doon';
 
 export const brands = {
+  aigw: aigwBrand,
   dnswiz: dnswizBrand,
   doon: doonBrand,
 } as const;
 
 export type BrandName = keyof typeof brands;
 
-export { dnswizBrand, doonBrand };
+export { aigwBrand, dnswizBrand, doonBrand };
 export type { BrandSpec, BrandPalette, BrandSvgSpec } from './types';

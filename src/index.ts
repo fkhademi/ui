@@ -46,5 +46,5 @@ export type { Column, DataTableProps } from './components/DataTable';
 export { SelectionToolbar } from './components/SelectionToolbar';
 export { ContextMenu } from './components/ContextMenu';
 export type { ContextMenuItem } from './components/ContextMenu';
-export { brands, dnswizBrand, doonBrand } from './brands';
+export { brands, aigwBrand, dnswizBrand, doonBrand } from './brands';
 export type { BrandName, BrandSpec, BrandPalette, BrandSvgSpec } from './brands';
