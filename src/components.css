@@ -960,9 +960,11 @@
      top center of the viewport so it doesn't fight with the page header
      and stays in the same place across pages. */
   .selection-toolbar {
+    /* Anchored bottom-center (like Gmail/Finder/Linear bulk bars) so it never
+       collides with a page header or sticky tab bar at the top of the view. */
     @apply fixed z-40
            left-1/2 -translate-x-1/2
-           top-3
+           bottom-6
            flex items-center gap-2 px-3 py-2 rounded-2xl
            bg-surface/90 backdrop-blur-xl
            ring-1 ring-border shadow-xl shadow-black/10
