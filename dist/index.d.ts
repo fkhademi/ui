@@ -420,6 +420,15 @@ interface BrandSpec {
 }
 
 /**
+ * aigw brand: a dot inside a ring, in doon-family accent orange. Sibling
+ * to the dnswiz mark (same dot-in-ring shape, blue) and the doon.io parent
+ * (the bare dot). The ring reads as the governed perimeter every call
+ * resolves through; the dot is the doon-family anchor. Ink is the standard
+ * near-black surface used across the family.
+ */
+declare const aigwBrand: BrandSpec;
+
+/**
  * dnswiz brand: dot inside a ring (the authoritative answer everyone
  * resolves to). Sister to the doon.io mark which is the bare dot.
  * Accent is dnswiz blue (Tailwind blue-500); ink is the standard
@@ -435,6 +444,7 @@ declare const dnswizBrand: BrandSpec;
 declare const doonBrand: BrandSpec;
 
 declare const brands: {
+    readonly aigw: BrandSpec;
     readonly dnswiz: BrandSpec;
     readonly doon: BrandSpec;
 };
@@ -653,4 +663,4 @@ declare function ContextMenu(props: {
     onClose: () => void;
 }): react_jsx_runtime.JSX.Element;
 
-export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, EmptyState, Field, FieldHelp, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
+export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, EmptyState, Field, FieldHelp, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
