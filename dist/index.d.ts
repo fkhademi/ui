@@ -420,11 +420,11 @@ interface BrandSpec {
 }
 
 /**
- * aigw brand: a dot inside a ring, in doon-family accent orange. Sibling
- * to the dnswiz mark (same dot-in-ring shape, blue) and the doon.io parent
- * (the bare dot). The ring reads as the governed perimeter every call
- * resolves through; the dot is the doon-family anchor. Ink is the standard
- * near-black surface used across the family.
+ * aigw brand: a gateway hub, a dot-in-ring gate with nodes routing through it,
+ * in indigo. It reads as "many callers in, many models, tools, and agents out,
+ * through one governed gate". The mark is the diagonal hub; the favicon is a
+ * simpler cross variant on a dark tile that stays crisp at favicon size.
+ * Distinct from the dnswiz blue dot-in-ring, still part of the doon family.
  */
 declare const aigwBrand: BrandSpec;
 
