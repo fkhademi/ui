@@ -662,11 +662,11 @@ var aigwBrand = {
     viewBox: "0 0 32 32",
     inner: `
       <rect width="32" height="32" rx="7" fill="#0a0a0a"/>
-      <path d="M16 10.9 V7.6 M16 21.1 V24.4 M10.9 16 H7.6 M21.1 16 H24.4" fill="none" stroke="#818cf8" stroke-width="1.8" stroke-linecap="round"/>
-      <circle cx="16" cy="5.6" r="2" fill="#818cf8"/>
-      <circle cx="16" cy="26.4" r="2" fill="#818cf8"/>
-      <circle cx="5.6" cy="16" r="2" fill="#818cf8"/>
-      <circle cx="26.4" cy="16" r="2" fill="#818cf8"/>
+      <path d="M9.4 9.4 L12.7 12.7 M22.6 9.4 L19.3 12.7 M9.4 22.6 L12.7 19.3 M22.6 22.6 L19.3 19.3" fill="none" stroke="#818cf8" stroke-width="1.8" stroke-linecap="round"/>
+      <circle cx="8" cy="8" r="2" fill="#818cf8"/>
+      <circle cx="24" cy="8" r="2" fill="#818cf8"/>
+      <circle cx="8" cy="24" r="2" fill="#818cf8"/>
+      <circle cx="24" cy="24" r="2" fill="#818cf8"/>
       <circle cx="16" cy="16" r="5" fill="none" stroke="#818cf8" stroke-width="2"/>
       <circle cx="16" cy="16" r="2" fill="#818cf8"/>
     `.trim()
