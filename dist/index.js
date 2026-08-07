@@ -1513,9 +1513,12 @@ function MultiSelect({
       }
     ),
     open && menuStyle && createPortal(
-      /* @__PURE__ */ jsxs("div", { ref: menuRef, style: { ...menuStyle, overflowY: "hidden" }, className: "z-[1000] flex flex-col rounded-xl border border-border bg-surface shadow-lg", children: [
+      // Lock the panel to the trigger width (menuStyle only sets a MIN width,
+      // so long option text would otherwise grow the menu and push it out of a
+      // narrow container); long options truncate instead.
+      /* @__PURE__ */ jsxs("div", { ref: menuRef, style: { ...menuStyle, overflowY: "hidden", width: menuStyle.minWidth }, className: "z-[1000] flex flex-col rounded-xl border border-border bg-surface shadow-lg", children: [
         /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-3 py-2 border-b border-border shrink-0", children: [
-          /* @__PURE__ */ jsx(Search, { size: 14, className: "text-muted-foreground" }),
+          /* @__PURE__ */ jsx(Search, { size: 14, className: "text-muted-foreground shrink-0" }),
           /* @__PURE__ */ jsx(
             "input",
             {
@@ -1530,17 +1533,17 @@ function MultiSelect({
                 }
               },
               placeholder: allowFree ? "Search or type a value\u2026" : "Search\u2026",
-              className: "flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              className: "min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
             }
           )
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "overflow-y-auto py-1", children: [
-          showAdd && /* @__PURE__ */ jsxs("button", { type: "button", onClick: () => add(q), className: "w-full text-left px-3 py-2 text-sm hover:bg-accent transition", children: [
+          showAdd && /* @__PURE__ */ jsxs("button", { type: "button", onClick: () => add(q), className: "block w-full truncate text-left px-3 py-2 text-sm hover:bg-accent transition", children: [
             "Add \u201C",
             q.trim(),
             "\u201D"
           ] }),
-          filtered.map((o) => /* @__PURE__ */ jsxs("button", { type: "button", onClick: () => add(o.value), className: "w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent transition", children: [
+          filtered.map((o) => /* @__PURE__ */ jsxs("button", { type: "button", onClick: () => add(o.value), title: o.label !== o.value ? `${o.label} \xB7 ${o.value}` : o.label, className: "block w-full truncate text-left px-3 py-2 text-sm text-foreground hover:bg-accent transition", children: [
             o.label,
             o.label !== o.value && /* @__PURE__ */ jsx("span", { className: "text-muted-foreground text-xs ml-1", children: o.value })
           ] }, o.value)),

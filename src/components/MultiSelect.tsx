@@ -67,9 +67,12 @@ export function MultiSelect({
       </button>
 
       {open && menuStyle && createPortal(
-        <div ref={menuRef} style={{ ...menuStyle, overflowY: 'hidden' }} className="z-[1000] flex flex-col rounded-xl border border-border bg-surface shadow-lg">
+        // Lock the panel to the trigger width (menuStyle only sets a MIN width,
+        // so long option text would otherwise grow the menu and push it out of a
+        // narrow container); long options truncate instead.
+        <div ref={menuRef} style={{ ...menuStyle, overflowY: 'hidden', width: menuStyle.minWidth }} className="z-[1000] flex flex-col rounded-xl border border-border bg-surface shadow-lg">
           <div className="flex items-center gap-2 px-3 py-2 border-b border-border shrink-0">
-            <Search size={14} className="text-muted-foreground" />
+            <Search size={14} className="text-muted-foreground shrink-0" />
             <input
               autoFocus
               value={q}
@@ -82,17 +85,17 @@ export function MultiSelect({
                 }
               }}
               placeholder={allowFree ? 'Search or type a value…' : 'Search…'}
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              className="min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
             />
           </div>
           <div className="overflow-y-auto py-1">
             {showAdd && (
-              <button type="button" onClick={() => add(q)} className="w-full text-left px-3 py-2 text-sm hover:bg-accent transition">
+              <button type="button" onClick={() => add(q)} className="block w-full truncate text-left px-3 py-2 text-sm hover:bg-accent transition">
                 Add “{q.trim()}”
               </button>
             )}
             {filtered.map((o) => (
-              <button key={o.value} type="button" onClick={() => add(o.value)} className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent transition">
+              <button key={o.value} type="button" onClick={() => add(o.value)} title={o.label !== o.value ? `${o.label} · ${o.value}` : o.label} className="block w-full truncate text-left px-3 py-2 text-sm text-foreground hover:bg-accent transition">
                 {o.label}
                 {o.label !== o.value && <span className="text-muted-foreground text-xs ml-1">{o.value}</span>}
               </button>
