@@ -1,5 +1,6 @@
 import { KeyboardEvent, MouseEvent, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
+import { ColumnToggle, useColumnVisibility } from './ColumnToggle';
 
 /**
  * Universal list primitive for the app.
@@ -49,6 +50,10 @@ export type Column<T> = {
    *  th and td via inline style. Use for tight glyph-only columns
    *  (gauge, icon) so they don't share the table's flex budget. */
   width?: string;
+  /** When false, the column can't be hidden from the Columns menu (kept
+   *  always-on). Use for the primary identifying column. Only relevant when
+   *  the table sets columnStorageKey. Defaults to hideable. */
+  hideable?: boolean;
 };
 
 type SortState = { key: string; dir: 'asc' | 'desc' } | null;
@@ -96,6 +101,14 @@ export type DataTableProps<T> = {
    *  Use for low-frequency table-scoped actions (Import, Export, …) so
    *  they don't compete with the primary page-header action. */
   extraActions?: ReactNode;
+
+  /** When set, the table renders a built-in "Columns" menu (persisted to
+   *  localStorage under this key) so users can show/hide columns. Columns
+   *  with hideable:false stay locked on. Omit to disable the menu entirely. */
+  columnStorageKey?: string;
+  /** Column keys hidden by default the first time (before the user picks).
+   *  Only used with columnStorageKey. */
+  columnsDefaultHidden?: string[];
 
   /** Controlled / server-side pagination. When set, the parent owns paging:
    *  `rows` is the current page as-is (no client slicing), the footer is
@@ -145,6 +158,8 @@ export function DataTable<T>(p: LegacyProps<T>) {
     onSelectionDelete,
     emptyState,
     extraActions,
+    columnStorageKey,
+    columnsDefaultHidden,
     serverPagination,
   } = p;
   const rows = rawRows ?? [];
@@ -152,6 +167,18 @@ export function DataTable<T>(p: LegacyProps<T>) {
   const server = !!sp;
   const searchCols = searchKeys ?? searchableKeys ?? [];
   const selected = selectedIds ?? new Set<string>();
+
+  // Built-in column show/hide. The hook runs unconditionally (rules of
+  // hooks); it only takes effect when the caller opts in with a storage
+  // key. sort/search still look up the full `columns` list, so a hidden
+  // column keeps working as a sort/search target if it was one.
+  const { columnVisibility, setColumnVisibility } = useColumnVisibility(
+    columnStorageKey ?? '__dt_unused__',
+    columnsDefaultHidden ?? [],
+  );
+  const visibleColumns = columnStorageKey
+    ? columns.filter((c) => columnVisibility[c.key] !== false)
+    : columns;
 
   const [sort, setSort] = useState<SortState>(defaultSort);
   const [search, setSearch] = useState(sp?.search ?? '');
@@ -426,14 +453,31 @@ export function DataTable<T>(p: LegacyProps<T>) {
             {search && rows.length !== sorted.length && <> · filtered from {rows.length}</>}
           </div>
         )}
-        {extraActions && <div className="ml-auto">{extraActions}</div>}
+        {(extraActions || columnStorageKey) && (
+          <div className="ml-auto flex items-center gap-2">
+            {extraActions}
+            {columnStorageKey && (
+              <ColumnToggle
+                items={columns.map((c) => ({
+                  id: c.key,
+                  label: c.label || c.key,
+                  visible: columnVisibility[c.key] !== false,
+                  canHide: c.hideable !== false,
+                }))}
+                onToggle={(id) =>
+                  setColumnVisibility((v) => ({ ...v, [id]: v[id] === false }))
+                }
+              />
+            )}
+          </div>
+        )}
       </div>
 
       <div className="dt-card">
         <table className="dt-table">
           <thead className="dt-thead">
             <tr>
-              {columns.map((c) => {
+              {visibleColumns.map((c) => {
                 const isSorted = effSort?.key === c.key;
                 return (
                   <th
@@ -463,28 +507,28 @@ export function DataTable<T>(p: LegacyProps<T>) {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={columns.length} className="dt-empty">
+                <td colSpan={visibleColumns.length} className="dt-empty">
                   Loading…
                 </td>
               </tr>
             )}
             {error && (
               <tr>
-                <td colSpan={columns.length} className="dt-empty text-destructive">
+                <td colSpan={visibleColumns.length} className="dt-empty text-destructive">
                   {error.message}
                 </td>
               </tr>
             )}
             {isEmpty && (
               <tr>
-                <td colSpan={columns.length}>
+                <td colSpan={visibleColumns.length}>
                   {emptyState ?? <div className="dt-empty">No rows.</div>}
                 </td>
               </tr>
             )}
             {isFilteredEmpty && (
               <tr>
-                <td colSpan={columns.length}>
+                <td colSpan={visibleColumns.length}>
                   <div className="dt-empty">
                     <div>No matches for "{search}".</div>
                     <button
@@ -527,7 +571,7 @@ export function DataTable<T>(p: LegacyProps<T>) {
                         : undefined
                     }
                   >
-                    {columns.map((c) => {
+                    {visibleColumns.map((c) => {
                       const content = c.render
                         ? c.render(row)
                         : String((row as Record<string, unknown>)[c.key] ?? '');

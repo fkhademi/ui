@@ -812,6 +812,8 @@ function DataTable(p) {
     onSelectionDelete,
     emptyState,
     extraActions,
+    columnStorageKey,
+    columnsDefaultHidden,
     serverPagination
   } = p;
   const rows = rawRows ?? [];
@@ -819,6 +821,11 @@ function DataTable(p) {
   const server = !!sp;
   const searchCols = searchKeys ?? searchableKeys ?? [];
   const selected = selectedIds ?? /* @__PURE__ */ new Set();
+  const { columnVisibility, setColumnVisibility } = useColumnVisibility(
+    columnStorageKey ?? "__dt_unused__",
+    columnsDefaultHidden ?? []
+  );
+  const visibleColumns = columnStorageKey ? columns.filter((c) => columnVisibility[c.key] !== false) : columns;
   const [sort, setSort] = useState(defaultSort);
   const [search, setSearch] = useState(sp?.search ?? "");
   const [pageSize, setPageSize] = useState(defaultPageSize);
@@ -1048,10 +1055,24 @@ function DataTable(p) {
               rows.length
             ] })
           ] }),
-          extraActions && /* @__PURE__ */ jsx("div", { className: "ml-auto", children: extraActions })
+          (extraActions || columnStorageKey) && /* @__PURE__ */ jsxs("div", { className: "ml-auto flex items-center gap-2", children: [
+            extraActions,
+            columnStorageKey && /* @__PURE__ */ jsx(
+              ColumnToggle,
+              {
+                items: columns.map((c) => ({
+                  id: c.key,
+                  label: c.label || c.key,
+                  visible: columnVisibility[c.key] !== false,
+                  canHide: c.hideable !== false
+                })),
+                onToggle: (id) => setColumnVisibility((v) => ({ ...v, [id]: v[id] === false }))
+              }
+            )
+          ] })
         ] }),
         /* @__PURE__ */ jsx("div", { className: "dt-card", children: /* @__PURE__ */ jsxs("table", { className: "dt-table", children: [
-          /* @__PURE__ */ jsx("thead", { className: "dt-thead", children: /* @__PURE__ */ jsx("tr", { children: columns.map((c) => {
+          /* @__PURE__ */ jsx("thead", { className: "dt-thead", children: /* @__PURE__ */ jsx("tr", { children: visibleColumns.map((c) => {
             const isSorted = effSort?.key === c.key;
             return /* @__PURE__ */ jsx(
               "th",
@@ -1068,10 +1089,10 @@ function DataTable(p) {
             );
           }) }) }),
           /* @__PURE__ */ jsxs("tbody", { children: [
-            isLoading && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: columns.length, className: "dt-empty", children: "Loading\u2026" }) }),
-            error && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: columns.length, className: "dt-empty text-destructive", children: error.message }) }),
-            isEmpty && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: columns.length, children: emptyState ?? /* @__PURE__ */ jsx("div", { className: "dt-empty", children: "No rows." }) }) }),
-            isFilteredEmpty && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: columns.length, children: /* @__PURE__ */ jsxs("div", { className: "dt-empty", children: [
+            isLoading && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, className: "dt-empty", children: "Loading\u2026" }) }),
+            error && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, className: "dt-empty text-destructive", children: error.message }) }),
+            isEmpty && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, children: emptyState ?? /* @__PURE__ */ jsx("div", { className: "dt-empty", children: "No rows." }) }) }),
+            isFilteredEmpty && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, children: /* @__PURE__ */ jsxs("div", { className: "dt-empty", children: [
               /* @__PURE__ */ jsxs("div", { children: [
                 'No matches for "',
                 search,
@@ -1106,7 +1127,7 @@ function DataTable(p) {
                     if (!selected.has(id)) selectOnly(id, sortedIdx);
                     onRowContext(row, e.clientX, e.clientY);
                   } : void 0,
-                  children: columns.map((c) => {
+                  children: visibleColumns.map((c) => {
                     const content = c.render ? c.render(row) : String(row[c.key] ?? "");
                     if (c.truncate) {
                       const fullText = c.searchValue ? c.searchValue(row) ?? "" : String(row[c.key] ?? "");

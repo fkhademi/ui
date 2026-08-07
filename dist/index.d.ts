@@ -540,6 +540,10 @@ type Column<T> = {
      *  th and td via inline style. Use for tight glyph-only columns
      *  (gauge, icon) so they don't share the table's flex budget. */
     width?: string;
+    /** When false, the column can't be hidden from the Columns menu (kept
+     *  always-on). Use for the primary identifying column. Only relevant when
+     *  the table sets columnStorageKey. Defaults to hideable. */
+    hideable?: boolean;
 };
 type SortState = {
     key: string;
@@ -579,6 +583,13 @@ type DataTableProps<T> = {
      *  Use for low-frequency table-scoped actions (Import, Export, …) so
      *  they don't compete with the primary page-header action. */
     extraActions?: ReactNode;
+    /** When set, the table renders a built-in "Columns" menu (persisted to
+     *  localStorage under this key) so users can show/hide columns. Columns
+     *  with hideable:false stay locked on. Omit to disable the menu entirely. */
+    columnStorageKey?: string;
+    /** Column keys hidden by default the first time (before the user picks).
+     *  Only used with columnStorageKey. */
+    columnsDefaultHidden?: string[];
     /** Controlled / server-side pagination. When set, the parent owns paging:
      *  `rows` is the current page as-is (no client slicing), the footer is
      *  driven by these values, and page/size controls call back. Omit for the
