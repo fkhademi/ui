@@ -1,7 +1,8 @@
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { HelpCircle, ChevronDown, Check, Calendar, ChevronLeft, ChevronRight, LogOut, SlidersHorizontal, Search, ChevronUp, X, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
-import { useState, useRef, useLayoutEffect, useEffect, useMemo } from 'react';
+import { createContext, useState, useRef, useLayoutEffect, useEffect, useMemo, useContext } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 
 // src/components/PageHeader.tsx
 function PageHeader({
@@ -1340,7 +1341,217 @@ function ContextMenu(props) {
     }
   );
 }
+function Toggle({
+  on,
+  onClick,
+  ariaLabel,
+  disabled
+}) {
+  return /* @__PURE__ */ jsx(
+    "button",
+    {
+      type: "button",
+      role: "switch",
+      "aria-checked": on,
+      "aria-label": ariaLabel,
+      disabled,
+      onClick,
+      className: `toggle${on ? " toggle--on" : ""}`,
+      children: /* @__PURE__ */ jsx("div", { className: "toggle-thumb" })
+    }
+  );
+}
+var defaultConfirm = async ({ body }) => window.confirm(body);
+var DrawerCloseCtx = createContext(null);
+function useDrawerClose() {
+  const fn = useContext(DrawerCloseCtx);
+  if (!fn) throw new Error("useDrawerClose must be called inside a <Drawer>");
+  return fn;
+}
+function Drawer({
+  open,
+  dirty,
+  title,
+  onClose,
+  children,
+  confirmDiscard = defaultConfirm,
+  discardTitle = "Discard unsaved changes?",
+  discardBody = "You haven't saved your edits. They will be lost."
+}) {
+  const [autoDirty, setAutoDirty] = useState(false);
+  const effectiveDirty = dirty ?? autoDirty;
+  useEffect(() => {
+    if (open) setAutoDirty(false);
+  }, [open]);
+  async function requestClose() {
+    if (effectiveDirty) {
+      const ok = await confirmDiscard({
+        title: discardTitle,
+        body: discardBody,
+        confirmLabel: "Discard",
+        cancelLabel: "Keep editing",
+        danger: true
+      });
+      if (!ok) return;
+    }
+    onClose();
+  }
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e) {
+      if (e.key === "Escape") {
+        const target = e.target;
+        if (target && target.tagName === "SELECT") return;
+        requestClose();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, effectiveDirty]);
+  if (!open) return null;
+  return createPortal(
+    /* @__PURE__ */ jsxs(DrawerCloseCtx.Provider, { value: requestClose, children: [
+      /* @__PURE__ */ jsx("div", { className: "drawer-overlay", onClick: requestClose }),
+      /* @__PURE__ */ jsxs(
+        "aside",
+        {
+          className: "drawer-panel",
+          onInput: () => setAutoDirty(true),
+          onChange: () => setAutoDirty(true),
+          onKeyDown: (e) => {
+            if (e.key !== "Enter" || e.shiftKey || e.ctrlKey || e.metaKey) return;
+            const target = e.target;
+            const tag = target.tagName;
+            if (tag === "TEXTAREA" || tag === "SELECT" || tag === "BUTTON") return;
+            if (tag !== "INPUT") return;
+            const form = target.closest("form");
+            if (!form) return;
+            e.preventDefault();
+            form.requestSubmit();
+          },
+          children: [
+            /* @__PURE__ */ jsxs("header", { className: "drawer-header", children: [
+              /* @__PURE__ */ jsx("div", { className: "drawer-title", children: title }),
+              /* @__PURE__ */ jsx("button", { type: "button", onClick: requestClose, className: "btn-icon", title: "Close", "aria-label": "Close drawer", children: "\u2715" })
+            ] }),
+            children
+          ]
+        }
+      )
+    ] }),
+    document.body
+  );
+}
+function DrawerFooter({
+  pending = false,
+  label = "Save",
+  disabled = false,
+  children
+}) {
+  const close = useDrawerClose();
+  function save(e) {
+    e.preventDefault();
+    const panel = e.currentTarget.closest(".drawer-panel");
+    const form = panel?.querySelector("form");
+    if (form) form.requestSubmit();
+  }
+  if (children) {
+    return /* @__PURE__ */ jsx("footer", { className: "drawer-footer", children });
+  }
+  return /* @__PURE__ */ jsxs("footer", { className: "drawer-footer", children: [
+    /* @__PURE__ */ jsx("button", { type: "button", onClick: close, className: "btn-ghost ml-auto", children: "Cancel" }),
+    /* @__PURE__ */ jsx("button", { type: "button", disabled: pending || disabled, onClick: save, className: "btn-primary", children: pending ? "Saving\u2026" : label })
+  ] });
+}
+function MultiSelect({
+  value,
+  onChange,
+  options = [],
+  allowFree = false,
+  placeholder = "Any"
+}) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const { triggerRef, menuRef, menuStyle } = useFloatingMenu({
+    open,
+    onClose: () => {
+      setOpen(false);
+      setQ("");
+    },
+    align: "stretch"
+  });
+  const labelFor = (v) => options.find((o) => o.value === v)?.label ?? v;
+  const add = (v) => {
+    const t = v.trim();
+    if (t && !value.includes(t)) onChange([...value, t]);
+    setQ("");
+  };
+  const remove = (v) => onChange(value.filter((x) => x !== v));
+  const filtered = options.filter(
+    (o) => !value.includes(o.value) && (o.label.toLowerCase().includes(q.toLowerCase()) || o.value.toLowerCase().includes(q.toLowerCase()))
+  );
+  const showAdd = allowFree && q.trim().length > 0 && !value.includes(q.trim()) && !options.some((o) => o.value === q.trim());
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs(
+      "button",
+      {
+        ref: triggerRef,
+        type: "button",
+        onClick: () => setOpen((v) => !v),
+        className: "w-full flex items-center gap-1 flex-wrap rounded-lg border border-border bg-card px-2 py-1.5 text-sm text-foreground hover:bg-accent transition min-h-[2.25rem]",
+        children: [
+          value.length === 0 && /* @__PURE__ */ jsx("span", { className: "text-muted-foreground flex-1 text-left", children: placeholder }),
+          value.map((v) => /* @__PURE__ */ jsxs("span", { className: "inline-flex items-center gap-1 rounded bg-accent px-1.5 py-0.5 text-xs", children: [
+            labelFor(v),
+            /* @__PURE__ */ jsx(X, { size: 11, className: "cursor-pointer hover:text-foreground", onClick: (e) => {
+              e.stopPropagation();
+              remove(v);
+            } })
+          ] }, v)),
+          /* @__PURE__ */ jsx(ChevronDown, { size: 14, className: "text-muted-foreground shrink-0 ml-auto" })
+        ]
+      }
+    ),
+    open && menuStyle && createPortal(
+      /* @__PURE__ */ jsxs("div", { ref: menuRef, style: { ...menuStyle, overflowY: "hidden" }, className: "z-[1000] flex flex-col rounded-xl border border-border bg-surface shadow-lg", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-3 py-2 border-b border-border shrink-0", children: [
+          /* @__PURE__ */ jsx(Search, { size: 14, className: "text-muted-foreground" }),
+          /* @__PURE__ */ jsx(
+            "input",
+            {
+              autoFocus: true,
+              value: q,
+              onChange: (e) => setQ(e.target.value),
+              onKeyDown: (e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (showAdd) add(q);
+                  else if (filtered[0]) add(filtered[0].value);
+                }
+              },
+              placeholder: allowFree ? "Search or type a value\u2026" : "Search\u2026",
+              className: "flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "overflow-y-auto py-1", children: [
+          showAdd && /* @__PURE__ */ jsxs("button", { type: "button", onClick: () => add(q), className: "w-full text-left px-3 py-2 text-sm hover:bg-accent transition", children: [
+            "Add \u201C",
+            q.trim(),
+            "\u201D"
+          ] }),
+          filtered.map((o) => /* @__PURE__ */ jsxs("button", { type: "button", onClick: () => add(o.value), className: "w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent transition", children: [
+            o.label,
+            o.label !== o.value && /* @__PURE__ */ jsx("span", { className: "text-muted-foreground text-xs ml-1", children: o.value })
+          ] }, o.value)),
+          filtered.length === 0 && !showAdd && /* @__PURE__ */ jsx("div", { className: "px-3 py-3 text-sm text-muted-foreground text-center", children: options.length ? "No matches" : "Nothing to pick" })
+        ] })
+      ] }),
+      document.body
+    )
+  ] });
+}
 
-export { AppShell, BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, EmptyState, Field, FieldHelp, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, aigwBrand, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
+export { AppShell, BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, aigwBrand, brands, dnswizBrand, doonBrand, useColumnVisibility, useDrawerClose, useFloatingMenu, useSidebarCollapsed };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

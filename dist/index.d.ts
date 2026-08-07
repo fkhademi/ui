@@ -1,5 +1,6 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { ReactNode, RefObject, CSSProperties } from 'react';
+import * as react from 'react';
+import { ReactNode, RefObject, CSSProperties, FormEvent } from 'react';
 
 /**
  * Standard page header used at the top of every authenticated page.
@@ -663,4 +664,93 @@ declare function ContextMenu(props: {
     onClose: () => void;
 }): react_jsx_runtime.JSX.Element;
 
-export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, EmptyState, Field, FieldHelp, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, dnswizBrand, doonBrand, useColumnVisibility, useFloatingMenu, useSidebarCollapsed };
+/**
+ * Two-state switch styled by the central .toggle / .toggle-thumb pair.
+ *
+ * The click handler fires synchronously - wrap it in a confirm or a
+ * drawer-trigger when the action needs intent (e.g. disabling MFA).
+ */
+declare function Toggle({ on, onClick, ariaLabel, disabled, }: {
+    on: boolean;
+    onClick: () => void;
+    ariaLabel?: string;
+    disabled?: boolean;
+}): react_jsx_runtime.JSX.Element;
+
+/**
+ * Universal right-side drawer used by every create/edit form.
+ *
+ * Renders the overlay + panel + header (title + X) and centralizes the
+ * three ways to dismiss without saving:
+ *
+ *   • X button      → requestClose()
+ *   • Overlay click → requestClose()
+ *   • Escape key    → requestClose()
+ *
+ * Dirty tracking is automatic - any input/change event bubbling up from inside
+ * the panel marks the drawer dirty, and requestClose() then confirms before
+ * closing. Callers can override with the explicit `dirty` prop.
+ *
+ * The discard confirmation is injectable via `confirmDiscard` so this stays
+ * app-agnostic: a host app passes its styled confirm dialog; without one it
+ * falls back to window.confirm. The Save path bypasses the wrapper entirely -
+ * the caller invokes onClose after the mutation succeeds, so a successful submit
+ * never prompts.
+ */
+type ConfirmDiscard = (opts: {
+    title: string;
+    body: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    danger?: boolean;
+}) => Promise<boolean>;
+type CloseFn = () => void;
+declare function useDrawerClose(): CloseFn;
+declare function Drawer({ open, dirty, title, onClose, children, confirmDiscard, discardTitle, discardBody, }: {
+    open: boolean;
+    /** Optional override. If omitted, dirty is auto-detected via any input/change
+     *  event bubbling up from inside the panel. */
+    dirty?: boolean;
+    title: string;
+    onClose: () => void;
+    children: ReactNode;
+    /** Styled confirm dialog; defaults to window.confirm. */
+    confirmDiscard?: ConfirmDiscard;
+    discardTitle?: string;
+    discardBody?: string;
+}): react.ReactPortal | null;
+/**
+ * Standard drawer footer with Cancel (routes through requestClose so
+ * dirty-confirm fires) + Save. The Save button submits the form living inside
+ * the same drawer panel, so HTML constraints run before the form's onSubmit.
+ */
+declare function DrawerFooter({ pending, label, disabled, children, }: {
+    pending?: boolean;
+    onSubmit?: (e: FormEvent) => void;
+    label?: string;
+    disabled?: boolean;
+    children?: ReactNode;
+}): react_jsx_runtime.JSX.Element;
+
+type MultiSelectOption = {
+    value: string;
+    label: string;
+};
+/**
+ * Searchable multi-select combobox with chips. The popover is portaled and
+ * positioned with useFloatingMenu, so it floats cleanly over an overflow
+ * ancestor (a drawer body, a scroll container) instead of being clipped.
+ *
+ * allowFree lets the caller type a value that isn't in `options` (a glob, or a
+ * runtime-only value like an IdP group / JWT subject) - so suggestion-backed
+ * fields still accept free entry.
+ */
+declare function MultiSelect({ value, onChange, options, allowFree, placeholder, }: {
+    value: string[];
+    onChange: (v: string[]) => void;
+    options?: MultiSelectOption[];
+    allowFree?: boolean;
+    placeholder?: string;
+}): react_jsx_runtime.JSX.Element;
+
+export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, type ConfirmDiscard, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, dnswizBrand, doonBrand, useColumnVisibility, useDrawerClose, useFloatingMenu, useSidebarCollapsed };
