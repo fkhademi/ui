@@ -116,10 +116,17 @@ export function useFloatingMenu<
   // Measure the menu so we can (a) flip it above the trigger when it will not
   // fit below and (b) clamp it into the viewport horizontally. useLayoutEffect
   // runs before paint, so the reposition happens without a visible jump.
+  //
+  // Height must come from scrollHeight, not offsetHeight: the first pass places
+  // the menu downward with maxHeight capped to the space below, so offsetHeight
+  // reports the CLAMPED height, which by construction always fits. That feeds
+  // back into the flip test and pins the menu downward forever - near the bottom
+  // of the viewport it just squashes instead of flipping. scrollHeight is the
+  // natural content height and is unaffected by the cap.
   const [size, setSize] = useState({ h: 0, w: 0 });
   useLayoutEffect(() => {
     const el = open ? menuRef.current : null;
-    setSize(el ? { h: el.offsetHeight, w: el.offsetWidth } : { h: 0, w: 0 });
+    setSize(el ? { h: el.scrollHeight, w: el.offsetWidth } : { h: 0, w: 0 });
   }, [open, rect]);
 
   const menuStyle = rect ? computeStyle(rect, align, gap, size) : undefined;

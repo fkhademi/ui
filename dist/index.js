@@ -186,7 +186,7 @@ function useFloatingMenu({
   const [size, setSize] = useState({ h: 0, w: 0 });
   useLayoutEffect(() => {
     const el = open ? menuRef.current : null;
-    setSize(el ? { h: el.offsetHeight, w: el.offsetWidth } : { h: 0, w: 0 });
+    setSize(el ? { h: el.scrollHeight, w: el.offsetWidth } : { h: 0, w: 0 });
   }, [open, rect]);
   const menuStyle = rect ? computeStyle(rect, align, gap, size) : void 0;
   return { triggerRef, menuRef, menuStyle };
