@@ -574,6 +574,13 @@
            border-l border-border flex flex-col;
   }
 
+  /* Wider variant for drawers that carry a list or a result pane alongside the
+     form. Same panel, more column, so long provider messages and model ids stop
+     wrapping mid-token. */
+  .drawer-panel-lg {
+    @apply md:max-w-2xl;
+  }
+
   .drawer-header {
     @apply flex items-center justify-between px-5 h-14 border-b border-border;
   }

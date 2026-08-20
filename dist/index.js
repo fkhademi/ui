@@ -1402,6 +1402,7 @@ function Drawer({
   title,
   onClose,
   children,
+  size = "md",
   confirmDiscard = defaultConfirm,
   discardTitle = "Discard unsaved changes?",
   discardBody = "You haven't saved your edits. They will be lost."
@@ -1443,7 +1444,7 @@ function Drawer({
       /* @__PURE__ */ jsxs(
         "aside",
         {
-          className: "drawer-panel",
+          className: `drawer-panel${size === "lg" ? " drawer-panel-lg" : ""}`,
           onInput: () => setAutoDirty(true),
           onChange: () => setAutoDirty(true),
           onKeyDown: (e) => {

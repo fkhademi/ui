@@ -724,7 +724,7 @@ type ConfirmDiscard = (opts: {
 }) => Promise<boolean>;
 type CloseFn = () => void;
 declare function useDrawerClose(): CloseFn;
-declare function Drawer({ open, dirty, title, onClose, children, confirmDiscard, discardTitle, discardBody, }: {
+declare function Drawer({ open, dirty, title, onClose, children, size, confirmDiscard, discardTitle, discardBody, }: {
     open: boolean;
     /** Optional override. If omitted, dirty is auto-detected via any input/change
      *  event bubbling up from inside the panel. */
@@ -732,6 +732,9 @@ declare function Drawer({ open, dirty, title, onClose, children, confirmDiscard,
     title: string;
     onClose: () => void;
     children: ReactNode;
+    /** Panel width. 'lg' is for forms that also carry an inventory or a result
+     *  pane, where the default column forces long text to wrap awkwardly. */
+    size?: 'md' | 'lg';
     /** Styled confirm dialog; defaults to window.confirm. */
     confirmDiscard?: ConfirmDiscard;
     discardTitle?: string;

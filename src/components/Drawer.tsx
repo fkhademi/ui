@@ -47,6 +47,7 @@ export function Drawer({
   title,
   onClose,
   children,
+  size = 'md',
   confirmDiscard = defaultConfirm,
   discardTitle = 'Discard unsaved changes?',
   discardBody = "You haven't saved your edits. They will be lost.",
@@ -58,6 +59,9 @@ export function Drawer({
   title: string;
   onClose: () => void;
   children: ReactNode;
+  /** Panel width. 'lg' is for forms that also carry an inventory or a result
+   *  pane, where the default column forces long text to wrap awkwardly. */
+  size?: 'md' | 'lg';
   /** Styled confirm dialog; defaults to window.confirm. */
   confirmDiscard?: ConfirmDiscard;
   discardTitle?: string;
@@ -104,7 +108,7 @@ export function Drawer({
     <DrawerCloseCtx.Provider value={requestClose}>
       <div className="drawer-overlay" onClick={requestClose} />
       <aside
-        className="drawer-panel"
+        className={`drawer-panel${size === 'lg' ? ' drawer-panel-lg' : ''}`}
         onInput={() => setAutoDirty(true)}
         onChange={() => setAutoDirty(true)}
         onKeyDown={(e) => {
