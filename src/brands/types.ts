@@ -9,7 +9,7 @@
  *   - Build-time emitters that write favicon.svg / mark.svg /
  *     wordmark.svg out to a public/ dir for static serving
  *
- * Keep the strings free of script content and event handlers — they
+ * Keep the strings free of script content and event handlers - they
  * are pure shape + color declarations only.
  */
 

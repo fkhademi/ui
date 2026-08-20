@@ -26,7 +26,7 @@ declare function PageHeader({ title, subtitle, actions, }: {
 
 /**
  * Card-shaped collapsible section. Use for any "list of expandable
- * config sections" surface — e.g. settings and detail pages.
+ * config sections" surface - e.g. settings and detail pages.
  *
  * Two modes:
  *   1. Accordion (default): pass `children` + `open` + `onToggle`. The
@@ -36,7 +36,7 @@ declare function PageHeader({ title, subtitle, actions, }: {
  *      Right-slot mode disables click-to-expand so the slot owns the
  *      interaction.
  *
- * Don't pass `right` and `children` together — the header would have
+ * Don't pass `right` and `children` together - the header would have
  * two competing interaction targets. Pick one.
  */
 declare function SettingsCard({ icon, title, summary, open, onToggle, right, children, }: {
@@ -67,7 +67,7 @@ declare function SettingsCards({ children }: {
  * The `help` prop renders an (i) popover next to the label for terse
  * inline explanations. The `error` prop renders red text below the input.
  *
- * Layout-only. Visual identity is in the `.field*` classes — the input
+ * Layout-only. Visual identity is in the `.field*` classes - the input
  * itself gets the `.field` or `.field-mono` class at the call site.
  */
 declare function Field({ label, hint, error, help, children, }: {
@@ -153,7 +153,7 @@ declare function DatePicker({ value, onChange, placeholder, disabled, block, cla
 
 /**
  * Small (i) icon you place beside a form label. Click pops a card with
- * one or two sentences. Use sparingly — every (i) you add is a thing
+ * one or two sentences. Use sparingly - every (i) you add is a thing
  * the user has to scan past.
  *
  * Smart positioning: on open, measures the trigger and the viewport,
@@ -171,7 +171,7 @@ declare function FieldHelp({ title, body, }: {
 
 /**
  * "No data yet" screen for empty lists, filtered-to-zero tables,
- * never-used features, etc. Center-aligned, low-contrast — the empty
+ * never-used features, etc. Center-aligned, low-contrast - the empty
  * state should feel calm, not alarming.
  *
  *   <EmptyState
@@ -202,7 +202,7 @@ declare function EmptyState({ icon, title, subtitle, action, }: {
  *     ...
  *   </aside>
  *
- * Recommended placement is the right edge of the brand row — that's
+ * Recommended placement is the right edge of the brand row - that's
  * the only spot in the rail that never moves between collapsed and
  * expanded states. Hide rules for the collapsed state target spans
  * specifically so the <button> here survives.
@@ -267,7 +267,7 @@ interface AppShellProps {
  * `collapseKey` so multiple apps can coexist independently.
  *
  * The main panel scrolls. Pages should not add their own
- * `min-h-screen` / `overflow` wrappers — the shell owns that.
+ * `min-h-screen` / `overflow` wrappers - the shell owns that.
  */
 declare function AppShell({ brand, navItems, user, onLogout, collapseKey, children, }: AppShellProps): react_jsx_runtime.JSX.Element;
 
@@ -302,12 +302,12 @@ declare function AppShell({ brand, navItems, user, onLogout, collapseKey, childr
  *   1. Recomputing the menu position on resize and scroll (capture phase,
  *      so nested scrollers like a drawer body trigger updates too).
  *   2. Dismissing on outside-click. Both the trigger and the portaled
- *      menu are treated as "inside" — clicks within either keep the
+ *      menu are treated as "inside" - clicks within either keep the
  *      menu open.
  *   3. Dismissing on Escape.
  *
  * The returned `menuStyle` is undefined when the menu is closed or the
- * trigger hasn't measured yet — guard your render with `{open && style && …}`
+ * trigger hasn't measured yet - guard your render with `{open && style && …}`
  * to avoid a brief un-positioned flash.
  *
  * Alignment:
@@ -340,7 +340,7 @@ declare function useFloatingMenu<TriggerEl extends HTMLElement = HTMLButtonEleme
  * Show/hide-columns control for data tables. The presentational half of
  * "optional columns": a `.btn-secondary` trigger that opens a `.menu`
  * popover (positioned via useFloatingMenu) listing each hideable column
- * with a checkbox. The table owns the actual visibility state — this
+ * with a checkbox. The table owns the actual visibility state - this
  * component is deliberately framework-agnostic (no @tanstack/react-table
  * dependency); it just renders items and reports toggles.
  *
@@ -389,7 +389,7 @@ declare function useColumnVisibility(storageKey: string, defaultHidden?: string[
  *   - Build-time emitters that write favicon.svg / mark.svg /
  *     wordmark.svg out to a public/ dir for static serving
  *
- * Keep the strings free of script content and event handlers — they
+ * Keep the strings free of script content and event handlers - they
  * are pure shape + color declarations only.
  */
 interface BrandPalette {
@@ -464,15 +464,15 @@ interface BrandMarkProps {
     /**
      * Which rendition.
      *
-     *   `mark` (default) — the symbol only, uses `currentColor` so the
+     *   `mark` (default) - the symbol only, uses `currentColor` so the
      *     consumer can theme it via parent text color. Use inside a
      *     colored tile (e.g. `bg-primary/15 text-primary`).
      *
-     *   `favicon` — ink-square tile with the mark inside, brand colors
+     *   `favicon` - ink-square tile with the mark inside, brand colors
      *     hardcoded. Use when there's no surrounding tile (tab icons,
      *     sign-in pages, og images).
      *
-     *   `wordmark` — brand name in system-font bold with the accent
+     *   `wordmark` - brand name in system-font bold with the accent
      *     shape at the end. Use for footers, hero illustrations.
      */
     variant?: 'mark' | 'favicon' | 'wordmark';
@@ -512,7 +512,7 @@ declare function BrandMark({ name, variant, size, className, }: BrandMarkProps):
  *                    to the right-clicked row if it wasn't already in
  *                    the selection
  *
- * Keyboard nav (when the table has focus — click any row first):
+ * Keyboard nav (when the table has focus - click any row first):
  *   ↑ / ↓        move selection
  *   Enter        activate single-selected row
  *   Delete /
@@ -628,7 +628,7 @@ declare function DataTable<T>(p: LegacyProps<T>): react_jsx_runtime.JSX.Element;
  * in a DataTable. Reuses the .selection-toolbar primitives lifted from
  * pwsafe (see styles/components.css).
  *
- * Edit is enabled iff exactly one row is selected — multi-row edit is
+ * Edit is enabled iff exactly one row is selected - multi-row edit is
  * a feature, not a primitive. Bulk delete works on any count.
  *
  * Disable/Enable is shown when the caller provides both `anyActive` and

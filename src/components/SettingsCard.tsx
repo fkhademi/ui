@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 /**
  * Card-shaped collapsible section. Use for any "list of expandable
- * config sections" surface — e.g. settings and detail pages.
+ * config sections" surface - e.g. settings and detail pages.
  *
  * Two modes:
  *   1. Accordion (default): pass `children` + `open` + `onToggle`. The
@@ -13,7 +13,7 @@ import type { ReactNode } from 'react';
  *      Right-slot mode disables click-to-expand so the slot owns the
  *      interaction.
  *
- * Don't pass `right` and `children` together — the header would have
+ * Don't pass `right` and `children` together - the header would have
  * two competing interaction targets. Pick one.
  */
 export function SettingsCard({

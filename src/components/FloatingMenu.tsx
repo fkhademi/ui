@@ -31,12 +31,12 @@ import { useEffect, useLayoutEffect, useRef, useState, type RefObject, type CSSP
  *   1. Recomputing the menu position on resize and scroll (capture phase,
  *      so nested scrollers like a drawer body trigger updates too).
  *   2. Dismissing on outside-click. Both the trigger and the portaled
- *      menu are treated as "inside" — clicks within either keep the
+ *      menu are treated as "inside" - clicks within either keep the
  *      menu open.
  *   3. Dismissing on Escape.
  *
  * The returned `menuStyle` is undefined when the menu is closed or the
- * trigger hasn't measured yet — guard your render with `{open && style && …}`
+ * trigger hasn't measured yet - guard your render with `{open && style && …}`
  * to avoid a brief un-positioned flash.
  *
  * Alignment:

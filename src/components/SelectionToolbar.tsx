@@ -6,7 +6,7 @@ import { Pencil, Power, PowerOff, Trash2, X } from 'lucide-react';
  * in a DataTable. Reuses the .selection-toolbar primitives lifted from
  * pwsafe (see styles/components.css).
  *
- * Edit is enabled iff exactly one row is selected — multi-row edit is
+ * Edit is enabled iff exactly one row is selected - multi-row edit is
  * a feature, not a primitive. Bulk delete works on any count.
  *
  * Disable/Enable is shown when the caller provides both `anyActive` and

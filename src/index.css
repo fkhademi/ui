@@ -1,4 +1,4 @@
-/* Barrel — import this from your app's main.tsx (or equivalent).
+/* Barrel - import this from your app's main.tsx (or equivalent).
  * Imports the design tokens, base resets, semantic component classes,
  * and small generic utilities. Order matters: tokens must come before
  * anything that references --primary etc.

@@ -14,7 +14,7 @@ import { ColumnToggle, useColumnVisibility } from './ColumnToggle';
  *                    to the right-clicked row if it wasn't already in
  *                    the selection
  *
- * Keyboard nav (when the table has focus — click any row first):
+ * Keyboard nav (when the table has focus - click any row first):
  *   ↑ / ↓        move selection
  *   Enter        activate single-selected row
  *   Delete /
@@ -132,7 +132,7 @@ export type DataTableProps<T> = {
   };
 };
 
-// Back-compat alias — some pages still pass `searchableKeys`.
+// Back-compat alias - some pages still pass `searchableKeys`.
 type LegacyProps<T> = DataTableProps<T> & { searchableKeys?: string[] };
 
 export function DataTable<T>(p: LegacyProps<T>) {

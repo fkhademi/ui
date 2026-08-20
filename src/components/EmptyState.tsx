@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 /**
  * "No data yet" screen for empty lists, filtered-to-zero tables,
- * never-used features, etc. Center-aligned, low-contrast — the empty
+ * never-used features, etc. Center-aligned, low-contrast - the empty
  * state should feel calm, not alarming.
  *
  *   <EmptyState

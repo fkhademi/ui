@@ -6,7 +6,7 @@ import { useFloatingMenu } from './FloatingMenu';
  * Show/hide-columns control for data tables. The presentational half of
  * "optional columns": a `.btn-secondary` trigger that opens a `.menu`
  * popover (positioned via useFloatingMenu) listing each hideable column
- * with a checkbox. The table owns the actual visibility state — this
+ * with a checkbox. The table owns the actual visibility state - this
  * component is deliberately framework-agnostic (no @tanstack/react-table
  * dependency); it just renders items and reports toggles.
  *
@@ -50,7 +50,7 @@ export function ColumnToggle({ items, onToggle, label = 'Columns', className }: 
         {label}
       </button>
       {open && menuStyle && (
-        // Rendered inline rather than portaled — `.menu` is position:fixed
+        // Rendered inline rather than portaled - `.menu` is position:fixed
         // (via menuStyle) so it floats over the page without a react-dom
         // dependency. The trigger sits in a table toolbar with no
         // transformed/clipping ancestor, so fixed positioning is enough.
@@ -109,7 +109,7 @@ export function useColumnVisibility(
       const raw = localStorage.getItem(fullKey);
       if (raw) return JSON.parse(raw) as ColumnVisibility;
     } catch {
-      /* private mode / malformed — fall back to defaults */
+      /* private mode / malformed - fall back to defaults */
     }
     const init: ColumnVisibility = {};
     for (const id of defaultHidden) init[id] = false;

@@ -51,7 +51,7 @@ export interface AppShellProps {
  * `collapseKey` so multiple apps can coexist independently.
  *
  * The main panel scrolls. Pages should not add their own
- * `min-h-screen` / `overflow` wrappers — the shell owns that.
+ * `min-h-screen` / `overflow` wrappers - the shell owns that.
  */
 export function AppShell({
   brand,

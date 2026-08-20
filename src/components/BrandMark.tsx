@@ -6,15 +6,15 @@ export interface BrandMarkProps {
   /**
    * Which rendition.
    *
-   *   `mark` (default) — the symbol only, uses `currentColor` so the
+   *   `mark` (default) - the symbol only, uses `currentColor` so the
    *     consumer can theme it via parent text color. Use inside a
    *     colored tile (e.g. `bg-primary/15 text-primary`).
    *
-   *   `favicon` — ink-square tile with the mark inside, brand colors
+   *   `favicon` - ink-square tile with the mark inside, brand colors
    *     hardcoded. Use when there's no surrounding tile (tab icons,
    *     sign-in pages, og images).
    *
-   *   `wordmark` — brand name in system-font bold with the accent
+   *   `wordmark` - brand name in system-font bold with the accent
    *     shape at the end. Use for footers, hero illustrations.
    */
   variant?: 'mark' | 'favicon' | 'wordmark';

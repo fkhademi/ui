@@ -12,7 +12,7 @@ import { FieldHelp } from './FieldHelp';
  * The `help` prop renders an (i) popover next to the label for terse
  * inline explanations. The `error` prop renders red text below the input.
  *
- * Layout-only. Visual identity is in the `.field*` classes — the input
+ * Layout-only. Visual identity is in the `.field*` classes - the input
  * itself gets the `.field` or `.field-mono` class at the call site.
  */
 export function Field({

@@ -4,7 +4,7 @@ import { HelpCircle } from 'lucide-react';
 
 /**
  * Small (i) icon you place beside a form label. Click pops a card with
- * one or two sentences. Use sparingly — every (i) you add is a thing
+ * one or two sentences. Use sparingly - every (i) you add is a thing
  * the user has to scan past.
  *
  * Smart positioning: on open, measures the trigger and the viewport,

@@ -1,6 +1,6 @@
 /* Semantic component classes.
    Rule: visual identity lives here. Layout placement (w-full, flex, gap) may
-   still appear in JSX — that's *positioning for one site of use*, not style.
+   still appear in JSX - that's *positioning for one site of use*, not style.
 
    Conventions mirror pwsafe:
      .thing            -> base
@@ -87,7 +87,7 @@
     @apply text-xs text-destructive mt-1;
   }
 
-/* FieldHelp — small (i) icon beside a field label that pops a card
+/* FieldHelp - small (i) icon beside a field label that pops a card
      with a one-line title and a short explanation. Anchored absolute
      so the popup doesn't reflow surrounding fields. */
 
@@ -163,7 +163,7 @@
            md:transition-[width] md:duration-200;
   }
 
-  /* Collapsed-rail state — consumer app toggles the modifier; the CSS
+  /* Collapsed-rail state - consumer app toggles the modifier; the CSS
      hides the wordmark / labels (so JSX stays unchanged) and centers
      everything. Apps that don't want a collapse toggle simply never
      add the class.
@@ -175,7 +175,7 @@
   }
   /* Bump nav-item icons from their JSX-default 16px to 20px when
      collapsed. The labels are hidden in this state, so the icon IS
-     the affordance — under-sized icons in a wider rail look adrift.
+     the affordance - under-sized icons in a wider rail look adrift.
      Expanded state keeps the JSX size (typically 16) for the
      icon-plus-label rhythm. */
   .app-sidebar--collapsed .app-sidebar-item > svg {
@@ -183,7 +183,7 @@
   }
   /* Hide *labels* (any <span>) inside the brand and nav items, plus
      the entire user-info block / theme strip. The collapse toggle
-     uses a <button> and never a <span>, so it survives this rule —
+     uses a <button> and never a <span>, so it survives this rule -
      consumers can place it inline with the brand without it being
      suppressed. (Previous rule used `:not(:first-child)` which also
      hid sibling buttons; that prevented the recommended top-row
@@ -206,7 +206,7 @@
     @apply px-1;
   }
 
-  /* Collapse-toggle button — small chevron, recommended placement is
+  /* Collapse-toggle button - small chevron, recommended placement is
      the brand row's right edge so it never moves between states.
      `w-7 h-7` matches the brand's home-icon size; uses the same
      hover-accent treatment as nav items. The 180° flip on collapse
@@ -451,7 +451,7 @@
 
 /* Truncated cell: hard-cap the td at ~32ch and ellipsis the inner span.
      Full text stays accessible via the native tooltip (title attribute)
-     so nothing is hidden — it's just not stretching the row vertically. */
+     so nothing is hidden - it's just not stretching the row vertically. */
 
 
   .dt-td--truncate {
@@ -472,7 +472,7 @@
 
   .dt-page-info { @apply num; }
 
-/* Compact select inside DataTable rows — a compact in-row picker.
+/* Compact select inside DataTable rows - a compact in-row picker.
      Smaller than .field-mono, no border, blends into the row. */
 
 
@@ -536,7 +536,7 @@
 
   .health-dot--unknown { @apply bg-foreground/30; }
 
-/* Uptime chip — per-endpoint reliability summary in the table. */
+/* Uptime chip - per-endpoint reliability summary in the table. */
 
 
 /* ── GSLB topology card (shown above the record editor) ────────────── */
@@ -631,7 +631,7 @@
 /* Hero band: 4 vital-sign tiles in a row. Big numbers, motion. */
 
 
-/* Pulsing dot — the "this thing is live" cue. */
+/* Pulsing dot - the "this thing is live" cue. */
 
 
   @keyframes dashboard-pulse {
@@ -645,7 +645,7 @@
 /* Country leaderboard. Flag + code chip + bar + pct + raw count. */
 
 
-/* Incidents narrative — the GSLB outcome card. */
+/* Incidents narrative - the GSLB outcome card. */
 
 
 /* Top-zones list (kept from the prior cut). */
@@ -663,14 +663,14 @@
 /* ── Zone insights view ───────────────────────────────────────────── */
 
 
-/* Trend delta chip — sits in the toolbar to the right of the window picker. */
+/* Trend delta chip - sits in the toolbar to the right of the window picker. */
 
 
-/* Top names card — same shape as the bar list on the dashboard but
+/* Top names card - same shape as the bar list on the dashboard but
      reuses the insights card frame. */
 
 
-/* Latency card — p50/p95/p99 row + log-spaced bar histogram. */
+/* Latency card - p50/p95/p99 row + log-spaced bar histogram. */
 
 
 /* ── Admin analytics ──────────────────────────────────────────────── */
@@ -691,7 +691,7 @@
 
 /* `.field` has w-full so the role select would otherwise eat the
      row. Pin the role to a sensible width and let the email input
-     take the slack — flex-1 + min-w-0 so it actually shrinks down. */
+     take the slack - flex-1 + min-w-0 so it actually shrinks down. */
 
 
 /* ── Settings cards (admin accordion) ─────────────────────────────── */
@@ -705,7 +705,7 @@
 /* ── Theme toggle ──────────────────────────────────────────────────── */
 
 
-/* Three-segment switch (light / dark / system) — lives in the sidebar
+/* Three-segment switch (light / dark / system) - lives in the sidebar
      footer. Mirrors the active state via .theme-toggle-btn--active. */
 
 
@@ -1076,7 +1076,7 @@
   }
 
   /* ── Settings card (accordion) ────────────────────────────────────── */
-  /* Used for any "list of expandable config sections" surface — e.g.
+  /* Used for any "list of expandable config sections" surface - e.g.
      settings and detail pages. Each card has an icon,
      title, one-line summary, and optionally expands to show form fields
      or other body content. Pair with the SettingsCard React primitive
@@ -1128,7 +1128,7 @@
   }
 
   /* ── Settings section (non-accordion alternative) ─────────────────── */
-  /* Use this when you want the body always visible — e.g. a detail
+  /* Use this when you want the body always visible - e.g. a detail
      page that's all one expanded section, or a single-card flow
      where collapsing adds no value. */
 

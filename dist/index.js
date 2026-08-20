@@ -608,7 +608,7 @@ function ColumnToggle({ items, onToggle, label = "Columns", className }) {
         ]
       }
     ),
-    open && menuStyle && // Rendered inline rather than portaled — `.menu` is position:fixed
+    open && menuStyle && // Rendered inline rather than portaled - `.menu` is position:fixed
     // (via menuStyle) so it floats over the page without a react-dom
     // dependency. The trigger sits in a table toolbar with no
     // transformed/clipping ancestor, so fixed positioning is enough.

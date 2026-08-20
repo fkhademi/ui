@@ -15,7 +15,7 @@ import { ChevronLeft } from 'lucide-react';
  *     ...
  *   </aside>
  *
- * Recommended placement is the right edge of the brand row — that's
+ * Recommended placement is the right edge of the brand row - that's
  * the only spot in the rail that never moves between collapsed and
  * expanded states. Hide rules for the collapsed state target spans
  * specifically so the <button> here survives.
@@ -36,7 +36,7 @@ export function useSidebarCollapsed(storageKey: string): [boolean, (next: boolea
     try {
       localStorage.setItem(fullKey, collapsed ? '1' : '0');
     } catch {
-      /* private mode etc. — preference just doesn't persist */
+      /* private mode etc. - preference just doesn't persist */
     }
   }, [collapsed, fullKey]);
   return [collapsed, setCollapsed];
