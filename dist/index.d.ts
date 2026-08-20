@@ -115,13 +115,20 @@ declare function Select({ value, onChange, options, placeholder, size, block, di
  * input stays in the DOM (screen-reader friendly, keeps native focus and
  * space-to-toggle); a sibling box is styled off its checked/focus state via
  * peer- utilities. Pass a label to get the whole row clickable.
+ *
+ * Set `indeterminate` for a parent row whose children are partly selected. It
+ * is a DOM property rather than an attribute, so it is applied through a ref,
+ * and it takes visual precedence over `checked` the way the native control
+ * does.
  */
-declare function Checkbox({ checked, onChange, label, disabled, block, className, }: {
+declare function Checkbox({ checked, onChange, label, indeterminate, disabled, block, className, }: {
     checked: boolean;
     onChange: (checked: boolean) => void;
     label?: ReactNode;
+    /** Partly-selected state for a parent row. Shows a dash and outranks checked. */
+    indeterminate?: boolean;
     disabled?: boolean;
-    /** Fill the container width — for full-width form rows / list items. */
+    /** Fill the container width, for full-width form rows and list items. */
     block?: boolean;
     className?: string;
 }): react_jsx_runtime.JSX.Element;

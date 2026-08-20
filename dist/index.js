@@ -1,5 +1,5 @@
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
-import { HelpCircle, ChevronDown, Check, Calendar, ChevronLeft, ChevronRight, LogOut, SlidersHorizontal, Search, ChevronUp, X, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
+import { HelpCircle, ChevronDown, Check, Minus, Calendar, ChevronLeft, ChevronRight, LogOut, SlidersHorizontal, Search, ChevronUp, X, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
 import { createContext, useState, useRef, useLayoutEffect, useEffect, useMemo, useContext } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { createPortal } from 'react-dom';
@@ -308,10 +308,15 @@ function Checkbox({
   checked,
   onChange,
   label,
+  indeterminate = false,
   disabled = false,
   block = false,
   className = ""
 }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (ref.current) ref.current.indeterminate = indeterminate;
+  }, [indeterminate]);
   return /* @__PURE__ */ jsxs(
     "label",
     {
@@ -320,6 +325,7 @@ function Checkbox({
         /* @__PURE__ */ jsx(
           "input",
           {
+            ref,
             type: "checkbox",
             className: "peer sr-only",
             checked,
@@ -330,8 +336,9 @@ function Checkbox({
         /* @__PURE__ */ jsx(
           "span",
           {
-            className: "mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded border border-input bg-surface text-transparent transition\n                   peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground\n                   peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40",
-            children: /* @__PURE__ */ jsx(Check, { size: 12, strokeWidth: 3 })
+            className: `mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded border transition
+                   peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40 ${indeterminate ? "border-primary bg-primary text-primary-foreground" : "border-input bg-surface text-transparent peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground"}`,
+            children: indeterminate ? /* @__PURE__ */ jsx(Minus, { size: 12, strokeWidth: 3 }) : /* @__PURE__ */ jsx(Check, { size: 12, strokeWidth: 3 })
           }
         ),
         label != null && /* @__PURE__ */ jsx("span", { children: label })
