@@ -1,5 +1,5 @@
 /**
- * Tailwind preset — semantic color names, shadows, motion keyframes.
+ * Tailwind preset - semantic color names, shadows, motion keyframes.
  *
  * Consume from a Tailwind v3+ config:
  *
@@ -11,7 +11,7 @@
  *
  * Colors are sourced from CSS variables (HSL channels). The
  * `<alpha-value>` placeholder lets Tailwind compose opacity utilities
- * like `bg-primary/20` correctly — that DOES NOT WORK without it.
+ * like `bg-primary/20` correctly - that DOES NOT WORK without it.
  */
 
 /** @type {import('tailwindcss').Config} */
