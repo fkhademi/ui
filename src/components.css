@@ -46,6 +46,14 @@
            active:scale-[0.98];
   }
 
+  /* The affirmative counterpart to .btn-danger, for the approve half of an
+     approve/reject pair. Both carry weight, so neither is the quiet one. */
+  .btn-success {
+    @apply btn bg-success text-success-foreground
+           hover:bg-success/90
+           active:scale-[0.98];
+  }
+
   .btn-icon {
     @apply inline-flex items-center justify-center w-10 h-10 rounded-lg
            text-muted-foreground
