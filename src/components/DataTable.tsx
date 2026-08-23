@@ -55,13 +55,18 @@ export type Column<T> = {
    *  always-on). Use for the primary identifying column. Only relevant when
    *  the table sets columnStorageKey. Defaults to hideable. */
   hideable?: boolean;
-  /** Values offered in this column's filter control. Giving a column options
-   *  is what turns filtering on for it; a table with no such column renders
-   *  no filter row at all. Use for columns with a small closed set of values
-   *  (status, type, owner) - free text is what the search box is for. */
+  /** Turns on a per-column text filter, matching a substring of filterValue
+   *  (or row[key]). Narrower than the search box, which matches across every
+   *  searchable column at once and cannot express "only this column". */
+  filterable?: boolean;
+  /** Turns on a per-column filter offering exactly these values, matched
+   *  whole. Implies filterable. Use when the column holds a small closed set
+   *  (status, type, owner); anything open-ended wants filterable instead. */
   filterOptions?: { value: string; label: string }[];
-  /** Value compared against the chosen filter option. Defaults to row[key].
-   *  Set it when the cell renders something other than the raw value. */
+  /** Placeholder for a text filter. Defaults to "Filter <label>". */
+  filterPlaceholder?: string;
+  /** Value the filter compares against. Defaults to row[key]. Set it when the
+   *  cell renders something other than the raw value. */
   filterValue?: (row: T) => string | null | undefined;
 };
 
@@ -205,7 +210,10 @@ export function DataTable<T>(p: LegacyProps<T>) {
   const serverSort = !!sp?.onSortChange;
   const serverSearch = !!sp?.onSearchChange;
   const serverFilters = !!sp?.onColumnFiltersChange;
-  const filterCols = useMemo(() => columns.filter((c) => c.filterOptions?.length), [columns]);
+  const filterCols = useMemo(
+    () => columns.filter((c) => c.filterable || c.filterOptions?.length),
+    [columns],
+  );
   const [localFilters, setLocalFilters] = useState<Record<string, string>>({});
   const filters = serverFilters ? sp?.columnFilters ?? {} : localFilters;
   const activeFilters = Object.values(filters).filter(Boolean).length;
@@ -255,7 +263,10 @@ export function DataTable<T>(p: LegacyProps<T>) {
       active.every(([key, want]) => {
         const col = columns.find((c) => c.key === key);
         const v = col?.filterValue ? col.filterValue(r) : (r as Record<string, unknown>)[key];
-        return v != null && String(v) === want;
+        if (v == null) return false;
+        return col?.filterOptions?.length
+          ? String(v) === want
+          : String(v).toLowerCase().includes(want.toLowerCase());
       }),
     );
   }, [rows, filters, activeFilters, columns, serverFilters]);
@@ -567,6 +578,16 @@ export function DataTable<T>(p: LegacyProps<T>) {
                         onChange={(v) => setFilter(c.key, v)}
                         placeholder={`All ${c.label.toLowerCase()}`}
                         options={c.filterOptions}
+                      />
+                    ) : c.filterable ? (
+                      <input
+                        type="search"
+                        className="dt-filter-input"
+                        value={filters[c.key] ?? ''}
+                        onChange={(e) => setFilter(c.key, e.target.value)}
+                        placeholder={c.filterPlaceholder ?? `Filter ${c.label.toLowerCase()}`}
+                        aria-label={`Filter by ${c.label.toLowerCase()}`}
+                        autoComplete="off"
                       />
                     ) : null}
                   </th>

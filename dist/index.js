@@ -841,7 +841,10 @@ function DataTable(p) {
   const serverSort = !!sp?.onSortChange;
   const serverSearch = !!sp?.onSearchChange;
   const serverFilters = !!sp?.onColumnFiltersChange;
-  const filterCols = useMemo(() => columns.filter((c) => c.filterOptions?.length), [columns]);
+  const filterCols = useMemo(
+    () => columns.filter((c) => c.filterable || c.filterOptions?.length),
+    [columns]
+  );
   const [localFilters, setLocalFilters] = useState({});
   const filters = serverFilters ? sp?.columnFilters ?? {} : localFilters;
   const activeFilters = Object.values(filters).filter(Boolean).length;
@@ -881,7 +884,8 @@ function DataTable(p) {
       (r) => active.every(([key, want]) => {
         const col = columns.find((c) => c.key === key);
         const v = col?.filterValue ? col.filterValue(r) : r[key];
-        return v != null && String(v) === want;
+        if (v == null) return false;
+        return col?.filterOptions?.length ? String(v) === want : String(v).toLowerCase().includes(want.toLowerCase());
       })
     );
   }, [rows, filters, activeFilters, columns, serverFilters]);
@@ -1137,6 +1141,17 @@ function DataTable(p) {
                 onChange: (v) => setFilter(c.key, v),
                 placeholder: `All ${c.label.toLowerCase()}`,
                 options: c.filterOptions
+              }
+            ) : c.filterable ? /* @__PURE__ */ jsx(
+              "input",
+              {
+                type: "search",
+                className: "dt-filter-input",
+                value: filters[c.key] ?? "",
+                onChange: (e) => setFilter(c.key, e.target.value),
+                placeholder: c.filterPlaceholder ?? `Filter ${c.label.toLowerCase()}`,
+                "aria-label": `Filter by ${c.label.toLowerCase()}`,
+                autoComplete: "off"
               }
             ) : null }, c.key)) })
           ] }),

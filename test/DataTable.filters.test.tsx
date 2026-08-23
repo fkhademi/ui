@@ -96,6 +96,46 @@ describe('filtering locally', () => {
   });
 });
 
+describe('text filters', () => {
+  const textColumns: Column<Row>[] = [
+    { key: 'name', label: 'Name', filterable: true },
+    { key: 'status', label: 'Status' },
+  ];
+
+  test('match a substring, not the whole value', async () => {
+    render(<DataTable columns={textColumns} rows={rows} getRowId={(r) => r.id} />);
+    fireEvent.change(screen.getByLabelText(/filter by name/i), { target: { value: 'lph' } });
+    expect(screen.getByText('alpha')).toBeInTheDocument();
+    expect(screen.queryByText('beta')).not.toBeInTheDocument();
+  });
+
+  test('ignore case', async () => {
+    render(<DataTable columns={textColumns} rows={rows} getRowId={(r) => r.id} />);
+    fireEvent.change(screen.getByLabelText(/filter by name/i), { target: { value: 'ALPHA' } });
+    expect(screen.getByText('alpha')).toBeInTheDocument();
+  });
+
+  test('are cleared with the rest', async () => {
+    render(<DataTable columns={textColumns} rows={rows} getRowId={(r) => r.id} />);
+    fireEvent.change(screen.getByLabelText(/filter by name/i), { target: { value: 'alpha' } });
+    expect(screen.queryByText('beta')).not.toBeInTheDocument();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Clear .*filter/i }));
+    });
+    expect(screen.getByText('beta')).toBeInTheDocument();
+  });
+
+  test('an option filter still matches the whole value, not a substring', async () => {
+    // 'active' is a substring of 'archived' in neither direction, but a
+    // careless shared implementation would make the two modes behave alike.
+    render(<DataTable columns={columns} rows={rows} getRowId={(r) => r.id} />);
+    await openFilter();
+    await choose('Active');
+    expect(screen.queryByText('beta')).not.toBeInTheDocument();
+    expect(screen.getByText('alpha')).toBeInTheDocument();
+  });
+});
+
 describe('filtering on the server', () => {
   test('reports the choice and leaves the rows alone', async () => {
     // Rows arrive already filtered, so cutting them again would hide records
