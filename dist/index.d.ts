@@ -1,6 +1,6 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
 import * as react from 'react';
-import { ReactNode, RefObject, CSSProperties, FormEvent } from 'react';
+import { ReactNode, RefObject, CSSProperties, ReactElement, FormEvent } from 'react';
 
 /**
  * Standard page header used at the top of every authenticated page.
@@ -97,7 +97,7 @@ type SelectOption = {
  *
  *   <Select value={region} onChange={setRegion} options={[{value:'eu',label:'EU'}]} />
  */
-declare function Select({ value, onChange, options, placeholder, size, block, disabled, className, }: {
+declare function Select({ value, onChange, options, placeholder, size, block, disabled, className, autoFocus, onBlur, onEscape, }: {
     value: string;
     onChange: (value: string) => void;
     options: SelectOption[];
@@ -107,6 +107,17 @@ declare function Select({ value, onChange, options, placeholder, size, block, di
     block?: boolean;
     disabled?: boolean;
     className?: string;
+    /** Focus the trigger on mount. For a control that replaces a cell the
+     *  moment editing starts, where the user should not have to click twice. */
+    autoFocus?: boolean;
+    /** Focus left the control without a choice being made. Only fires while the
+     *  menu is CLOSED: reaching into the menu moves focus into a portal, which
+     *  looks like leaving and is not. */
+    onBlur?: () => void;
+    /** Escape pressed while the menu is closed. Escape with the menu open closes
+     *  it first, so a caller using this to abandon an edit does not lose the
+     *  edit on the keystroke that was meant to dismiss the list. */
+    onEscape?: () => void;
 }): react_jsx_runtime.JSX.Element;
 
 /**
@@ -403,10 +414,26 @@ declare const dnswizBrand: BrandSpec;
  */
 declare const doonBrand: BrandSpec;
 
+/**
+ * pgwiz brand: a ring that does not close, with a dot at the returning tip.
+ *
+ * Sister to dnswiz, whose ring is closed - the authoritative answer everyone
+ * resolves to. pgwiz's argument is recurrence rather than authority, so the
+ * path leaves and comes back round toward the dot at the centre. At 16px the
+ * difference that reads between the two is closed versus returning.
+ *
+ * Emerald rather than a second blue: two blue siblings are indistinguishable
+ * in a tab bar. Geometry is on the family grid - 32 for the favicon, 16 for
+ * the mark, centre at the midpoint, a 60 degree gap at the top, and stroke
+ * weights matching dnswiz so they sit together at small sizes.
+ */
+declare const pgwizBrand: BrandSpec;
+
 declare const brands: {
     readonly aigw: BrandSpec;
     readonly dnswiz: BrandSpec;
     readonly doon: BrandSpec;
+    readonly pgwiz: BrandSpec;
 };
 type BrandName = keyof typeof brands;
 
@@ -625,6 +652,13 @@ declare function SelectionToolbar(props: {
     extra?: ReactNode;
 }): react_jsx_runtime.JSX.Element | null;
 
+declare function Tooltip({ content, children, disabled, }: {
+    content: ReactNode;
+    /** A single element that can take a ref and event handlers. */
+    children: ReactElement;
+    disabled?: boolean;
+}): react_jsx_runtime.JSX.Element;
+
 /**
  * Right-click menu, anchored to the cursor at the time of the
  * contextmenu event. Reuses the .menu/.menu-item primitives lifted
@@ -747,4 +781,4 @@ declare function MultiSelect({ value, onChange, options, allowFree, placeholder,
     placeholder?: string;
 }): react_jsx_runtime.JSX.Element;
 
-export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, type ConfirmDiscard, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, dnswizBrand, doonBrand, useColumnVisibility, useDrawerClose, useFloatingMenu, useSidebarCollapsed };
+export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, type ConfirmDiscard, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, Tooltip, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, dnswizBrand, doonBrand, pgwizBrand, useColumnVisibility, useDrawerClose, useFloatingMenu, useSidebarCollapsed };

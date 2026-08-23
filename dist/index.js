@@ -1,7 +1,7 @@
 export { SidebarCollapseToggle, useSidebarCollapsed } from './chunk-NZUZIMAT.js';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { HelpCircle, ChevronDown, Check, Minus, Calendar, ChevronLeft, ChevronRight, SlidersHorizontal, Search, X, ChevronUp, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
-import { createContext, useState, useRef, useLayoutEffect, useEffect, useMemo, useContext } from 'react';
+import { createContext, useState, useRef, useLayoutEffect, useEffect, useMemo, useId, useCallback, isValidElement, cloneElement, useContext } from 'react';
 import { createPortal } from 'react-dom';
 
 function PageHeader({
@@ -217,7 +217,10 @@ function Select({
   size = "md",
   block = false,
   disabled = false,
-  className = ""
+  className = "",
+  autoFocus = false,
+  onBlur,
+  onEscape
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -235,6 +238,8 @@ function Select({
       if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
         e.preventDefault();
         setOpen(true);
+      } else if (e.key === "Escape") {
+        onEscape?.();
       }
       return;
     }
@@ -262,10 +267,14 @@ function Select({
         ref: triggerRef,
         type: "button",
         disabled,
+        autoFocus,
         "aria-haspopup": "listbox",
         "aria-expanded": open,
         onClick: () => setOpen((o) => !o),
         onKeyDown,
+        onBlur: () => {
+          if (!open) onBlur?.();
+        },
         className: `flex ${block ? "w-full" : ""} items-center justify-between gap-2 rounded-xl border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`,
         children: [
           /* @__PURE__ */ jsx("span", { className: `truncate ${selected ? "" : "text-muted-foreground"}`, children: selected ? selected.label : placeholder }),
@@ -667,11 +676,47 @@ var doonBrand = {
   }
 };
 
+// src/brands/pgwiz.ts
+var pgwizBrand = {
+  name: "pgwiz",
+  palette: {
+    accent: "#10b981",
+    ink: "#0a0a0a"
+  },
+  favicon: {
+    viewBox: "0 0 32 32",
+    inner: `
+      <rect width="32" height="32" rx="7" fill="#0a0a0a"/>
+      <path d="M21 7.34 A 10 10 0 1 1 11 7.34" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="21" cy="7.34" r="2.5" fill="#10b981"/>
+      <circle cx="16" cy="16" r="4" fill="#10b981"/>
+    `.trim()
+  },
+  mark: {
+    viewBox: "0 0 16 16",
+    inner: `
+      <path d="M10.5 3.67 A 5 5 0 1 1 5.5 3.67" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="10.5" cy="3.67" r="1.5" fill="currentColor"/>
+      <circle cx="8" cy="8" r="2.5" fill="currentColor"/>
+    `.trim()
+  },
+  wordmark: {
+    viewBox: "0 0 320 96",
+    inner: `
+      <text x="0" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui, sans-serif" font-size="84" font-weight="700" letter-spacing="-3.6" fill="#0a0a0a">pgwiz</text>
+      <path d="M302 58.4 A 12 12 0 1 1 290 58.4" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="302" cy="58.4" r="3.5" fill="#10b981"/>
+      <circle cx="296" cy="68" r="5" fill="#10b981"/>
+    `.trim()
+  }
+};
+
 // src/brands/index.ts
 var brands = {
   aigw: aigwBrand,
   dnswiz: dnswizBrand,
-  doon: doonBrand
+  doon: doonBrand,
+  pgwiz: pgwizBrand
 };
 function BrandMark({
   name,
@@ -1133,17 +1178,16 @@ function DataTable(p) {
             " of ",
             totalRows
           ] }),
-          showSizeSelect && /* @__PURE__ */ jsx(
-            "select",
+          showSizeSelect && // The package's own Select rather than a native one: an OS dropdown
+          // in the footer of every table is the one piece of browser chrome a
+          // consumer cannot style away.
+          /* @__PURE__ */ jsx(
+            Select,
             {
-              className: "dt-page-size",
-              value: effPageSize,
-              onChange: (e) => changePageSize(parseInt(e.target.value, 10)),
-              "aria-label": "Rows per page",
-              children: pageSizes.map((n) => /* @__PURE__ */ jsxs("option", { value: n, children: [
-                n,
-                " / page"
-              ] }, n))
+              size: "sm",
+              value: String(effPageSize),
+              onChange: (v) => changePageSize(parseInt(v, 10)),
+              options: pageSizes.map((n) => ({ value: String(n), label: `${n} / page` }))
             }
           ),
           /* @__PURE__ */ jsxs("div", { className: "dt-page-buttons", children: [
@@ -1272,6 +1316,104 @@ function SelectionToolbar(props) {
         }
       )
     ] })
+  ] });
+}
+var OPEN_DELAY_MS = 350;
+function Tooltip({
+  content,
+  children,
+  disabled
+}) {
+  const id = useId();
+  const triggerRef = useRef(null);
+  const timer = useRef(null);
+  const [style, setStyle] = useState(null);
+  const close = useCallback(() => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+    setStyle(null);
+  }, []);
+  const place = useCallback(() => {
+    const el = triggerRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const margin = 8;
+    const above = r.top > 64;
+    setStyle({
+      position: "fixed",
+      top: above ? r.top - margin : r.bottom + margin,
+      left: Math.min(Math.max(r.left + r.width / 2, 80), window.innerWidth - 80),
+      transform: `translate(-50%, ${above ? "-100%" : "0"})`,
+      zIndex: 60
+    });
+  }, []);
+  const open = useCallback(
+    (immediate) => {
+      if (disabled || !content) return;
+      if (timer.current) clearTimeout(timer.current);
+      if (immediate) place();
+      else timer.current = setTimeout(place, OPEN_DELAY_MS);
+    },
+    [content, disabled, place]
+  );
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+  }, []);
+  useEffect(() => {
+    if (!style) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") close();
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [style, close]);
+  if (!isValidElement(children)) return children;
+  const trigger = cloneElement(children, {
+    ref: (node) => {
+      triggerRef.current = node;
+      const own = children.ref;
+      if (typeof own === "function") own(node);
+      else if (own && typeof own === "object") own.current = node;
+    },
+    "aria-describedby": style ? id : void 0,
+    onMouseEnter: (e) => {
+      open(false);
+      children.props.onMouseEnter?.(e);
+    },
+    onMouseLeave: (e) => {
+      close();
+      children.props.onMouseLeave?.(e);
+    },
+    onFocus: (e) => {
+      open(true);
+      children.props.onFocus?.(e);
+    },
+    onBlur: (e) => {
+      close();
+      children.props.onBlur?.(e);
+    }
+  });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    trigger,
+    style && createPortal(
+      /* @__PURE__ */ jsx(
+        "div",
+        {
+          id,
+          role: "tooltip",
+          style,
+          className: "pointer-events-none max-w-xs rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-foreground shadow-lg",
+          children: content
+        }
+      ),
+      document.body
+    )
   ] });
 }
 function ContextMenu(props) {
@@ -1545,6 +1687,6 @@ function MultiSelect({
   ] });
 }
 
-export { BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, Toggle, aigwBrand, brands, dnswizBrand, doonBrand, useColumnVisibility, useDrawerClose, useFloatingMenu };
+export { BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, Toggle, Tooltip, aigwBrand, brands, dnswizBrand, doonBrand, pgwizBrand, useColumnVisibility, useDrawerClose, useFloatingMenu };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

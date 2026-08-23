@@ -711,18 +711,15 @@ export function DataTable<T>(p: LegacyProps<T>) {
             {showingFrom}–{showingTo} of {totalRows}
           </span>
           {showSizeSelect && (
-            <select
-              className="dt-page-size"
-              value={effPageSize}
-              onChange={(e) => changePageSize(parseInt(e.target.value, 10))}
-              aria-label="Rows per page"
-            >
-              {pageSizes.map((n) => (
-                <option key={n} value={n}>
-                  {n} / page
-                </option>
-              ))}
-            </select>
+            // The package's own Select rather than a native one: an OS dropdown
+            // in the footer of every table is the one piece of browser chrome a
+            // consumer cannot style away.
+            <Select
+              size="sm"
+              value={String(effPageSize)}
+              onChange={(v) => changePageSize(parseInt(v, 10))}
+              options={pageSizes.map((n) => ({ value: String(n), label: `${n} / page` }))}
+            />
           )}
           <div className="dt-page-buttons">
             <button

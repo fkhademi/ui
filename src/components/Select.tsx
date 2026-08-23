@@ -25,6 +25,9 @@ export function Select({
   block = false,
   disabled = false,
   className = '',
+  autoFocus = false,
+  onBlur,
+  onEscape,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -35,6 +38,17 @@ export function Select({
   block?: boolean;
   disabled?: boolean;
   className?: string;
+  /** Focus the trigger on mount. For a control that replaces a cell the
+   *  moment editing starts, where the user should not have to click twice. */
+  autoFocus?: boolean;
+  /** Focus left the control without a choice being made. Only fires while the
+   *  menu is CLOSED: reaching into the menu moves focus into a portal, which
+   *  looks like leaving and is not. */
+  onBlur?: () => void;
+  /** Escape pressed while the menu is closed. Escape with the menu open closes
+   *  it first, so a caller using this to abandon an edit does not lose the
+   *  edit on the keystroke that was meant to dismiss the list. */
+  onEscape?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -54,6 +68,8 @@ export function Select({
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
         e.preventDefault();
         setOpen(true);
+      } else if (e.key === 'Escape') {
+        onEscape?.();
       }
       return;
     }
@@ -86,10 +102,14 @@ export function Select({
         ref={triggerRef}
         type="button"
         disabled={disabled}
+        autoFocus={autoFocus}
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onKeyDown}
+        onBlur={() => {
+          if (!open) onBlur?.();
+        }}
         className={`flex ${block ? 'w-full' : ''} items-center justify-between gap-2 rounded-xl border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`}
       >
         <span className={`truncate ${selected ? '' : 'text-muted-foreground'}`}>
