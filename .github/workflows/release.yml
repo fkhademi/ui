@@ -1,0 +1,63 @@
+name: release
+
+# Publishes @doon/ui to npm when a vX.Y.Z tag is pushed.
+#
+#   npm version patch   # or minor / major - writes package.json and tags
+#   git push --follow-tags
+#
+# Requires an NPM_TOKEN secret (an npm automation token with publish rights
+# on the @doon scope). Without it the publish step fails and nothing else
+# in the repo is affected.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      # dist/ is committed so git-URL consumers keep working. If a rebuild
+      # differs from what was committed, the tag is stale - fail rather than
+      # publish something nobody reviewed.
+      - name: dist/ matches the committed build
+        run: |
+          if ! git diff --quiet -- dist; then
+            echo "dist/ is out of date. Run 'npm run build' and commit before tagging."
+            git diff --stat -- dist
+            exit 1
+          fi
+
+      - name: Tag matches package.json version
+        run: |
+          pkg="v$(node -p "require('./package.json').version")"
+          if [ "$pkg" != "${GITHUB_REF_NAME}" ]; then
+            echo "tag ${GITHUB_REF_NAME} does not match package.json ($pkg)"
+            exit 1
+          fi
+
+      - name: Publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

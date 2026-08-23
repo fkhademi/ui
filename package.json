@@ -3,6 +3,9 @@
   "version": "0.9.21",
   "description": "Shared design tokens, base styles, semantic component classes, React primitives, and Tailwind preset.",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "fkhademi",
   "repository": {
     "type": "git",
