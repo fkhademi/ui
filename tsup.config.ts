@@ -8,7 +8,7 @@ import { defineConfig } from 'tsup';
  * own theme).
  */
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: ['src/index.ts', 'src/app-shell.ts'],
   format: ['esm'],
   dts: true,
   sourcemap: true,

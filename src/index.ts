@@ -21,13 +21,9 @@ export { DatePicker } from './components/DatePicker';
 export { FieldHelp } from './components/FieldHelp';
 export { EmptyState } from './components/EmptyState';
 export { useSidebarCollapsed, SidebarCollapseToggle } from './components/SidebarCollapse';
-export { AppShell } from './components/AppShell';
-export type {
-  AppShellProps,
-  AppShellBrand,
-  AppShellNavItem,
-  AppShellUser,
-} from './components/AppShell';
+// AppShell lives at '@doon/ui/app-shell'. It is the only component that
+// imports react-router-dom, and exporting it here forced that dependency
+// on every consumer of this package.
 export { useFloatingMenu } from './components/FloatingMenu';
 export type {
   UseFloatingMenuOptions,

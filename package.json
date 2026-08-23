@@ -1,6 +1,6 @@
 {
   "name": "@doon/ui",
-  "version": "0.9.22",
+  "version": "1.0.0",
   "description": "Shared design tokens, base styles, semantic component classes, React primitives, and Tailwind preset.",
   "license": "MIT",
   "publishConfig": {
@@ -22,6 +22,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./app-shell": {
+      "types": "./dist/app-shell.d.ts",
+      "import": "./dist/app-shell.js"
     },
     "./styles.css": "./src/index.css",
     "./tokens.css": "./src/tokens.css",
@@ -66,5 +70,10 @@
     "tsup": "^8.0.0",
     "typescript": "^5.3.3",
     "vitest": "^4.1.11"
+  },
+  "peerDependenciesMeta": {
+    "react-router-dom": {
+      "optional": true
+    }
   }
 }

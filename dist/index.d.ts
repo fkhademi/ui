@@ -223,54 +223,6 @@ declare function SidebarCollapseToggle({ collapsed, onToggle, }: {
     onToggle: () => void;
 }): react_jsx_runtime.JSX.Element;
 
-interface AppShellNavItem {
-    to: string;
-    icon: ReactNode;
-    label: string;
-    /** Optional numeric badge rendered on the right of the row.
-     *  Hidden when value is undefined or 0. Capped at "99+". */
-    badge?: number;
-    /** Render `false` to omit the item (e.g. behind a feature flag or
-     *  permission check). Filtered out before rendering. */
-    hidden?: boolean;
-}
-interface AppShellBrand {
-    to: string;
-    icon: ReactNode;
-    label: string;
-}
-interface AppShellUser {
-    name: string;
-    email?: string;
-    /** Free-form ReactNode slot for chips / status badges / plan info
-     *  shown beneath the user's name+email. */
-    meta?: ReactNode;
-}
-interface AppShellProps {
-    brand: AppShellBrand;
-    navItems: AppShellNavItem[];
-    user?: AppShellUser | null;
-    onLogout?: () => void;
-    /** Per-app localStorage key for the collapse preference. Different
-     *  products should use different keys so they don't trample each
-     *  other if both are open in the same browser. */
-    collapseKey: string;
-    children: ReactNode;
-}
-/**
- * Standard application chrome: sticky left rail with brand, nav,
- * user info, and a collapse toggle; scrollable main panel.
- *
- * Layout primitives are CSS-driven (`.app-shell`, `.app-sidebar*`,
- * `.app-content`) so the visual identity stays out of consumer JSX.
- * The collapse preference persists via localStorage, keyed by
- * `collapseKey` so multiple apps can coexist independently.
- *
- * The main panel scrolls. Pages should not add their own
- * `min-h-screen` / `overflow` wrappers - the shell owns that.
- */
-declare function AppShell({ brand, navItems, user, onLogout, collapseKey, children, }: AppShellProps): react_jsx_runtime.JSX.Element;
-
 /**
  * Anchored-popover plumbing. Tracks a trigger's bounding rect so a
  * portal-rendered menu can be positioned with `position: fixed`,
@@ -795,4 +747,4 @@ declare function MultiSelect({ value, onChange, options, allowFree, placeholder,
     placeholder?: string;
 }): react_jsx_runtime.JSX.Element;
 
-export { AppShell, type AppShellBrand, type AppShellNavItem, type AppShellProps, type AppShellUser, BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, type ConfirmDiscard, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, dnswizBrand, doonBrand, useColumnVisibility, useDrawerClose, useFloatingMenu, useSidebarCollapsed };
+export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, type ConfirmDiscard, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, dnswizBrand, doonBrand, useColumnVisibility, useDrawerClose, useFloatingMenu, useSidebarCollapsed };
