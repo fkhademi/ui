@@ -1,5 +1,5 @@
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
-import { HelpCircle, ChevronDown, Check, Minus, Calendar, ChevronLeft, ChevronRight, LogOut, SlidersHorizontal, Search, ChevronUp, X, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
+import { HelpCircle, ChevronDown, Check, Minus, Calendar, ChevronLeft, ChevronRight, LogOut, SlidersHorizontal, Search, X, ChevronUp, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
 import { createContext, useState, useRef, useLayoutEffect, useEffect, useMemo, useContext } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { createPortal } from 'react-dom';
@@ -840,6 +840,22 @@ function DataTable(p) {
   const tableRef = useRef(null);
   const serverSort = !!sp?.onSortChange;
   const serverSearch = !!sp?.onSearchChange;
+  const serverFilters = !!sp?.onColumnFiltersChange;
+  const filterCols = useMemo(() => columns.filter((c) => c.filterOptions?.length), [columns]);
+  const [localFilters, setLocalFilters] = useState({});
+  const filters = serverFilters ? sp?.columnFilters ?? {} : localFilters;
+  const activeFilters = Object.values(filters).filter(Boolean).length;
+  const setFilter = (key, value) => {
+    const next = { ...filters };
+    if (value) next[key] = value;
+    else delete next[key];
+    if (serverFilters) sp.onColumnFiltersChange(next);
+    else setLocalFilters(next);
+  };
+  const clearFilters = () => {
+    if (serverFilters) sp.onColumnFiltersChange({});
+    else setLocalFilters({});
+  };
   const effSort = serverSort ? sp.sort ?? null : sort;
   const onSearchRef = useRef(sp?.onSearchChange);
   onSearchRef.current = sp?.onSearchChange;
@@ -857,12 +873,23 @@ function DataTable(p) {
   }, [search, serverSearch]);
   useEffect(() => {
     if (!server) setPage(0);
-  }, [search, pageSize, rows, server]);
-  const filtered = useMemo(() => {
-    if (serverSearch) return rows;
-    if (!search.trim() || searchCols.length === 0) return rows;
-    const q = search.trim().toLowerCase();
+  }, [search, filters, pageSize, rows, server]);
+  const columnFiltered = useMemo(() => {
+    if (serverFilters || activeFilters === 0) return rows;
+    const active = Object.entries(filters).filter(([, v]) => v);
     return rows.filter(
+      (r) => active.every(([key, want]) => {
+        const col = columns.find((c) => c.key === key);
+        const v = col?.filterValue ? col.filterValue(r) : r[key];
+        return v != null && String(v) === want;
+      })
+    );
+  }, [rows, filters, activeFilters, columns, serverFilters]);
+  const filtered = useMemo(() => {
+    if (serverSearch) return columnFiltered;
+    if (!search.trim() || searchCols.length === 0) return columnFiltered;
+    const q = search.trim().toLowerCase();
+    return columnFiltered.filter(
       (r) => searchCols.some((k) => {
         const col = columns.find((c) => c.key === k);
         let v;
@@ -871,7 +898,7 @@ function DataTable(p) {
         return v != null && String(v).toLowerCase().includes(q);
       })
     );
-  }, [rows, search, searchCols, columns, serverSearch]);
+  }, [columnFiltered, search, searchCols, columns, serverSearch]);
   const sorted = useMemo(() => {
     if (serverSort) return filtered;
     if (!sort) return filtered;
@@ -1057,10 +1084,15 @@ function DataTable(p) {
           ] }),
           !sp && /* @__PURE__ */ jsxs("div", { className: "dt-count", children: [
             isLoading ? "loading\u2026" : `${sorted.length} ${sorted.length === 1 ? "row" : "rows"}`,
-            search && rows.length !== sorted.length && /* @__PURE__ */ jsxs(Fragment, { children: [
+            (search || activeFilters > 0) && rows.length !== sorted.length && /* @__PURE__ */ jsxs(Fragment, { children: [
               " \xB7 filtered from ",
               rows.length
             ] })
+          ] }),
+          activeFilters > 0 && /* @__PURE__ */ jsxs("button", { type: "button", onClick: clearFilters, className: "dt-clear-filters", children: [
+            /* @__PURE__ */ jsx(X, { size: 12 }),
+            "Clear ",
+            activeFilters === 1 ? "filter" : `${activeFilters} filters`
           ] }),
           (extraActions || columnStorageKey) && /* @__PURE__ */ jsxs("div", { className: "ml-auto flex items-center gap-2", children: [
             extraActions,
@@ -1079,22 +1111,35 @@ function DataTable(p) {
           ] })
         ] }),
         /* @__PURE__ */ jsx("div", { className: "dt-card", children: /* @__PURE__ */ jsxs("table", { className: "dt-table", children: [
-          /* @__PURE__ */ jsx("thead", { className: "dt-thead", children: /* @__PURE__ */ jsx("tr", { children: visibleColumns.map((c) => {
-            const isSorted = effSort?.key === c.key;
-            return /* @__PURE__ */ jsx(
-              "th",
+          /* @__PURE__ */ jsxs("thead", { className: "dt-thead", children: [
+            /* @__PURE__ */ jsx("tr", { children: visibleColumns.map((c) => {
+              const isSorted = effSort?.key === c.key;
+              return /* @__PURE__ */ jsx(
+                "th",
+                {
+                  onClick: c.sortable ? () => toggleSort(c.key) : void 0,
+                  style: c.width ? { width: c.width } : void 0,
+                  className: `dt-th${c.align === "right" ? " dt-th--right" : ""}` + (c.sortable ? " dt-th--sortable" : "") + (isSorted ? " dt-th--sorted" : ""),
+                  children: /* @__PURE__ */ jsxs("span", { className: "dt-th-inner", children: [
+                    c.label,
+                    isSorted && effSort && (effSort.dir === "asc" ? /* @__PURE__ */ jsx(ChevronUp, { size: 11 }) : /* @__PURE__ */ jsx(ChevronDown, { size: 11 }))
+                  ] })
+                },
+                c.key
+              );
+            }) }),
+            filterCols.length > 0 && /* @__PURE__ */ jsx("tr", { className: "dt-filter-row", children: visibleColumns.map((c) => /* @__PURE__ */ jsx("th", { className: "dt-filter-th", children: c.filterOptions?.length ? /* @__PURE__ */ jsx(
+              Select,
               {
-                onClick: c.sortable ? () => toggleSort(c.key) : void 0,
-                style: c.width ? { width: c.width } : void 0,
-                className: `dt-th${c.align === "right" ? " dt-th--right" : ""}` + (c.sortable ? " dt-th--sortable" : "") + (isSorted ? " dt-th--sorted" : ""),
-                children: /* @__PURE__ */ jsxs("span", { className: "dt-th-inner", children: [
-                  c.label,
-                  isSorted && effSort && (effSort.dir === "asc" ? /* @__PURE__ */ jsx(ChevronUp, { size: 11 }) : /* @__PURE__ */ jsx(ChevronDown, { size: 11 }))
-                ] })
-              },
-              c.key
-            );
-          }) }) }),
+                block: true,
+                size: "sm",
+                value: filters[c.key] ?? "",
+                onChange: (v) => setFilter(c.key, v),
+                placeholder: `All ${c.label.toLowerCase()}`,
+                options: c.filterOptions
+              }
+            ) : null }, c.key)) })
+          ] }),
           /* @__PURE__ */ jsxs("tbody", { children: [
             isLoading && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, className: "dt-empty", children: "Loading\u2026" }) }),
             error && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, className: "dt-empty text-destructive", children: error.message }) }),

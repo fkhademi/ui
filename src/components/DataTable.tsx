@@ -1,6 +1,7 @@
 import { KeyboardEvent, MouseEvent, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 import { ColumnToggle, useColumnVisibility } from './ColumnToggle';
+import { Select } from './Select';
 
 /**
  * Universal list primitive for the app.
@@ -54,6 +55,14 @@ export type Column<T> = {
    *  always-on). Use for the primary identifying column. Only relevant when
    *  the table sets columnStorageKey. Defaults to hideable. */
   hideable?: boolean;
+  /** Values offered in this column's filter control. Giving a column options
+   *  is what turns filtering on for it; a table with no such column renders
+   *  no filter row at all. Use for columns with a small closed set of values
+   *  (status, type, owner) - free text is what the search box is for. */
+  filterOptions?: { value: string; label: string }[];
+  /** Value compared against the chosen filter option. Defaults to row[key].
+   *  Set it when the cell renders something other than the raw value. */
+  filterValue?: (row: T) => string | null | undefined;
 };
 
 type SortState = { key: string; dir: 'asc' | 'desc' } | null;
@@ -129,6 +138,11 @@ export type DataTableProps<T> = {
      *  controlled + debounced and the table does NOT filter rows locally. */
     search?: string;
     onSearchChange?: (q: string) => void;
+    /** Controlled/server column filters, keyed by column. When
+     *  onColumnFiltersChange is set the table does NOT filter rows locally;
+     *  rows are expected to arrive already filtered. */
+    columnFilters?: Record<string, string>;
+    onColumnFiltersChange?: (next: Record<string, string>) => void;
   };
 };
 
@@ -190,6 +204,24 @@ export function DataTable<T>(p: LegacyProps<T>) {
   // changes instead of sorting/filtering the current page locally.
   const serverSort = !!sp?.onSortChange;
   const serverSearch = !!sp?.onSearchChange;
+  const serverFilters = !!sp?.onColumnFiltersChange;
+  const filterCols = useMemo(() => columns.filter((c) => c.filterOptions?.length), [columns]);
+  const [localFilters, setLocalFilters] = useState<Record<string, string>>({});
+  const filters = serverFilters ? sp?.columnFilters ?? {} : localFilters;
+  const activeFilters = Object.values(filters).filter(Boolean).length;
+
+  const setFilter = (key: string, value: string) => {
+    const next = { ...filters };
+    if (value) next[key] = value;
+    else delete next[key];
+    if (serverFilters) sp!.onColumnFiltersChange!(next);
+    else setLocalFilters(next);
+  };
+
+  const clearFilters = () => {
+    if (serverFilters) sp!.onColumnFiltersChange!({});
+    else setLocalFilters({});
+  };
   const effSort: SortState = serverSort ? sp!.sort ?? null : sort;
 
   // Server search: keep the input responsive locally, push to the parent
@@ -214,13 +246,25 @@ export function DataTable<T>(p: LegacyProps<T>) {
   // in server mode the parent owns the page).
   useEffect(() => {
     if (!server) setPage(0);
-  }, [search, pageSize, rows, server]);
+  }, [search, filters, pageSize, rows, server]);
+
+  const columnFiltered = useMemo(() => {
+    if (serverFilters || activeFilters === 0) return rows;
+    const active = Object.entries(filters).filter(([, v]) => v);
+    return rows.filter((r) =>
+      active.every(([key, want]) => {
+        const col = columns.find((c) => c.key === key);
+        const v = col?.filterValue ? col.filterValue(r) : (r as Record<string, unknown>)[key];
+        return v != null && String(v) === want;
+      }),
+    );
+  }, [rows, filters, activeFilters, columns, serverFilters]);
 
   const filtered = useMemo(() => {
-    if (serverSearch) return rows; // server already filtered
-    if (!search.trim() || searchCols.length === 0) return rows;
+    if (serverSearch) return columnFiltered; // server already searched
+    if (!search.trim() || searchCols.length === 0) return columnFiltered;
     const q = search.trim().toLowerCase();
-    return rows.filter((r) =>
+    return columnFiltered.filter((r) =>
       searchCols.some((k) => {
         const col = columns.find((c) => c.key === k);
         let v: unknown;
@@ -229,7 +273,7 @@ export function DataTable<T>(p: LegacyProps<T>) {
         return v != null && String(v).toLowerCase().includes(q);
       }),
     );
-  }, [rows, search, searchCols, columns, serverSearch]);
+  }, [columnFiltered, search, searchCols, columns, serverSearch]);
 
   const sorted = useMemo(() => {
     if (serverSort) return filtered; // server already sorted
@@ -450,8 +494,16 @@ export function DataTable<T>(p: LegacyProps<T>) {
         {!sp && (
           <div className="dt-count">
             {isLoading ? 'loading…' : `${sorted.length} ${sorted.length === 1 ? 'row' : 'rows'}`}
-            {search && rows.length !== sorted.length && <> · filtered from {rows.length}</>}
+            {(search || activeFilters > 0) && rows.length !== sorted.length && (
+              <> · filtered from {rows.length}</>
+            )}
           </div>
+        )}
+        {activeFilters > 0 && (
+          <button type="button" onClick={clearFilters} className="dt-clear-filters">
+            <X size={12} />
+            Clear {activeFilters === 1 ? 'filter' : `${activeFilters} filters`}
+          </button>
         )}
         {(extraActions || columnStorageKey) && (
           <div className="ml-auto flex items-center gap-2">
@@ -503,6 +555,24 @@ export function DataTable<T>(p: LegacyProps<T>) {
                 );
               })}
             </tr>
+            {filterCols.length > 0 && (
+              <tr className="dt-filter-row">
+                {visibleColumns.map((c) => (
+                  <th key={c.key} className="dt-filter-th">
+                    {c.filterOptions?.length ? (
+                      <Select
+                        block
+                        size="sm"
+                        value={filters[c.key] ?? ''}
+                        onChange={(v) => setFilter(c.key, v)}
+                        placeholder={`All ${c.label.toLowerCase()}`}
+                        options={c.filterOptions}
+                      />
+                    ) : null}
+                  </th>
+                ))}
+              </tr>
+            )}
           </thead>
           <tbody>
             {isLoading && (

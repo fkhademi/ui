@@ -551,6 +551,17 @@ type Column<T> = {
      *  always-on). Use for the primary identifying column. Only relevant when
      *  the table sets columnStorageKey. Defaults to hideable. */
     hideable?: boolean;
+    /** Values offered in this column's filter control. Giving a column options
+     *  is what turns filtering on for it; a table with no such column renders
+     *  no filter row at all. Use for columns with a small closed set of values
+     *  (status, type, owner) - free text is what the search box is for. */
+    filterOptions?: {
+        value: string;
+        label: string;
+    }[];
+    /** Value compared against the chosen filter option. Defaults to row[key].
+     *  Set it when the cell renders something other than the raw value. */
+    filterValue?: (row: T) => string | null | undefined;
 };
 type SortState = {
     key: string;
@@ -616,6 +627,11 @@ type DataTableProps<T> = {
          *  controlled + debounced and the table does NOT filter rows locally. */
         search?: string;
         onSearchChange?: (q: string) => void;
+        /** Controlled/server column filters, keyed by column. When
+         *  onColumnFiltersChange is set the table does NOT filter rows locally;
+         *  rows are expected to arrive already filtered. */
+        columnFilters?: Record<string, string>;
+        onColumnFiltersChange?: (next: Record<string, string>) => void;
     };
 };
 type LegacyProps<T> = DataTableProps<T> & {

@@ -418,6 +418,22 @@
 
   .dt-th--sorted { @apply text-foreground; }
 
+  /* Filter row: a second header row holding one control per filterable
+     column. Lighter than the header above it so the labels still read as the
+     headings and these read as controls. */
+  .dt-filter-row {
+    @apply bg-surface;
+  }
+
+  .dt-filter-th {
+    @apply px-3 py-1.5 align-middle font-normal border-b border-border;
+  }
+
+  .dt-clear-filters {
+    @apply inline-flex items-center gap-1 text-xs text-muted-foreground
+           hover:text-foreground transition-colors;
+  }
+
   .dt-th-inner {
     @apply inline-flex items-center gap-1;
   }
