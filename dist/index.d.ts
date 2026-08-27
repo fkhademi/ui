@@ -792,16 +792,20 @@ declare function MultiSelect({ value, onChange, options, allowFree, placeholder,
 /**
  * Money held in minor units (cents), rendered for display.
  *
- * Precision adapts, because the two audiences want different things from the
- * same column: a per-request cost is fractions of a cent and rounding it to
- * two places shows every row as $0.00, while a monthly total with four
- * decimals is noise. Under a unit, keep enough digits to be a number; at or
- * above one, two places, the way a person writes an amount.
+ * Takes minor units so the caller never divides, which is where a
+ * floating-point tail like 18.695779299999998 comes from.
  *
- * Takes minor units so the caller never divides, which is where the
- * floating-point tail comes from.
+ * Two decimals by default, the way a person writes an amount. Pass
+ * digits: 'adaptive' for a column that spans orders of magnitude, where a
+ * per-request cost is fractions of a cent and rounding it to two places shows
+ * every row as $0.00; adaptive keeps four digits below a unit and two at or
+ * above one. It is opt-in because a price list wants $0.15 rather than
+ * $0.1500.
  */
-declare function money(minorUnits: number, currency?: string): string;
+declare function money(minorUnits: number, opts?: {
+    digits?: number | 'adaptive';
+    currency?: string;
+}): string;
 /**
  * A count shortened for a headline: 41K, 46M.
  *

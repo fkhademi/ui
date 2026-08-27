@@ -1688,13 +1688,14 @@ function MultiSelect({
 }
 
 // src/format.ts
-function money(minorUnits, currency = "$") {
+function money(minorUnits, opts = {}) {
+  const { digits = 2, currency = "$" } = opts;
   const value = (Number(minorUnits) || 0) / 100;
-  const digits = Math.abs(value) < 1 && value !== 0 ? 4 : 2;
+  const places = digits === "adaptive" ? Math.abs(value) < 1 && value !== 0 ? 4 : 2 : digits;
   const sign = value < 0 ? "-" : "";
   return sign + currency + Math.abs(value).toLocaleString(void 0, {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits
+    minimumFractionDigits: places,
+    maximumFractionDigits: places
   });
 }
 function compactNumber(n) {

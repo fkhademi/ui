@@ -8,11 +8,16 @@ describe('money', () => {
     expect(money(1869.5779299999998)).toBe('$18.70');
   });
 
-  it('keeps enough digits for a cost smaller than a unit', () => {
+  it('defaults to two places, which is what a price list wants', () => {
+    expect(money(15)).toBe('$0.15');
+    expect(money(123456)).toBe('$1,234.56');
+  });
+
+  it('keeps enough digits for a cost smaller than a unit when asked', () => {
     // Rounded to two places every row of a per-request table reads $0.00,
     // which is the same as showing nothing.
-    expect(money(4.38)).toBe('$0.0438');
-    expect(money(0.01)).toBe('$0.0001');
+    expect(money(4.38, { digits: 'adaptive' })).toBe('$0.0438');
+    expect(money(0.01, { digits: 'adaptive' })).toBe('$0.0001');
   });
 
   it('uses two places once the amount is one or more', () => {
@@ -26,7 +31,7 @@ describe('money', () => {
 
   it('handles negatives, which a credit or an adjustment produces', () => {
     expect(money(-1387)).toBe('-$13.87');
-    expect(money(-4.38)).toBe('-$0.0438');
+    expect(money(-4.38, { digits: 'adaptive' })).toBe('-$0.0438');
   });
 
   it('survives what an API actually sends when a field is absent', () => {
@@ -35,7 +40,7 @@ describe('money', () => {
   });
 
   it('takes another currency symbol', () => {
-    expect(money(1387, '€')).toBe('€13.87');
+    expect(money(1387, { currency: '€' })).toBe('€13.87');
   });
 });
 
