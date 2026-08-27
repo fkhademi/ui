@@ -1687,6 +1687,25 @@ function MultiSelect({
   ] });
 }
 
-export { BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, Toggle, Tooltip, aigwBrand, brands, dnswizBrand, doonBrand, pgwizBrand, useColumnVisibility, useDrawerClose, useFloatingMenu };
+// src/format.ts
+function money(minorUnits, currency = "$") {
+  const value = (Number(minorUnits) || 0) / 100;
+  const digits = Math.abs(value) < 1 && value !== 0 ? 4 : 2;
+  const sign = value < 0 ? "-" : "";
+  return sign + currency + Math.abs(value).toLocaleString(void 0, {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  });
+}
+function compactNumber(n) {
+  return new Intl.NumberFormat(void 0, { notation: "compact", maximumFractionDigits: 1 }).format(
+    Number(n) || 0
+  );
+}
+function percent(fraction, digits = 1) {
+  return ((Number(fraction) || 0) * 100).toFixed(digits) + "%";
+}
+
+export { BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, Toggle, Tooltip, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDrawerClose, useFloatingMenu };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

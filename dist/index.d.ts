@@ -781,4 +781,35 @@ declare function MultiSelect({ value, onChange, options, allowFree, placeholder,
     placeholder?: string;
 }): react_jsx_runtime.JSX.Element;
 
-export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, type ConfirmDiscard, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, Tooltip, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, dnswizBrand, doonBrand, pgwizBrand, useColumnVisibility, useDrawerClose, useFloatingMenu, useSidebarCollapsed };
+/**
+ * Number formatting for values people read rather than compute with.
+ *
+ * These live here because every console that shows a cost writes the same
+ * three lines, and the copies drift: one rounds to two places, one to four,
+ * one forgets that a float divided by a hundred renders as
+ * 18.695779299999998.
+ */
+/**
+ * Money held in minor units (cents), rendered for display.
+ *
+ * Precision adapts, because the two audiences want different things from the
+ * same column: a per-request cost is fractions of a cent and rounding it to
+ * two places shows every row as $0.00, while a monthly total with four
+ * decimals is noise. Under a unit, keep enough digits to be a number; at or
+ * above one, two places, the way a person writes an amount.
+ *
+ * Takes minor units so the caller never divides, which is where the
+ * floating-point tail comes from.
+ */
+declare function money(minorUnits: number, currency?: string): string;
+/**
+ * A count shortened for a headline: 41K, 46M.
+ *
+ * For a figure someone glances at, not one they reconcile against. Anywhere
+ * the exact number matters, show the exact number.
+ */
+declare function compactNumber(n: number): string;
+/** A fraction (0.42) as a percentage (42.0%). */
+declare function percent(fraction: number, digits?: number): string;
+
+export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, type ConfirmDiscard, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, Tooltip, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDrawerClose, useFloatingMenu, useSidebarCollapsed };

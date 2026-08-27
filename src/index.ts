@@ -50,3 +50,4 @@ export { MultiSelect } from './components/MultiSelect';
 export type { MultiSelectOption } from './components/MultiSelect';
 export { brands, aigwBrand, dnswizBrand, doonBrand, pgwizBrand } from './brands';
 export type { BrandName, BrandSpec, BrandPalette, BrandSvgSpec } from './brands';
+export { money, compactNumber, percent } from './format';
