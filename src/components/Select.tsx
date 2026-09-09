@@ -28,6 +28,7 @@ export function Select({
   disabled = false,
   className = '',
   autoFocus = false,
+  defaultOpen = false,
   onBlur,
   onEscape,
 }: {
@@ -43,6 +44,10 @@ export function Select({
   /** Focus the trigger on mount. For a control that replaces a cell the
    *  moment editing starts, where the user should not have to click twice. */
   autoFocus?: boolean;
+  /** Open the menu on mount. For a control that appears because the user
+   *  already clicked to open something: focusing without opening costs a
+   *  second click, and the first one looks like it did nothing. */
+  defaultOpen?: boolean;
   /** Focus left the control without a choice being made. Only fires while the
    *  menu is CLOSED: reaching into the menu moves focus into a portal, which
    *  looks like leaving and is not. */
@@ -52,7 +57,7 @@ export function Select({
    *  edit on the keystroke that was meant to dismiss the list. */
   onEscape?: () => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [active, setActive] = useState(0);
   const typed = useRef({ buffer: '', at: 0 });
   const { triggerRef, menuRef, menuStyle } = useFloatingMenu<HTMLButtonElement, HTMLDivElement>({

@@ -219,10 +219,11 @@ function Select({
   disabled = false,
   className = "",
   autoFocus = false,
+  defaultOpen = false,
   onBlur,
   onEscape
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [active, setActive] = useState(0);
   const typed = useRef({ buffer: "", at: 0 });
   const { triggerRef, menuRef, menuStyle } = useFloatingMenu({

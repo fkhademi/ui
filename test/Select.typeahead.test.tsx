@@ -92,3 +92,23 @@ describe('Select typeahead', () => {
     expect(onChange).toHaveBeenCalledWith('be');
   });
 });
+
+describe('Select defaultOpen', () => {
+  test('opens on mount when asked', () => {
+    render(<Select value="at" onChange={vi.fn()} options={OPTIONS} defaultOpen />);
+    expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByRole('listbox')).toBeTruthy();
+  });
+
+  test('stays shut by default', () => {
+    render(<Select value="at" onChange={vi.fn()} options={OPTIONS} />);
+    expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('false');
+  });
+
+  test('an option can be chosen straight away', () => {
+    const onChange = vi.fn();
+    render(<Select value="at" onChange={onChange} options={OPTIONS} defaultOpen />);
+    fireEvent.click(screen.getByText('Canada'));
+    expect(onChange).toHaveBeenCalledWith('ca');
+  });
+});

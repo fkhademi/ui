@@ -99,7 +99,7 @@ type SelectOption = {
  *
  *   <Select value={region} onChange={setRegion} options={[{value:'eu',label:'EU'}]} />
  */
-declare function Select({ value, onChange, options, placeholder, size, block, disabled, className, autoFocus, onBlur, onEscape, }: {
+declare function Select({ value, onChange, options, placeholder, size, block, disabled, className, autoFocus, defaultOpen, onBlur, onEscape, }: {
     value: string;
     onChange: (value: string) => void;
     options: SelectOption[];
@@ -112,6 +112,10 @@ declare function Select({ value, onChange, options, placeholder, size, block, di
     /** Focus the trigger on mount. For a control that replaces a cell the
      *  moment editing starts, where the user should not have to click twice. */
     autoFocus?: boolean;
+    /** Open the menu on mount. For a control that appears because the user
+     *  already clicked to open something: focusing without opening costs a
+     *  second click, and the first one looks like it did nothing. */
+    defaultOpen?: boolean;
     /** Focus left the control without a choice being made. Only fires while the
      *  menu is CLOSED: reaching into the menu moves focus into a portal, which
      *  looks like leaving and is not. */
