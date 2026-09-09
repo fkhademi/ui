@@ -93,7 +93,9 @@ type SelectOption = {
  * any overflow-hidden ancestor (drawers, settings cards, scroll boxes), and caps
  * its height to the available space. Closes on outside-click and Escape.
  * Keyboard: Enter/Space/ArrowDown opens, arrows move, Enter selects, Escape
- * closes. Visual identity uses the consuming app's CSS vars.
+ * closes. Typing jumps to the first option starting with what you typed, the
+ * way a native select does; repeating one letter cycles through the options
+ * beginning with it. Visual identity uses the consuming app's CSS vars.
  *
  *   <Select value={region} onChange={setRegion} options={[{value:'eu',label:'EU'}]} />
  */

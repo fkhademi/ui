@@ -224,6 +224,7 @@ function Select({
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  const typed = useRef({ buffer: "", at: 0 });
   const { triggerRef, menuRef, menuStyle } = useFloatingMenu({
     open,
     onClose: () => setOpen(false),
@@ -233,7 +234,37 @@ function Select({
   useEffect(() => {
     if (open) setActive(Math.max(0, options.findIndex((o) => o.value === value)));
   }, [open]);
+  useEffect(() => {
+    const i = options.findIndex((o) => o.value === value);
+    if (i >= 0) setActive(i);
+  }, [value]);
+  useEffect(() => {
+    if (!open || !menuRef.current) return;
+    const el = menuRef.current.children[active];
+    el?.scrollIntoView({ block: "nearest" });
+  }, [active, open, menuRef]);
+  const TYPEAHEAD_RESET_MS = 700;
+  function jumpTo(char) {
+    const now = Date.now();
+    const fresh = now - typed.current.at > TYPEAHEAD_RESET_MS;
+    const buffer = fresh ? char : typed.current.buffer + char;
+    typed.current = { buffer, at: now };
+    const repeated = buffer.length > 1 && buffer.split("").every((c) => c === buffer[0]);
+    const needle = repeated ? buffer[0] : buffer;
+    const from = repeated || buffer.length === 1 ? active + 1 : 0;
+    const matches = (o) => o.label.toLowerCase().startsWith(needle);
+    const order = options.map((_, i) => (from + i) % options.length);
+    const found = order.find((i) => matches(options[i]));
+    if (found === void 0) return;
+    setActive(found);
+    if (!open) onChange(options[found].value);
+  }
   function onKeyDown(e) {
+    if (e.key.length === 1 && e.key !== " " && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      e.preventDefault();
+      jumpTo(e.key.toLowerCase());
+      return;
+    }
     if (!open) {
       if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
         e.preventDefault();

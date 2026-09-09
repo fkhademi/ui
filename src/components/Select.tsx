@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import { useFloatingMenu } from './FloatingMenu';
 
@@ -12,7 +12,9 @@ export type SelectOption = { value: string; label: string };
  * any overflow-hidden ancestor (drawers, settings cards, scroll boxes), and caps
  * its height to the available space. Closes on outside-click and Escape.
  * Keyboard: Enter/Space/ArrowDown opens, arrows move, Enter selects, Escape
- * closes. Visual identity uses the consuming app's CSS vars.
+ * closes. Typing jumps to the first option starting with what you typed, the
+ * way a native select does; repeating one letter cycles through the options
+ * beginning with it. Visual identity uses the consuming app's CSS vars.
  *
  *   <Select value={region} onChange={setRegion} options={[{value:'eu',label:'EU'}]} />
  */
@@ -52,6 +54,7 @@ export function Select({
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  const typed = useRef({ buffer: '', at: 0 });
   const { triggerRef, menuRef, menuStyle } = useFloatingMenu<HTMLButtonElement, HTMLDivElement>({
     open,
     onClose: () => setOpen(false),
@@ -63,7 +66,55 @@ export function Select({
     if (open) setActive(Math.max(0, options.findIndex((o) => o.value === value)));
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Follow the value when it changes from outside, so the keyboard picks up
+  // where the list actually is.
+  useEffect(() => {
+    const i = options.findIndex((o) => o.value === value);
+    if (i >= 0) setActive(i);
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep the highlighted option visible. The list scrolls, so arrowing or
+  // jumping past the fold otherwise moves a highlight nobody can see.
+  useEffect(() => {
+    if (!open || !menuRef.current) return;
+    const el = menuRef.current.children[active] as HTMLElement | undefined;
+    el?.scrollIntoView({ block: 'nearest' });
+  }, [active, open, menuRef]);
+
+  const TYPEAHEAD_RESET_MS = 700;
+
+  function jumpTo(char: string) {
+    const now = Date.now();
+    const fresh = now - typed.current.at > TYPEAHEAD_RESET_MS;
+    const buffer = fresh ? char : typed.current.buffer + char;
+    typed.current = { buffer, at: now };
+
+    // One letter typed repeatedly cycles through the options starting with it,
+    // matching a native select. A longer buffer is a prefix search instead.
+    const repeated = buffer.length > 1 && buffer.split('').every((c) => c === buffer[0]);
+    const needle = repeated ? buffer[0] : buffer;
+    // Cycling starts after wherever the list is now. `active` tracks that
+    // whether the menu is open or shut, so repeat presses keep moving even if
+    // the consumer has not re-rendered with the new value yet.
+    const from = repeated || buffer.length === 1 ? active + 1 : 0;
+
+    const matches = (o: SelectOption) => o.label.toLowerCase().startsWith(needle);
+    const order = options.map((_, i) => (from + i) % options.length);
+    const found = order.find((i) => matches(options[i]));
+    if (found === undefined) return;
+
+    setActive(found);
+    if (!open) onChange(options[found].value);
+  }
+
   function onKeyDown(e: React.KeyboardEvent) {
+    // A single printable character is a jump, never a shortcut. Modifier
+    // combinations are left alone so browser and OS shortcuts still work.
+    if (e.key.length === 1 && e.key !== ' ' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      e.preventDefault();
+      jumpTo(e.key.toLowerCase());
+      return;
+    }
     if (!open) {
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
         e.preventDefault();
