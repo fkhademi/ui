@@ -439,6 +439,7 @@ declare const brands: {
     readonly aigw: BrandSpec;
     readonly dnswiz: BrandSpec;
     readonly doon: BrandSpec;
+    readonly mxwiz: BrandSpec;
     readonly pgwiz: BrandSpec;
 };
 type BrandName = keyof typeof brands;

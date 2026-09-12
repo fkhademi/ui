@@ -9,17 +9,19 @@
 import { aigwBrand } from './aigw';
 import { dnswizBrand } from './dnswiz';
 import { doonBrand } from './doon';
+import { mxwizBrand } from './mxwiz';
 import { pgwizBrand } from './pgwiz';
 
 export const brands = {
   aigw: aigwBrand,
   dnswiz: dnswizBrand,
   doon: doonBrand,
+  mxwiz: mxwizBrand,
   pgwiz: pgwizBrand,
 } as const;
 
 export type BrandName = keyof typeof brands;
 
-export { aigwBrand, dnswizBrand, doonBrand };
+export { aigwBrand, dnswizBrand, doonBrand, mxwizBrand };
 export type { BrandSpec, BrandPalette, BrandSvgSpec } from './types';
 export { pgwizBrand } from './pgwiz';
