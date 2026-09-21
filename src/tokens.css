@@ -29,7 +29,11 @@
   --muted: 240 5% 96%;
   --muted-foreground: 240 4% 46%;
 
-  --accent: 240 5% 96%;
+  /* Hover/pressed tone for neutral surfaces. Sits on --surface (white), so it
+   * has to be clearly darker than white: at 96% a hovered menu item or
+   * sidebar row was all but invisible. 93% reads as a highlight and still
+   * stays quiet. Dark mode already has enough distance (16% on 10%). */
+  --accent: 240 5% 93%;
   --accent-foreground: 240 6% 10%;
 
   /* Semantic state */
