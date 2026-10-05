@@ -1,5 +1,6 @@
 import { createContext, FormEvent, ReactNode, useContext, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Tooltip } from './Tooltip';
 
 /**
  * Universal right-side drawer used by every create/edit form.
@@ -125,9 +126,11 @@ export function Drawer({
       >
         <header className="drawer-header">
           <div className="drawer-title">{title}</div>
-          <button type="button" onClick={requestClose} className="btn-icon" title="Close" aria-label="Close drawer">
-            ✕
-          </button>
+          <Tooltip content="Close">
+            <button type="button" onClick={requestClose} className="btn-icon" aria-label="Close drawer">
+              ✕
+            </button>
+          </Tooltip>
         </header>
         {children}
       </aside>

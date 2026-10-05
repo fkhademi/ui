@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
+import { Tooltip } from './Tooltip';
 
 /**
  * Small wrapper hook + button for collapsing the .app-sidebar rail.
@@ -57,14 +58,15 @@ export function SidebarCollapseToggle({
   onToggle: () => void;
 }) {
   return (
-    <button
-      type="button"
-      className="app-sidebar-collapse"
-      onClick={onToggle}
-      aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-    >
-      <ChevronLeft size={14} className="app-sidebar-collapse-icon" />
-    </button>
+    <Tooltip content={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+      <button
+        type="button"
+        className="app-sidebar-collapse"
+        onClick={onToggle}
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      >
+        <ChevronLeft size={14} className="app-sidebar-collapse-icon" />
+      </button>
+    </Tooltip>
   );
 }

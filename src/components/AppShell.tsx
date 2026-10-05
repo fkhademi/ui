@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { useSidebarCollapsed, SidebarCollapseToggle } from './SidebarCollapse';
+import { Tooltip } from './Tooltip';
 
 export interface AppShellNavItem {
   to: string;
@@ -82,7 +83,7 @@ export function AppShell({
 
         <div className="app-sidebar-section app-sidebar-section--scroll">
           {visibleItems.map(item => (
-            <AppShellNavLink key={item.to} {...item} />
+            <AppShellNavLink key={item.to} {...item} collapsed={collapsed} />
           ))}
         </div>
 
@@ -112,23 +113,27 @@ export function AppShell({
   );
 }
 
-function AppShellNavLink({ to, icon, label, badge }: AppShellNavItem) {
+function AppShellNavLink({ to, icon, label, badge, collapsed }: AppShellNavItem & { collapsed: boolean }) {
+  // A collapsed rail hides the label, so the tooltip and the accessible
+  // name stand in for it; expanded, the visible text is both.
   return (
-    <NavLink
-      to={to}
-      end={to === '/'}
-      title={label}
-      className={({ isActive }) =>
-        `app-sidebar-item${isActive ? ' app-sidebar-item--active' : ''}`
-      }
-    >
-      {icon}
-      <span className="flex-1">{label}</span>
-      {badge !== undefined && badge > 0 && (
-        <span className="min-w-[18px] h-[18px] px-1 text-[10px] font-semibold rounded-full bg-warning/15 text-warning flex items-center justify-center">
-          {badge > 99 ? '99+' : badge}
-        </span>
-      )}
-    </NavLink>
+    <Tooltip content={label} disabled={!collapsed}>
+      <NavLink
+        to={to}
+        end={to === '/'}
+        aria-label={collapsed ? label : undefined}
+        className={({ isActive }) =>
+          `app-sidebar-item${isActive ? ' app-sidebar-item--active' : ''}`
+        }
+      >
+        {icon}
+        <span className="flex-1">{label}</span>
+        {badge !== undefined && badge > 0 && (
+          <span className="min-w-[18px] h-[18px] px-1 text-[10px] font-semibold rounded-full bg-warning/15 text-warning flex items-center justify-center">
+            {badge > 99 ? '99+' : badge}
+          </span>
+        )}
+      </NavLink>
+    </Tooltip>
   );
 }

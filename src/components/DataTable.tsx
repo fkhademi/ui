@@ -2,6 +2,7 @@ import { KeyboardEvent, MouseEvent, ReactNode, useEffect, useMemo, useRef, useSt
 import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 import { ColumnToggle, useColumnVisibility } from './ColumnToggle';
 import { Select } from './Select';
+import { Tooltip } from './Tooltip';
 
 /**
  * Universal list primitive for the app.
@@ -679,9 +680,9 @@ export function DataTable<T>(p: LegacyProps<T>) {
                               (c.className ? ` ${c.className}` : '')
                             }
                           >
-                            <span className="dt-cell-truncate" title={fullText || undefined}>
-                              {content}
-                            </span>
+                            <Tooltip content={fullText} whenTruncated>
+                              <span className="dt-cell-truncate">{content}</span>
+                            </Tooltip>
                           </td>
                         );
                       }

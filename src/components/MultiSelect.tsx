@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, Search, X } from 'lucide-react';
 import { useFloatingMenu } from './FloatingMenu';
+import { Tooltip } from './Tooltip';
 
 export type MultiSelectOption = { value: string; label: string };
 
@@ -95,10 +96,12 @@ export function MultiSelect({
               </button>
             )}
             {filtered.map((o) => (
-              <button key={o.value} type="button" onClick={() => add(o.value)} title={o.label !== o.value ? `${o.label} · ${o.value}` : o.label} className="block w-full truncate text-left px-3 py-2 text-sm text-foreground hover:bg-accent transition">
-                {o.label}
-                {o.label !== o.value && <span className="text-muted-foreground text-xs ml-1">{o.value}</span>}
-              </button>
+              <Tooltip key={o.value} content={o.label !== o.value ? `${o.label} · ${o.value}` : o.label} whenTruncated>
+                <button type="button" onClick={() => add(o.value)} className="block w-full truncate text-left px-3 py-2 text-sm text-foreground hover:bg-accent transition">
+                  {o.label}
+                  {o.label !== o.value && <span className="text-muted-foreground text-xs ml-1">{o.value}</span>}
+                </button>
+              </Tooltip>
             ))}
             {filtered.length === 0 && !showAdd && (
               <div className="px-3 py-3 text-sm text-muted-foreground text-center">{options.length ? 'No matches' : 'Nothing to pick'}</div>

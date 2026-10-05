@@ -41,11 +41,18 @@ export function Tooltip({
   content,
   children,
   disabled,
+  whenTruncated,
 }: {
   content: ReactNode;
   /** A single element that can take a ref and event handlers. */
   children: ReactElement;
   disabled?: boolean;
+  /**
+   * Only open when the trigger's text is cut off (its content is wider than
+   * its box). For truncated cells and list items, where a tooltip repeating
+   * fully visible text is noise.
+   */
+  whenTruncated?: boolean;
 }) {
   const id = useId();
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -78,13 +85,17 @@ export function Tooltip({
   const open = useCallback(
     (immediate: boolean) => {
       if (disabled || !content) return;
+      if (whenTruncated) {
+        const el = triggerRef.current;
+        if (!el || el.scrollWidth <= el.clientWidth) return;
+      }
       if (timer.current) clearTimeout(timer.current);
       // Focus means deliberate: a keyboard user asking for the hint should not
       // wait out a delay meant to stop pointer flicker.
       if (immediate) place();
       else timer.current = setTimeout(place, OPEN_DELAY_MS);
     },
-    [content, disabled, place],
+    [content, disabled, whenTruncated, place],
   );
 
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
