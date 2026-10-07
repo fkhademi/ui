@@ -406,10 +406,8 @@ interface BrandSpec {
 declare const aigwBrand: BrandSpec;
 
 /**
- * dnswiz brand: dot inside a ring (the authoritative answer everyone
- * resolves to). Sister to the doon.io mark which is the bare dot.
- * Accent is dnswiz blue (Tailwind blue-500); ink is the standard
- * near-black surface used across the doon family.
+ * dnswiz brand: a lowercase d followed by the root dot that ends every
+ * fully qualified name. The dot is the doon anchor, in dnswiz blue.
  */
 declare const dnswizBrand: BrandSpec;
 
@@ -659,11 +657,17 @@ declare function SelectionToolbar(props: {
     extra?: ReactNode;
 }): react_jsx_runtime.JSX.Element | null;
 
-declare function Tooltip({ content, children, disabled, }: {
+declare function Tooltip({ content, children, disabled, whenTruncated, }: {
     content: ReactNode;
     /** A single element that can take a ref and event handlers. */
     children: ReactElement;
     disabled?: boolean;
+    /**
+     * Only open when the trigger's text is cut off (its content is wider than
+     * its box). For truncated cells and list items, where a tooltip repeating
+     * fully visible text is noise.
+     */
+    whenTruncated?: boolean;
 }): react_jsx_runtime.JSX.Element;
 
 /**

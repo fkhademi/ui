@@ -1,4 +1,4 @@
-import { useSidebarCollapsed, SidebarCollapseToggle } from './chunk-NZUZIMAT.js';
+import { useSidebarCollapsed, SidebarCollapseToggle, Tooltip } from './chunk-TH76AULU.js';
 import { Link, NavLink } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { jsxs, jsx } from 'react/jsx-runtime';
@@ -28,7 +28,7 @@ function AppShell({
           }
         )
       ] }),
-      /* @__PURE__ */ jsx("div", { className: "app-sidebar-section app-sidebar-section--scroll", children: visibleItems.map((item) => /* @__PURE__ */ jsx(AppShellNavLink, { ...item }, item.to)) }),
+      /* @__PURE__ */ jsx("div", { className: "app-sidebar-section app-sidebar-section--scroll", children: visibleItems.map((item) => /* @__PURE__ */ jsx(AppShellNavLink, { ...item, collapsed }, item.to)) }),
       /* @__PURE__ */ jsxs("div", { className: "app-sidebar-footer", children: [
         user && /* @__PURE__ */ jsxs("div", { className: "app-sidebar-user", children: [
           /* @__PURE__ */ jsx("div", { className: "app-sidebar-user-name", children: user.name }),
@@ -52,13 +52,13 @@ function AppShell({
     /* @__PURE__ */ jsx("main", { className: "app-content", children })
   ] });
 }
-function AppShellNavLink({ to, icon, label, badge }) {
-  return /* @__PURE__ */ jsxs(
+function AppShellNavLink({ to, icon, label, badge, collapsed }) {
+  return /* @__PURE__ */ jsx(Tooltip, { content: label, disabled: !collapsed, children: /* @__PURE__ */ jsxs(
     NavLink,
     {
       to,
       end: to === "/",
-      title: label,
+      "aria-label": collapsed ? label : void 0,
       className: ({ isActive }) => `app-sidebar-item${isActive ? " app-sidebar-item--active" : ""}`,
       children: [
         icon,
@@ -66,7 +66,7 @@ function AppShellNavLink({ to, icon, label, badge }) {
         badge !== void 0 && badge > 0 && /* @__PURE__ */ jsx("span", { className: "min-w-[18px] h-[18px] px-1 text-[10px] font-semibold rounded-full bg-warning/15 text-warning flex items-center justify-center", children: badge > 99 ? "99+" : badge })
       ]
     }
-  );
+  ) });
 }
 
 export { AppShell };

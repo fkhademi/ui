@@ -1,10 +1,8 @@
 import type { BrandSpec } from './types';
 
 /**
- * dnswiz brand: dot inside a ring (the authoritative answer everyone
- * resolves to). Sister to the doon.io mark which is the bare dot.
- * Accent is dnswiz blue (Tailwind blue-500); ink is the standard
- * near-black surface used across the doon family.
+ * dnswiz brand: a lowercase d followed by the root dot that ends every
+ * fully qualified name. The dot is the doon anchor, in dnswiz blue.
  */
 export const dnswizBrand: BrandSpec = {
   name: 'dnswiz',
@@ -16,23 +14,23 @@ export const dnswizBrand: BrandSpec = {
     viewBox: '0 0 32 32',
     inner: `
       <rect width="32" height="32" rx="7" fill="#0a0a0a"/>
-      <circle cx="16" cy="16" r="10.5" fill="none" stroke="#3b82f6" stroke-width="2"/>
-      <circle cx="16" cy="16" r="4" fill="#3b82f6"/>
+      <circle cx="13.25" cy="18.06" r="4.13" fill="none" stroke="#fafafa" stroke-width="2.5"/>
+      <path d="M17.38 8.78V22.19" fill="none" stroke="#fafafa" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="22.33" cy="20.95" r="2.06" fill="#3b82f6"/>
     `.trim(),
   },
   mark: {
-    viewBox: '0 0 16 16',
+    viewBox: '0 0 32 32',
     inner: `
-      <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
-      <circle cx="8" cy="8" r="2.5" fill="currentColor"/>
+      <circle cx="12" cy="19" r="6" fill="none" stroke="currentColor" stroke-width="3.6"/>
+      <path d="M18 5.5V25" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/>
+      <circle cx="25.2" cy="23.2" r="3" fill="#3b82f6"/>
     `.trim(),
   },
   wordmark: {
-    viewBox: '0 0 320 96',
+    viewBox: '0 0 336 96',
     inner: `
-      <text x="0" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui, sans-serif" font-size="84" font-weight="700" letter-spacing="-3.6" fill="#0a0a0a">dnswiz</text>
-      <circle cx="296" cy="68" r="12" fill="none" stroke="#3b82f6" stroke-width="2.5"/>
-      <circle cx="296" cy="68" r="5" fill="#3b82f6"/>
+      <text x="0" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui, sans-serif" font-size="84" font-weight="700" letter-spacing="-3.6" fill="#0a0a0a">dnswiz<tspan fill="#3b82f6">.</tspan></text>
     `.trim(),
   },
 };

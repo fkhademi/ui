@@ -1,7 +1,8 @@
-export { SidebarCollapseToggle, useSidebarCollapsed } from './chunk-NZUZIMAT.js';
+import { Tooltip } from './chunk-TH76AULU.js';
+export { SidebarCollapseToggle, Tooltip, useSidebarCollapsed } from './chunk-TH76AULU.js';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { HelpCircle, ChevronDown, Check, Minus, Calendar, ChevronLeft, ChevronRight, SlidersHorizontal, Search, X, ChevronUp, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
-import { createContext, useState, useRef, useLayoutEffect, useEffect, useMemo, useId, useCallback, isValidElement, cloneElement, useContext } from 'react';
+import { createContext, useState, useRef, useLayoutEffect, useEffect, useMemo, useContext } from 'react';
 import { createPortal } from 'react-dom';
 
 function PageHeader({
@@ -658,23 +659,23 @@ var dnswizBrand = {
     viewBox: "0 0 32 32",
     inner: `
       <rect width="32" height="32" rx="7" fill="#0a0a0a"/>
-      <circle cx="16" cy="16" r="10.5" fill="none" stroke="#3b82f6" stroke-width="2"/>
-      <circle cx="16" cy="16" r="4" fill="#3b82f6"/>
+      <circle cx="13.25" cy="18.06" r="4.13" fill="none" stroke="#fafafa" stroke-width="2.5"/>
+      <path d="M17.38 8.78V22.19" fill="none" stroke="#fafafa" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="22.33" cy="20.95" r="2.06" fill="#3b82f6"/>
     `.trim()
   },
   mark: {
-    viewBox: "0 0 16 16",
+    viewBox: "0 0 32 32",
     inner: `
-      <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
-      <circle cx="8" cy="8" r="2.5" fill="currentColor"/>
+      <circle cx="12" cy="19" r="6" fill="none" stroke="currentColor" stroke-width="3.6"/>
+      <path d="M18 5.5V25" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/>
+      <circle cx="25.2" cy="23.2" r="3" fill="#3b82f6"/>
     `.trim()
   },
   wordmark: {
-    viewBox: "0 0 320 96",
+    viewBox: "0 0 336 96",
     inner: `
-      <text x="0" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui, sans-serif" font-size="84" font-weight="700" letter-spacing="-3.6" fill="#0a0a0a">dnswiz</text>
-      <circle cx="296" cy="68" r="12" fill="none" stroke="#3b82f6" stroke-width="2.5"/>
-      <circle cx="296" cy="68" r="5" fill="#3b82f6"/>
+      <text x="0" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui, sans-serif" font-size="84" font-weight="700" letter-spacing="-3.6" fill="#0a0a0a">dnswiz<tspan fill="#3b82f6">.</tspan></text>
     `.trim()
   }
 };
@@ -1214,7 +1215,7 @@ function DataTable(p) {
                         {
                           style: c.width ? { width: c.width } : void 0,
                           className: `dt-td dt-td--truncate${c.align === "right" ? " dt-td--right" : ""}` + (c.className ? ` ${c.className}` : ""),
-                          children: /* @__PURE__ */ jsx("span", { className: "dt-cell-truncate", title: fullText || void 0, children: content })
+                          children: /* @__PURE__ */ jsx(Tooltip, { content: fullText, whenTruncated: true, children: /* @__PURE__ */ jsx("span", { className: "dt-cell-truncate", children: content }) })
                         },
                         c.key
                       );
@@ -1383,104 +1384,6 @@ function SelectionToolbar(props) {
     ] })
   ] });
 }
-var OPEN_DELAY_MS = 350;
-function Tooltip({
-  content,
-  children,
-  disabled
-}) {
-  const id = useId();
-  const triggerRef = useRef(null);
-  const timer = useRef(null);
-  const [style, setStyle] = useState(null);
-  const close = useCallback(() => {
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = null;
-    setStyle(null);
-  }, []);
-  const place = useCallback(() => {
-    const el = triggerRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const margin = 8;
-    const above = r.top > 64;
-    setStyle({
-      position: "fixed",
-      top: above ? r.top - margin : r.bottom + margin,
-      left: Math.min(Math.max(r.left + r.width / 2, 80), window.innerWidth - 80),
-      transform: `translate(-50%, ${above ? "-100%" : "0"})`,
-      zIndex: 60
-    });
-  }, []);
-  const open = useCallback(
-    (immediate) => {
-      if (disabled || !content) return;
-      if (timer.current) clearTimeout(timer.current);
-      if (immediate) place();
-      else timer.current = setTimeout(place, OPEN_DELAY_MS);
-    },
-    [content, disabled, place]
-  );
-  useEffect(() => () => {
-    if (timer.current) clearTimeout(timer.current);
-  }, []);
-  useEffect(() => {
-    if (!style) return;
-    const onKey = (e) => {
-      if (e.key === "Escape") close();
-    };
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("scroll", close, true);
-    window.addEventListener("resize", close);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("scroll", close, true);
-      window.removeEventListener("resize", close);
-    };
-  }, [style, close]);
-  if (!isValidElement(children)) return children;
-  const trigger = cloneElement(children, {
-    ref: (node) => {
-      triggerRef.current = node;
-      const own = children.ref;
-      if (typeof own === "function") own(node);
-      else if (own && typeof own === "object") own.current = node;
-    },
-    "aria-describedby": style ? id : void 0,
-    onMouseEnter: (e) => {
-      open(false);
-      children.props.onMouseEnter?.(e);
-    },
-    onMouseLeave: (e) => {
-      close();
-      children.props.onMouseLeave?.(e);
-    },
-    onFocus: (e) => {
-      open(true);
-      children.props.onFocus?.(e);
-    },
-    onBlur: (e) => {
-      close();
-      children.props.onBlur?.(e);
-    }
-  });
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    trigger,
-    style && createPortal(
-      /* @__PURE__ */ jsx(
-        "div",
-        {
-          id,
-          role: "tooltip",
-          style,
-          className: "pointer-events-none max-w-xs rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-foreground shadow-lg",
-          children: content
-        }
-      ),
-      document.body
-    )
-  ] });
-}
 function ContextMenu(props) {
   const ref = useRef(null);
   useEffect(() => {
@@ -1629,7 +1532,7 @@ function Drawer({
           children: [
             /* @__PURE__ */ jsxs("header", { className: "drawer-header", children: [
               /* @__PURE__ */ jsx("div", { className: "drawer-title", children: title }),
-              /* @__PURE__ */ jsx("button", { type: "button", onClick: requestClose, className: "btn-icon", title: "Close", "aria-label": "Close drawer", children: "\u2715" })
+              /* @__PURE__ */ jsx(Tooltip, { content: "Close", children: /* @__PURE__ */ jsx("button", { type: "button", onClick: requestClose, className: "btn-icon", "aria-label": "Close drawer", children: "\u2715" }) })
             ] }),
             children
           ]
@@ -1740,10 +1643,10 @@ function MultiSelect({
             q.trim(),
             "\u201D"
           ] }),
-          filtered.map((o) => /* @__PURE__ */ jsxs("button", { type: "button", onClick: () => add(o.value), title: o.label !== o.value ? `${o.label} \xB7 ${o.value}` : o.label, className: "block w-full truncate text-left px-3 py-2 text-sm text-foreground hover:bg-accent transition", children: [
+          filtered.map((o) => /* @__PURE__ */ jsx(Tooltip, { content: o.label !== o.value ? `${o.label} \xB7 ${o.value}` : o.label, whenTruncated: true, children: /* @__PURE__ */ jsxs("button", { type: "button", onClick: () => add(o.value), className: "block w-full truncate text-left px-3 py-2 text-sm text-foreground hover:bg-accent transition", children: [
             o.label,
             o.label !== o.value && /* @__PURE__ */ jsx("span", { className: "text-muted-foreground text-xs ml-1", children: o.value })
-          ] }, o.value)),
+          ] }) }, o.value)),
           filtered.length === 0 && !showAdd && /* @__PURE__ */ jsx("div", { className: "px-3 py-3 text-sm text-muted-foreground text-center", children: options.length ? "No matches" : "Nothing to pick" })
         ] })
       ] }),
@@ -1772,6 +1675,6 @@ function percent(fraction, digits = 1) {
   return ((Number(fraction) || 0) * 100).toFixed(digits) + "%";
 }
 
-export { BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, Toggle, Tooltip, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDrawerClose, useFloatingMenu };
+export { BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, Toggle, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDrawerClose, useFloatingMenu };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
