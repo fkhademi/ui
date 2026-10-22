@@ -40,6 +40,12 @@
            active:scale-[0.98];
   }
 
+  /* A quiet bordered button: the action in an empty state, a secondary
+     action that should not compete with the page's primary one. */
+  .btn-outline {
+    @apply btn bg-surface text-foreground border border-border hover:bg-accent;
+  }
+
   .btn-danger {
     @apply btn bg-destructive text-destructive-foreground
            hover:bg-destructive/90
@@ -62,11 +68,19 @@
            active:scale-[0.96];
   }
 
+  /* A round outlined icon button for a header's secondary actions, beside a
+     small primary button; full touch size on a phone. */
+  .btn-icon-outline {
+    @apply inline-flex items-center justify-center w-11 h-11 md:w-9 md:h-9 rounded-full
+           border border-border bg-surface text-foreground/80
+           transition-colors hover:bg-accent hover:text-foreground;
+  }
+
   /* Compact modifier for any .btn variant. Defined after the variants so it
      overrides the base height/padding/text. Matches the ColumnToggle trigger
      and a small Select, so filters, actions, and toggles line up in a toolbar. */
   .btn-sm {
-    @apply h-9 px-3.5 text-xs;
+    @apply h-11 md:h-9 px-3.5 text-xs;
   }
 
 /* ── Fields ─────────────────────────────────────────────────────────── */
@@ -445,10 +459,11 @@
     @apply px-3 py-1.5 align-middle font-normal border-b border-border;
   }
 
+  /* The same box as the small Select beside it in the filter row. */
   .dt-filter-input {
-    @apply w-full bg-transparent border border-border rounded-md px-2 py-1
+    @apply w-full h-9 bg-surface border border-input rounded-xl px-3
            text-xs text-foreground placeholder:text-muted-foreground
-           focus:outline-none focus:ring-1 focus:ring-ring;
+           focus:outline-none focus:ring-2 focus:ring-primary/40;
   }
 
   .dt-clear-filters {
@@ -568,6 +583,28 @@
   .status-badge--warning { @apply bg-warning/15 text-warning; }
 
   .status-badge--danger { @apply bg-destructive/15 text-destructive; }
+
+/* ── State and tag ─────────────────────────────────────────────────── */
+
+/* A state (active, expired, at risk) is a dot and its word; the colour is the
+   meaning. A category (a type, a stage, a source) is a quiet tag. */
+  .state {
+    @apply inline-flex items-center gap-2 text-sm text-foreground whitespace-nowrap;
+  }
+
+  .state-dot {
+    @apply w-2 h-2 rounded-full shrink-0;
+  }
+
+  .state-dot--good { @apply bg-success; }
+  .state-dot--attention { @apply bg-warning; }
+  .state-dot--bad { @apply bg-destructive; }
+  .state-dot--off { @apply bg-muted-foreground/50; }
+
+  .tag {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-foreground/[0.05]
+           text-xs text-muted-foreground whitespace-nowrap;
+  }
 
 /* ── Health badge (endpoints / monitors) ───────────────────────────── */
 
@@ -936,16 +973,21 @@
 /* ── Empty state ───────────────────────────────────────────────────── */
 
 
+  /* Calm and short: what is empty, and the one thing that fills it. */
   .empty-state {
-    @apply flex flex-col items-center justify-center text-center px-6 py-16 gap-3;
+    @apply flex flex-col items-center justify-center text-center px-6 py-10 gap-3;
   }
 
   .empty-state-icon {
-    @apply w-12 h-12 rounded-2xl bg-foreground/[0.06] grid place-items-center text-muted-foreground;
+    @apply text-muted-foreground/70;
+  }
+
+  .empty-state-icon > svg {
+    @apply w-6 h-6;
   }
 
   .empty-state-title {
-    @apply text-sm font-medium text-foreground;
+    @apply text-sm text-foreground/75;
   }
 
   .empty-state-sub {

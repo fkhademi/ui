@@ -23,6 +23,8 @@ export { Checkbox } from './components/Checkbox';
 export { DatePicker } from './components/DatePicker';
 export { FieldHelp } from './components/FieldHelp';
 export { EmptyState } from './components/EmptyState';
+export { State, Tag } from './components/State';
+export type { StateTone } from './components/State';
 export { useSidebarCollapsed, SidebarCollapseToggle } from './components/SidebarCollapse';
 // AppShell lives at '@doon/ui/app-shell'. It is the only component that
 // imports react-router-dom, and exporting it here forced that dependency
@@ -46,6 +48,7 @@ export type { Column, DataTableProps } from './components/DataTable';
 export { SelectionToolbar } from './components/SelectionToolbar';
 export { Tooltip } from './components/Tooltip';
 export { ContextMenu } from './components/ContextMenu';
+export { MenuButton } from './components/MenuButton';
 export type { ContextMenuItem } from './components/ContextMenu';
 export { Toggle } from './components/Toggle';
 export { Drawer, DrawerCancel, DrawerFooter, useDrawerClose } from './components/Drawer';

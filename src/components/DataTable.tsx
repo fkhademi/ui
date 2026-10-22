@@ -1,6 +1,7 @@
 import { KeyboardEvent, MouseEvent, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 import { ColumnToggle, useColumnVisibility } from './ColumnToggle';
+import { EmptyState } from './EmptyState';
 import { Select } from './Select';
 import { Tooltip } from './Tooltip';
 
@@ -485,8 +486,11 @@ export function DataTable<T>(p: LegacyProps<T>) {
     });
   }
 
-  const isEmpty = !isLoading && !error && rows.length === 0;
-  const isFilteredEmpty = !isEmpty && !isLoading && !error && sorted.length === 0;
+  // A search or a filter that leaves nothing is not an empty list: it says so
+  // and offers the way back, whether the rows are filtered here or on a server.
+  const narrowed = search.trim() !== '' || activeFilters > 0;
+  const isEmpty = !isLoading && !error && rows.length === 0 && !narrowed;
+  const isFilteredEmpty = !isLoading && !error && sorted.length === 0 && narrowed;
 
   return (
     <div
@@ -623,24 +627,28 @@ export function DataTable<T>(p: LegacyProps<T>) {
             {isEmpty && (
               <tr>
                 <td colSpan={visibleColumns.length}>
-                  {emptyState ?? <div className="dt-empty">No rows.</div>}
+                  {emptyState ?? <EmptyState title="Nothing here yet" />}
                 </td>
               </tr>
             )}
             {isFilteredEmpty && (
               <tr>
                 <td colSpan={visibleColumns.length}>
-                  <div className="dt-empty">
-                    <div>No matches for "{search}".</div>
-                    <button
-                      type="button"
-                      className="btn-ghost mt-2"
-                      onClick={() => setSearch('')}
-                    >
-                      <X size={12} />
-                      Clear search
-                    </button>
-                  </div>
+                  <EmptyState
+                    title={search.trim() ? `Nothing matches “${search.trim()}”` : 'Nothing matches these filters'}
+                    action={
+                      <button
+                        type="button"
+                        className="btn-ghost text-primary"
+                        onClick={() => {
+                          setSearch('');
+                          clearFilters();
+                        }}
+                      >
+                        Clear filters
+                      </button>
+                    }
+                  />
                 </td>
               </tr>
             )}

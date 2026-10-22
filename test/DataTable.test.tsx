@@ -104,3 +104,26 @@ describe('activation', () => {
     expect(onRowActivate).toHaveBeenCalledWith(expect.objectContaining({ name: 'charlie' }));
   });
 });
+
+describe('empty', () => {
+  test('a filter that leaves nothing says so and clears, also when filtered on a server', () => {
+    const onColumnFiltersChange = vi.fn();
+    render(
+      <DataTable
+        columns={columns}
+        rows={[]}
+        getRowId={(r) => r.id}
+        emptyState={<div>No accounts yet</div>}
+        serverPagination={{ total: 0, page: 0, pageSize: 25, onPageChange: () => {}, columnFilters: { status: 'active' }, onColumnFiltersChange }}
+      />,
+    );
+    expect(screen.queryByText('No accounts yet')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(onColumnFiltersChange).toHaveBeenCalledWith({});
+  });
+
+  test('a list with nothing in it shows its own empty state', () => {
+    render(<DataTable columns={columns} rows={[]} getRowId={(r) => r.id} emptyState={<div>No accounts yet</div>} />);
+    expect(screen.getByText('No accounts yet')).toBeInTheDocument();
+  });
+});

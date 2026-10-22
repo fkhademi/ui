@@ -273,6 +273,29 @@ declare function EmptyState({ icon, title, subtitle, action, }: {
     action?: ReactNode;
 }): react_jsx_runtime.JSX.Element;
 
+/** What a state means, which is all its colour says. */
+type StateTone = 'good' | 'attention' | 'bad' | 'off';
+/**
+ * A state shown as a coloured dot and its word: Active, Expired, At risk.
+ * Good is green, needs attention amber, broken or ended red, and switched off
+ * on purpose grey.
+ *
+ *   <State tone="bad">Expired</State>
+ */
+declare function State({ tone, children }: {
+    tone: StateTone;
+    children: ReactNode;
+}): react_jsx_runtime.JSX.Element;
+/**
+ * A category shown quietly: a licence type, a deal stage, a source. No colour,
+ * since a category is not good or bad.
+ *
+ *   <Tag>Enterprise</Tag>
+ */
+declare function Tag({ children }: {
+    children: ReactNode;
+}): react_jsx_runtime.JSX.Element;
+
 /**
  * Small wrapper hook + button for collapsing the .app-sidebar rail.
  * Apps that use the shared `.app-sidebar` class can opt in by:
@@ -772,6 +795,19 @@ declare function ContextMenu(props: {
 }): react_jsx_runtime.JSX.Element;
 
 /**
+ * A "…" button that opens a menu of the less frequent actions, so a page
+ * header keeps one primary action in view and nothing destructive sits beside
+ * it.
+ *
+ *   <MenuButton label="More actions" items={[{ kind: 'action', label: 'Delete', danger: true, onClick }]} />
+ */
+declare function MenuButton({ items, label, icon, }: {
+    items: ContextMenuItem[];
+    label?: string;
+    icon?: ReactNode;
+}): react_jsx_runtime.JSX.Element;
+
+/**
  * Two-state switch styled by the central .toggle / .toggle-thumb pair.
  *
  * The click handler fires synchronously - wrap it in a confirm or a
@@ -935,4 +971,4 @@ declare function compactNumber(n: number): string;
 /** A fraction (0.42) as a percentage (42.0%). */
 declare function percent(fraction: number, digits?: number): string;
 
-export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, Combobox, type ComboboxOption, type ConfirmDiscard, ConfirmDiscardProvider, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, DismissLayerDepth, Drawer, DrawerCancel, DrawerFooter, EmptyState, Field, FieldHelp, FilePicker, Modal, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, Tooltip, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu, useSidebarCollapsed };
+export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, Combobox, type ComboboxOption, type ConfirmDiscard, ConfirmDiscardProvider, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, DismissLayerDepth, Drawer, DrawerCancel, DrawerFooter, EmptyState, Field, FieldHelp, FilePicker, MenuButton, Modal, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, State, type StateTone, Tag, Toggle, Tooltip, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu, useSidebarCollapsed };

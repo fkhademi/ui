@@ -1,7 +1,7 @@
 import { Tooltip } from './chunk-TH76AULU.js';
 export { SidebarCollapseToggle, Tooltip, useSidebarCollapsed } from './chunk-TH76AULU.js';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
-import { HelpCircle, ChevronDown, Check, Upload, Minus, Calendar, ChevronLeft, ChevronRight, SlidersHorizontal, Search, X, ChevronUp, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
+import { HelpCircle, ChevronDown, Check, Upload, Minus, Calendar, ChevronLeft, ChevronRight, SlidersHorizontal, Search, X, ChevronUp, Pencil, PowerOff, Power, Trash2, MoreHorizontal } from 'lucide-react';
 import { createContext, useContext, useRef, useEffect, useState, useLayoutEffect, useId, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -740,6 +740,15 @@ function EmptyState({
     action && /* @__PURE__ */ jsx("div", { className: "mt-4", children: action })
   ] });
 }
+function State({ tone, children }) {
+  return /* @__PURE__ */ jsxs("span", { className: "state", children: [
+    /* @__PURE__ */ jsx("span", { className: `state-dot state-dot--${tone}`, "aria-hidden": "true" }),
+    children
+  ] });
+}
+function Tag({ children }) {
+  return /* @__PURE__ */ jsx("span", { className: "tag", children });
+}
 function ColumnToggle({ items, onToggle, label = "Columns", className }) {
   const [open, setOpen] = useState(false);
   const { triggerRef, menuRef, menuStyle } = useFloatingMenu({
@@ -1289,8 +1298,9 @@ function DataTable(p) {
       el?.scrollIntoView({ block: "nearest" });
     });
   }
-  const isEmpty = !isLoading && !error && rows.length === 0;
-  const isFilteredEmpty = !isEmpty && !isLoading && !error && sorted.length === 0;
+  const narrowed = search.trim() !== "" || activeFilters > 0;
+  const isEmpty = !isLoading && !error && rows.length === 0 && !narrowed;
+  const isFilteredEmpty = !isLoading && !error && sorted.length === 0 && narrowed;
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -1387,26 +1397,25 @@ function DataTable(p) {
           /* @__PURE__ */ jsxs("tbody", { children: [
             isLoading && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, className: "dt-empty", children: "Loading\u2026" }) }),
             error && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, className: "dt-empty text-destructive", children: error.message }) }),
-            isEmpty && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, children: emptyState ?? /* @__PURE__ */ jsx("div", { className: "dt-empty", children: "No rows." }) }) }),
-            isFilteredEmpty && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, children: /* @__PURE__ */ jsxs("div", { className: "dt-empty", children: [
-              /* @__PURE__ */ jsxs("div", { children: [
-                'No matches for "',
-                search,
-                '".'
-              ] }),
-              /* @__PURE__ */ jsxs(
-                "button",
-                {
-                  type: "button",
-                  className: "btn-ghost mt-2",
-                  onClick: () => setSearch(""),
-                  children: [
-                    /* @__PURE__ */ jsx(X, { size: 12 }),
-                    "Clear search"
-                  ]
-                }
-              )
-            ] }) }) }),
+            isEmpty && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, children: emptyState ?? /* @__PURE__ */ jsx(EmptyState, { title: "Nothing here yet" }) }) }),
+            isFilteredEmpty && /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: visibleColumns.length, children: /* @__PURE__ */ jsx(
+              EmptyState,
+              {
+                title: search.trim() ? `Nothing matches \u201C${search.trim()}\u201D` : "Nothing matches these filters",
+                action: /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    type: "button",
+                    className: "btn-ghost text-primary",
+                    onClick: () => {
+                      setSearch("");
+                      clearFilters();
+                    },
+                    children: "Clear filters"
+                  }
+                )
+              }
+            ) }) }),
             !isLoading && !error && paged.map((row, idx) => {
               const id = getRowId(row);
               const isSelected = selected.has(id);
@@ -1650,6 +1659,35 @@ function ContextMenu(props) {
       )
     }
   );
+}
+function MenuButton({
+  items,
+  label = "More actions",
+  icon
+}) {
+  const button = useRef(null);
+  const [at, setAt] = useState(null);
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(Tooltip, { content: label, children: /* @__PURE__ */ jsx(
+      "button",
+      {
+        ref: button,
+        type: "button",
+        className: "btn-icon-outline",
+        "aria-label": label,
+        "aria-haspopup": "menu",
+        "aria-expanded": at !== null,
+        onMouseDown: (e) => e.stopPropagation(),
+        onClick: () => {
+          if (at) return setAt(null);
+          const r = button.current.getBoundingClientRect();
+          setAt({ x: r.left, y: r.bottom + 4 });
+        },
+        children: icon ?? /* @__PURE__ */ jsx(MoreHorizontal, { size: 16 })
+      }
+    ) }),
+    at && /* @__PURE__ */ jsx(ContextMenu, { x: at.x, y: at.y, items, onClose: () => setAt(null) })
+  ] });
 }
 function Toggle({
   on,
@@ -1939,6 +1977,6 @@ function percent(fraction, digits = 1) {
   return ((Number(fraction) || 0) * 100).toFixed(digits) + "%";
 }
 
-export { BrandMark, Checkbox, ColumnToggle, Combobox, ConfirmDiscardProvider, ContextMenu, DataTable, DatePicker, DismissLayerDepth, Drawer, DrawerCancel, DrawerFooter, EmptyState, Field, FieldHelp, FilePicker, Modal, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, Toggle, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu };
+export { BrandMark, Checkbox, ColumnToggle, Combobox, ConfirmDiscardProvider, ContextMenu, DataTable, DatePicker, DismissLayerDepth, Drawer, DrawerCancel, DrawerFooter, EmptyState, Field, FieldHelp, FilePicker, MenuButton, Modal, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, State, Tag, Toggle, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

@@ -146,3 +146,20 @@ describe('Modal', () => {
     return Promise.resolve().then(() => expect(document.activeElement).toBe(opener));
   });
 });
+
+describe('MenuButton', () => {
+  test('opens its menu, runs an item, and toggles shut on a second click', async () => {
+    const { MenuButton } = await import('../src/components/MenuButton');
+    const onDelete = vi.fn();
+    render(<MenuButton items={[{ kind: 'action', label: 'Delete', danger: true, onClick: onDelete }]} />);
+    const button = screen.getByRole('button', { name: 'More actions' });
+    fireEvent.click(button);
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    fireEvent.click(button);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    fireEvent.click(button);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+});
