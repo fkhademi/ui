@@ -150,7 +150,7 @@ export function Combobox({
         className={`w-full rounded-xl border border-input bg-surface pr-9 text-foreground placeholder:text-muted-foreground transition focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`}
       />
       <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-      {open && menuStyle && (
+      {open && menuStyle && (typed || shown.length > 0) && (
         <div
           ref={menuRef}
           id={listId}

@@ -83,3 +83,12 @@ test('emptying the field clears the value', () => {
   fireEvent.blur(field);
   expect(onChange).toHaveBeenCalledWith('');
 });
+
+test('an empty list stays closed until something is typed', () => {
+  render(<Combobox value="" onChange={() => {}} options={[]} allowFree />);
+  const field = screen.getByRole('combobox');
+  fireEvent.click(field);
+  expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  fireEvent.change(field, { target: { value: 'New' } });
+  expect(screen.getByRole('listbox')).toBeInTheDocument();
+});

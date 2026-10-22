@@ -460,7 +460,7 @@ function Combobox({
       }
     ),
     /* @__PURE__ */ jsx(ChevronDown, { size: 14, className: "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" }),
-    open && menuStyle && /* @__PURE__ */ jsxs(
+    open && menuStyle && (typed || shown.length > 0) && /* @__PURE__ */ jsxs(
       "div",
       {
         ref: menuRef,
