@@ -1,7 +1,11 @@
-import { createContext, FormEvent, ReactNode, useContext, useEffect, useState } from 'react';
+import { createContext, FormEvent, ReactNode, useContext } from 'react';
+import { X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { Tooltip } from './Tooltip';
 import { DismissLayerDepth, useDismissLayer } from './DismissLayer';
+import { useGuardedClose, type ConfirmDiscard } from './guardedClose';
+
+export type { ConfirmDiscard };
 
 /**
  * Universal right-side drawer used by every create/edit form.
@@ -17,22 +21,12 @@ import { DismissLayerDepth, useDismissLayer } from './DismissLayer';
  * the panel marks the drawer dirty, and requestClose() then confirms before
  * closing. Callers can override with the explicit `dirty` prop.
  *
- * The discard confirmation is injectable via `confirmDiscard` so this stays
- * app-agnostic: a host app passes its styled confirm dialog; without one it
- * falls back to window.confirm. The Save path bypasses the wrapper entirely -
+ * The discard confirmation comes from ConfirmDiscardProvider (or the
+ * `confirmDiscard` prop) so this stays app-agnostic: a host app sets its styled
+ * confirm dialog once; without one it falls back to window.confirm. The Save path bypasses the wrapper entirely -
  * the caller invokes onClose after the mutation succeeds, so a successful submit
  * never prompts.
  */
-
-export type ConfirmDiscard = (opts: {
-  title: string;
-  body: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  danger?: boolean;
-}) => Promise<boolean>;
-
-const defaultConfirm: ConfirmDiscard = async ({ body }) => window.confirm(body);
 
 type CloseFn = () => void;
 const DrawerCloseCtx = createContext<CloseFn | null>(null);
@@ -50,9 +44,9 @@ export function Drawer({
   onClose,
   children,
   size = 'md',
-  confirmDiscard = defaultConfirm,
-  discardTitle = 'Discard unsaved changes?',
-  discardBody = "You haven't saved your edits. They will be lost.",
+  confirmDiscard,
+  discardTitle,
+  discardBody,
 }: {
   open: boolean;
   /** Optional override. If omitted, dirty is auto-detected via any input/change
@@ -62,33 +56,15 @@ export function Drawer({
   onClose: () => void;
   children: ReactNode;
   /** Panel width. 'lg' is for forms that also carry an inventory or a result
-   *  pane, where the default column forces long text to wrap awkwardly. */
-  size?: 'md' | 'lg';
-  /** Styled confirm dialog; defaults to window.confirm. */
+   *  pane, where the default column forces long text to wrap awkwardly; 'xl'
+   *  for a document-sized form. */
+  size?: 'md' | 'lg' | 'xl';
+  /** Styled confirm for this drawer; usually set once with ConfirmDiscardProvider. */
   confirmDiscard?: ConfirmDiscard;
   discardTitle?: string;
   discardBody?: string;
 }) {
-  const [autoDirty, setAutoDirty] = useState(false);
-  const effectiveDirty = dirty ?? autoDirty;
-
-  useEffect(() => {
-    if (open) setAutoDirty(false);
-  }, [open]);
-
-  async function requestClose() {
-    if (effectiveDirty) {
-      const ok = await confirmDiscard({
-        title: discardTitle,
-        body: discardBody,
-        confirmLabel: 'Discard',
-        cancelLabel: 'Keep editing',
-        danger: true,
-      });
-      if (!ok) return;
-    }
-    onClose();
-  }
+  const { requestClose, markDirty } = useGuardedClose({ open, dirty, onClose, confirmDiscard, discardTitle, discardBody });
 
   const depth = useDismissLayer(open, requestClose);
 
@@ -99,11 +75,13 @@ export function Drawer({
     <DrawerCloseCtx.Provider value={requestClose}>
       <div className="drawer-overlay" onClick={requestClose} />
       <aside
-        className={`drawer-panel${size === 'lg' ? ' drawer-panel-lg' : ''}`}
-        onInput={() => setAutoDirty(true)}
-        onChange={() => setAutoDirty(true)}
+        className={`drawer-panel${size === 'md' ? '' : ` drawer-panel-${size}`}`}
+        onInput={markDirty}
+        onChange={markDirty}
         onKeyDown={(e) => {
-          if (e.key !== 'Enter' || e.shiftKey || e.ctrlKey || e.metaKey) return;
+          // A control that used the Enter itself (picking from a list) has
+          // already called preventDefault.
+          if (e.key !== 'Enter' || e.defaultPrevented || e.shiftKey || e.ctrlKey || e.metaKey) return;
           const target = e.target as HTMLElement;
           const tag = target.tagName;
           if (tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON') return;
@@ -118,7 +96,7 @@ export function Drawer({
           <div className="drawer-title">{title}</div>
           <Tooltip content="Close">
             <button type="button" onClick={requestClose} className="btn-icon" aria-label="Close drawer">
-              ✕
+              <X size={16} />
             </button>
           </Tooltip>
         </header>
@@ -127,6 +105,19 @@ export function Drawer({
     </DrawerCloseCtx.Provider>
     </DismissLayerDepth>,
     document.body,
+  );
+}
+
+/**
+ * Cancel for a custom drawer footer: closes through the drawer, so edits are
+ * confirmed before they are thrown away, as with the X and Escape.
+ */
+export function DrawerCancel({ label = 'Cancel' }: { label?: string }) {
+  const close = useDrawerClose();
+  return (
+    <button type="button" onClick={close} className="btn-ghost ml-auto">
+      {label}
+    </button>
   );
 }
 

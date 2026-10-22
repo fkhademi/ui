@@ -1,8 +1,11 @@
 // Escape closes the layer opened last and nothing under it, and keys typed
 // into a control inside a table row stay with that control.
+import { useState } from 'react';
 import { describe, expect, test, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Drawer } from '../src/components/Drawer';
+import { Modal } from '../src/components/Modal';
+import { ConfirmDiscardProvider } from '../src/components/guardedClose';
 import { Select } from '../src/components/Select';
 import { DatePicker } from '../src/components/DatePicker';
 import { DataTable } from '../src/components/DataTable';
@@ -87,5 +90,59 @@ describe('a control inside a table row', () => {
     fireEvent.keyDown(input, { key: 'a', ctrlKey: true });
     expect(onRowActivate).not.toHaveBeenCalled();
     expect(onSelectionChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('Modal', () => {
+  test('Escape on a modal over a drawer closes only the modal', async () => {
+    const closeDrawer = vi.fn();
+    const closeModal = vi.fn();
+    render(
+      <Drawer open title="Deal" onClose={closeDrawer}>
+        <Modal open title="Delete?" onClose={closeModal}>Sure?</Modal>
+      </Drawer>,
+    );
+    escape();
+    await Promise.resolve();
+    expect(closeModal).toHaveBeenCalledTimes(1);
+    expect(closeDrawer).not.toHaveBeenCalled();
+  });
+
+  test("closing with edits asks the app's confirm, not the browser's", async () => {
+    const ask = vi.fn(async () => false);
+    const onClose = vi.fn();
+    const native = vi.fn(() => true);
+    window.confirm = native;
+    render(
+      <ConfirmDiscardProvider value={ask}>
+        <Modal open title="Rename" onClose={onClose}>
+          <input aria-label="name" />
+        </Modal>
+      </ConfirmDiscardProvider>,
+    );
+    fireEvent.input(screen.getByLabelText('name'), { target: { value: 'x' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }));
+    await Promise.resolve();
+    expect(ask).toHaveBeenCalledTimes(1);
+    expect(native).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  test('focus returns to the control that opened it', () => {
+    function Host() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button onClick={() => setOpen(true)}>Open</button>
+          <Modal open={open} title="Info" onClose={() => setOpen(false)} dirty={false}>Hello</Modal>
+        </>
+      );
+    }
+    render(<Host />);
+    const opener = screen.getByRole('button', { name: 'Open' });
+    opener.focus();
+    fireEvent.click(opener);
+    fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }));
+    return Promise.resolve().then(() => expect(document.activeElement).toBe(opener));
   });
 });

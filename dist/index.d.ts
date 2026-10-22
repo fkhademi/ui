@@ -127,6 +127,63 @@ declare function Select({ value, onChange, options, placeholder, size, block, di
     onEscape?: () => void;
 }): react_jsx_runtime.JSX.Element;
 
+/** An option, with an optional second line (a description, a price). */
+type ComboboxOption = SelectOption & {
+    hint?: string;
+};
+/**
+ * A select you type into: the field filters the list as you type, arrows move,
+ * Enter or a click picks. For lists too long to scroll (accounts, products),
+ * and, with `allowFree`, for a free-text field that suggests what exists
+ * (a source, a product name) while still taking something new.
+ *
+ * Leaving the field without picking keeps the old value, unless `allowFree`,
+ * where what was typed is the value; leaving it empty clears the value. The list is positioned by
+ * useFloatingMenu, so it escapes overflow containers and flips when there is
+ * no room below.
+ *
+ *   <Combobox value={accountId} onChange={setAccountId} options={accounts} placeholder="Search accounts" />
+ */
+declare function Combobox({ value, onChange, options, placeholder, allowFree, size, disabled, autoFocus, onBlur, emptyText, onQueryChange, selectedLabel, className, }: {
+    value: string;
+    onChange: (value: string) => void;
+    options: ComboboxOption[];
+    placeholder?: string;
+    /** Take typed text that matches no option as the value. */
+    allowFree?: boolean;
+    size?: 'sm' | 'md';
+    disabled?: boolean;
+    autoFocus?: boolean;
+    /** Focus left the field, after any pick or free-text commit. */
+    onBlur?: () => void;
+    emptyText?: string;
+    /** The list is searched elsewhere (on a server): typing reports the text
+     *  here, and `options` are shown as given instead of filtered. */
+    onQueryChange?: (query: string) => void;
+    /** The current value's label, when `options` (a page of search results)
+     *  may not include it. */
+    selectedLabel?: string;
+    className?: string;
+}): react_jsx_runtime.JSX.Element;
+
+/**
+ * A file input that looks like the rest of the form: a button and the chosen
+ * file's name, instead of the browser's own control.
+ *
+ *   <FilePicker accept=".csv" file={file} onChange={setFile} />
+ */
+declare function FilePicker({ file, onChange, accept, label, placeholder, disabled, ariaLabel, }: {
+    file: File | null;
+    onChange: (file: File | null) => void;
+    accept?: string;
+    label?: string;
+    placeholder?: string;
+    disabled?: boolean;
+    /** What the file is for, read out for the hidden input (the visible label
+     *  belongs to the surrounding Field). */
+    ariaLabel?: string;
+}): react_jsx_runtime.JSX.Element;
+
 /**
  * Styled checkbox that replaces the native <input type="checkbox"> so the
  * control matches the rest of the UI instead of the OS chrome. The real
@@ -727,6 +784,20 @@ declare function Toggle({ on, onClick, ariaLabel, disabled, }: {
     disabled?: boolean;
 }): react_jsx_runtime.JSX.Element;
 
+type ConfirmDiscard = (opts: {
+    title: string;
+    body: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    danger?: boolean;
+}) => Promise<boolean>;
+/**
+ * The app's styled confirm, set once at the root so every Drawer and Modal
+ * asks with it before throwing edits away. Without it they fall back to the
+ * browser's confirm().
+ */
+declare const ConfirmDiscardProvider: react.Provider<ConfirmDiscard>;
+
 /**
  * Universal right-side drawer used by every create/edit form.
  *
@@ -741,19 +812,12 @@ declare function Toggle({ on, onClick, ariaLabel, disabled, }: {
  * the panel marks the drawer dirty, and requestClose() then confirms before
  * closing. Callers can override with the explicit `dirty` prop.
  *
- * The discard confirmation is injectable via `confirmDiscard` so this stays
- * app-agnostic: a host app passes its styled confirm dialog; without one it
- * falls back to window.confirm. The Save path bypasses the wrapper entirely -
+ * The discard confirmation comes from ConfirmDiscardProvider (or the
+ * `confirmDiscard` prop) so this stays app-agnostic: a host app sets its styled
+ * confirm dialog once; without one it falls back to window.confirm. The Save path bypasses the wrapper entirely -
  * the caller invokes onClose after the mutation succeeds, so a successful submit
  * never prompts.
  */
-type ConfirmDiscard = (opts: {
-    title: string;
-    body: string;
-    confirmLabel?: string;
-    cancelLabel?: string;
-    danger?: boolean;
-}) => Promise<boolean>;
 type CloseFn = () => void;
 declare function useDrawerClose(): CloseFn;
 declare function Drawer({ open, dirty, title, onClose, children, size, confirmDiscard, discardTitle, discardBody, }: {
@@ -765,13 +829,21 @@ declare function Drawer({ open, dirty, title, onClose, children, size, confirmDi
     onClose: () => void;
     children: ReactNode;
     /** Panel width. 'lg' is for forms that also carry an inventory or a result
-     *  pane, where the default column forces long text to wrap awkwardly. */
-    size?: 'md' | 'lg';
-    /** Styled confirm dialog; defaults to window.confirm. */
+     *  pane, where the default column forces long text to wrap awkwardly; 'xl'
+     *  for a document-sized form. */
+    size?: 'md' | 'lg' | 'xl';
+    /** Styled confirm for this drawer; usually set once with ConfirmDiscardProvider. */
     confirmDiscard?: ConfirmDiscard;
     discardTitle?: string;
     discardBody?: string;
 }): react.ReactPortal | null;
+/**
+ * Cancel for a custom drawer footer: closes through the drawer, so edits are
+ * confirmed before they are thrown away, as with the X and Escape.
+ */
+declare function DrawerCancel({ label }: {
+    label?: string;
+}): react_jsx_runtime.JSX.Element;
 /**
  * Standard drawer footer with Cancel (routes through requestClose so
  * dirty-confirm fires) + Save. The Save button submits the form living inside
@@ -784,6 +856,28 @@ declare function DrawerFooter({ pending, label, disabled, children, }: {
     disabled?: boolean;
     children?: ReactNode;
 }): react_jsx_runtime.JSX.Element;
+
+/**
+ * Centred dialog for a confirmation or a short form. Closes like a Drawer:
+ * the X, the backdrop and Escape (as the top layer) all ask before discarding
+ * edits, and focus returns to whatever opened it. `footer` holds the actions,
+ * outside the scrolling body.
+ *
+ *   <Modal open={open} title="Rename" onClose={close} footer={<button …>Save</button>}>
+ *     …
+ *   </Modal>
+ */
+declare function Modal({ open, title, onClose, children, footer, size, dirty, confirmDiscard, }: {
+    open: boolean;
+    title: ReactNode;
+    onClose: () => void;
+    children: ReactNode;
+    footer?: ReactNode;
+    size?: 'sm' | 'md' | 'lg' | 'xl';
+    /** Optional override of the automatic dirty tracking, as on Drawer. */
+    dirty?: boolean;
+    confirmDiscard?: ConfirmDiscard;
+}): react.ReactPortal | null;
 
 type MultiSelectOption = {
     value: string;
@@ -841,4 +935,4 @@ declare function compactNumber(n: number): string;
 /** A fraction (0.42) as a percentage (42.0%). */
 declare function percent(fraction: number, digits?: number): string;
 
-export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, type ConfirmDiscard, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, DismissLayerDepth, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, Tooltip, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu, useSidebarCollapsed };
+export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, Combobox, type ComboboxOption, type ConfirmDiscard, ConfirmDiscardProvider, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, DismissLayerDepth, Drawer, DrawerCancel, DrawerFooter, EmptyState, Field, FieldHelp, FilePicker, Modal, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, Tooltip, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu, useSidebarCollapsed };

@@ -1,8 +1,8 @@
 import { Tooltip } from './chunk-TH76AULU.js';
 export { SidebarCollapseToggle, Tooltip, useSidebarCollapsed } from './chunk-TH76AULU.js';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
-import { HelpCircle, ChevronDown, Check, Minus, Calendar, ChevronLeft, ChevronRight, SlidersHorizontal, Search, X, ChevronUp, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
-import { createContext, useContext, useRef, useEffect, useState, useLayoutEffect, useMemo } from 'react';
+import { HelpCircle, ChevronDown, Check, Upload, Minus, Calendar, ChevronLeft, ChevronRight, SlidersHorizontal, Search, X, ChevronUp, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
+import { createContext, useContext, useRef, useEffect, useState, useLayoutEffect, useId, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 
 function PageHeader({
@@ -359,6 +359,194 @@ function Select({
         ))
       }
     )
+  ] });
+}
+function Combobox({
+  value,
+  onChange,
+  options,
+  placeholder = "Search\u2026",
+  allowFree = false,
+  size = "md",
+  disabled = false,
+  autoFocus = false,
+  onBlur,
+  emptyText = "No matches",
+  onQueryChange,
+  selectedLabel,
+  className = ""
+}) {
+  const listId = useId();
+  const labelOf = (v) => options.find((o) => o.value === v)?.label ?? (v && selectedLabel) ?? (allowFree ? v : "");
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState(labelOf(value));
+  const [typed, setTyped] = useState(false);
+  const [active, setActive] = useState(0);
+  const input = useRef(null);
+  const { triggerRef, menuRef, menuStyle } = useFloatingMenu({
+    open,
+    onClose: () => close(),
+    align: "stretch"
+  });
+  useEffect(() => {
+    if (!typed) setText(labelOf(value));
+  }, [value, options, selectedLabel]);
+  const needle = typed ? text.trim().toLowerCase() : "";
+  const shown = (needle && !onQueryChange ? options.filter((o) => `${o.label} ${o.hint ?? ""}`.toLowerCase().includes(needle)) : options).slice(0, 100);
+  const offerFree = allowFree && typed && text.trim() !== "" && !options.some((o) => o.label.toLowerCase() === needle);
+  useEffect(() => {
+    if (!open || !menuRef.current) return;
+    menuRef.current.querySelector(`[data-index="${active}"]`)?.scrollIntoView({ block: "nearest" });
+  }, [active, open, menuRef]);
+  function close() {
+    setOpen(false);
+    setTyped(false);
+    setText(labelOf(value));
+  }
+  function pick(next) {
+    onChange(next);
+    setOpen(false);
+    setTyped(false);
+    setText(labelOf(next) || next);
+  }
+  function onKeyDown2(e) {
+    const count = shown.length + (offerFree ? 1 : 0);
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!open) setOpen(true);
+      else setActive((a) => Math.min(count - 1, a + 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive((a) => Math.max(0, a - 1));
+    } else if (e.key === "Enter") {
+      if (!open && !typed) return;
+      e.preventDefault();
+      if (active < shown.length && shown[active]) pick(shown[active].value);
+      else if (offerFree || allowFree && typed) pick(text.trim());
+    }
+  }
+  const sz = size === "sm" ? "h-9 px-3 text-xs" : "h-11 px-4 text-sm";
+  return /* @__PURE__ */ jsxs("div", { ref: triggerRef, className: `relative w-full ${className}`, children: [
+    /* @__PURE__ */ jsx(
+      "input",
+      {
+        ref: input,
+        role: "combobox",
+        "aria-expanded": open,
+        "aria-controls": listId,
+        "aria-autocomplete": "list",
+        autoFocus,
+        disabled,
+        value: text,
+        placeholder,
+        onChange: (e) => {
+          setText(e.target.value);
+          onQueryChange?.(e.target.value);
+          setTyped(true);
+          setActive(0);
+          setOpen(true);
+        },
+        onFocus: (e) => e.currentTarget.select(),
+        onClick: () => setOpen(true),
+        onKeyDown: onKeyDown2,
+        onBlur: () => {
+          const exact = options.find((o) => o.label.toLowerCase() === text.trim().toLowerCase());
+          if (typed && text.trim() === "") pick("");
+          else if (allowFree && typed && text.trim() !== labelOf(value)) pick(exact ? exact.value : text.trim());
+          else close();
+          onBlur?.();
+        },
+        className: `w-full rounded-xl border border-input bg-surface pr-9 text-foreground placeholder:text-muted-foreground transition focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`
+      }
+    ),
+    /* @__PURE__ */ jsx(ChevronDown, { size: 14, className: "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" }),
+    open && menuStyle && /* @__PURE__ */ jsxs(
+      "div",
+      {
+        ref: menuRef,
+        id: listId,
+        role: "listbox",
+        style: menuStyle,
+        className: "z-50 min-w-[8rem] overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg",
+        onMouseDown: (e) => e.preventDefault(),
+        children: [
+          shown.map((o, i) => /* @__PURE__ */ jsxs(
+            "button",
+            {
+              type: "button",
+              role: "option",
+              "data-index": i,
+              "aria-selected": o.value === value,
+              onMouseEnter: () => setActive(i),
+              onClick: () => pick(o.value),
+              className: `flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${i === active ? "bg-accent" : ""} ${o.value === value ? "text-foreground" : "text-muted-foreground"}`,
+              children: [
+                /* @__PURE__ */ jsx(Check, { size: 14, className: o.value === value ? "shrink-0 text-primary" : "shrink-0 opacity-0" }),
+                o.hint ? /* @__PURE__ */ jsxs("span", { className: "min-w-0", children: [
+                  /* @__PURE__ */ jsx("span", { className: "block truncate text-foreground", children: o.label }),
+                  /* @__PURE__ */ jsx("span", { className: "block truncate text-xs text-muted-foreground", children: o.hint })
+                ] }) : /* @__PURE__ */ jsx("span", { className: "truncate", children: o.label })
+              ]
+            },
+            o.value
+          )),
+          offerFree && /* @__PURE__ */ jsxs(
+            "button",
+            {
+              type: "button",
+              role: "option",
+              "data-index": shown.length,
+              "aria-selected": false,
+              onMouseEnter: () => setActive(shown.length),
+              onClick: () => pick(text.trim()),
+              className: `flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-foreground ${active === shown.length ? "bg-accent" : ""}`,
+              children: [
+                /* @__PURE__ */ jsx("span", { className: "w-[14px] shrink-0" }),
+                /* @__PURE__ */ jsxs("span", { className: "truncate", children: [
+                  "Use \u201C",
+                  text.trim(),
+                  "\u201D"
+                ] })
+              ]
+            }
+          ),
+          shown.length === 0 && !offerFree && /* @__PURE__ */ jsx("div", { className: "px-3 py-2 text-sm text-muted-foreground", children: emptyText })
+        ]
+      }
+    )
+  ] });
+}
+function FilePicker({
+  file,
+  onChange,
+  accept,
+  label = "Choose file",
+  placeholder = "No file chosen",
+  disabled = false,
+  ariaLabel
+}) {
+  const input = useRef(null);
+  return /* @__PURE__ */ jsxs("div", { className: "file-picker", children: [
+    /* @__PURE__ */ jsx(
+      "input",
+      {
+        ref: input,
+        type: "file",
+        "aria-label": ariaLabel ?? label,
+        accept,
+        disabled,
+        className: "sr-only",
+        onChange: (e) => {
+          onChange(e.target.files?.[0] ?? null);
+          e.target.value = "";
+        }
+      }
+    ),
+    /* @__PURE__ */ jsxs("button", { type: "button", className: "btn-secondary btn-sm shrink-0", disabled, onClick: () => input.current?.click(), children: [
+      /* @__PURE__ */ jsx(Upload, { size: 14 }),
+      label
+    ] }),
+    /* @__PURE__ */ jsx("span", { className: "file-picker-name", children: file ? file.name : placeholder })
   ] });
 }
 function Checkbox({
@@ -1483,7 +1671,46 @@ function Toggle({
     }
   );
 }
-var defaultConfirm = async ({ body }) => window.confirm(body);
+var browserConfirm = async ({ body }) => window.confirm(body);
+var ConfirmDiscardCtx = createContext(browserConfirm);
+var ConfirmDiscardProvider = ConfirmDiscardCtx.Provider;
+function useGuardedClose({
+  open,
+  dirty,
+  onClose,
+  confirmDiscard,
+  discardTitle = "Discard unsaved changes?",
+  discardBody = "You haven't saved your edits. They will be lost."
+}) {
+  const appConfirm = useContext(ConfirmDiscardCtx);
+  const confirm = confirmDiscard ?? appConfirm;
+  const [autoDirty, setAutoDirty] = useState(false);
+  const effectiveDirty = dirty ?? autoDirty;
+  const opener = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    setAutoDirty(false);
+    opener.current = document.activeElement;
+    return () => {
+      const el = opener.current;
+      if (el && el.isConnected) el.focus({ preventScroll: true });
+    };
+  }, [open]);
+  async function requestClose() {
+    if (effectiveDirty) {
+      const ok = await confirm({
+        title: discardTitle,
+        body: discardBody,
+        confirmLabel: "Discard",
+        cancelLabel: "Keep editing",
+        danger: true
+      });
+      if (!ok) return;
+    }
+    onClose();
+  }
+  return { requestClose, markDirty: () => setAutoDirty(true) };
+}
 var DrawerCloseCtx = createContext(null);
 function useDrawerClose() {
   const fn = useContext(DrawerCloseCtx);
@@ -1497,28 +1724,11 @@ function Drawer({
   onClose,
   children,
   size = "md",
-  confirmDiscard = defaultConfirm,
-  discardTitle = "Discard unsaved changes?",
-  discardBody = "You haven't saved your edits. They will be lost."
+  confirmDiscard,
+  discardTitle,
+  discardBody
 }) {
-  const [autoDirty, setAutoDirty] = useState(false);
-  const effectiveDirty = dirty ?? autoDirty;
-  useEffect(() => {
-    if (open) setAutoDirty(false);
-  }, [open]);
-  async function requestClose() {
-    if (effectiveDirty) {
-      const ok = await confirmDiscard({
-        title: discardTitle,
-        body: discardBody,
-        confirmLabel: "Discard",
-        cancelLabel: "Keep editing",
-        danger: true
-      });
-      if (!ok) return;
-    }
-    onClose();
-  }
+  const { requestClose, markDirty } = useGuardedClose({ open, dirty, onClose, confirmDiscard, discardTitle, discardBody });
   const depth = useDismissLayer(open, requestClose);
   if (!open) return null;
   return createPortal(
@@ -1527,11 +1737,11 @@ function Drawer({
       /* @__PURE__ */ jsxs(
         "aside",
         {
-          className: `drawer-panel${size === "lg" ? " drawer-panel-lg" : ""}`,
-          onInput: () => setAutoDirty(true),
-          onChange: () => setAutoDirty(true),
+          className: `drawer-panel${size === "md" ? "" : ` drawer-panel-${size}`}`,
+          onInput: markDirty,
+          onChange: markDirty,
           onKeyDown: (e) => {
-            if (e.key !== "Enter" || e.shiftKey || e.ctrlKey || e.metaKey) return;
+            if (e.key !== "Enter" || e.defaultPrevented || e.shiftKey || e.ctrlKey || e.metaKey) return;
             const target = e.target;
             const tag = target.tagName;
             if (tag === "TEXTAREA" || tag === "SELECT" || tag === "BUTTON") return;
@@ -1544,7 +1754,7 @@ function Drawer({
           children: [
             /* @__PURE__ */ jsxs("header", { className: "drawer-header", children: [
               /* @__PURE__ */ jsx("div", { className: "drawer-title", children: title }),
-              /* @__PURE__ */ jsx(Tooltip, { content: "Close", children: /* @__PURE__ */ jsx("button", { type: "button", onClick: requestClose, className: "btn-icon", "aria-label": "Close drawer", children: "\u2715" }) })
+              /* @__PURE__ */ jsx(Tooltip, { content: "Close", children: /* @__PURE__ */ jsx("button", { type: "button", onClick: requestClose, className: "btn-icon", "aria-label": "Close drawer", children: /* @__PURE__ */ jsx(X, { size: 16 }) }) })
             ] }),
             children
           ]
@@ -1553,6 +1763,10 @@ function Drawer({
     ] }) }),
     document.body
   );
+}
+function DrawerCancel({ label = "Cancel" }) {
+  const close = useDrawerClose();
+  return /* @__PURE__ */ jsx("button", { type: "button", onClick: close, className: "btn-ghost ml-auto", children: label });
 }
 function DrawerFooter({
   pending = false,
@@ -1574,6 +1788,44 @@ function DrawerFooter({
     /* @__PURE__ */ jsx("button", { type: "button", onClick: close, className: "btn-ghost ml-auto", children: "Cancel" }),
     /* @__PURE__ */ jsx("button", { type: "button", disabled: pending || disabled, onClick: save, className: "btn-primary", children: pending ? "Saving\u2026" : label })
   ] });
+}
+function Modal({
+  open,
+  title,
+  onClose,
+  children,
+  footer,
+  size = "md",
+  dirty,
+  confirmDiscard
+}) {
+  const { requestClose, markDirty } = useGuardedClose({ open, dirty, onClose, confirmDiscard });
+  const depth = useDismissLayer(open, requestClose);
+  if (!open) return null;
+  return createPortal(
+    /* @__PURE__ */ jsxs(DismissLayerDepth, { value: depth, children: [
+      /* @__PURE__ */ jsx("div", { className: "modal-overlay", onClick: requestClose }),
+      /* @__PURE__ */ jsx("div", { className: "modal-positioner", children: /* @__PURE__ */ jsxs(
+        "div",
+        {
+          role: "dialog",
+          "aria-modal": "true",
+          className: `modal${size === "md" ? "" : ` modal-${size}`}`,
+          onInput: markDirty,
+          onChange: markDirty,
+          children: [
+            /* @__PURE__ */ jsxs("header", { className: "modal-header", children: [
+              /* @__PURE__ */ jsx("h2", { className: "modal-title", children: title }),
+              /* @__PURE__ */ jsx(Tooltip, { content: "Close", children: /* @__PURE__ */ jsx("button", { type: "button", onClick: requestClose, className: "btn-icon", "aria-label": "Close dialog", children: /* @__PURE__ */ jsx(X, { size: 16 }) }) })
+            ] }),
+            /* @__PURE__ */ jsx("div", { className: "modal-body", children }),
+            footer && /* @__PURE__ */ jsx("footer", { className: "modal-footer", children: footer })
+          ]
+        }
+      ) })
+    ] }),
+    document.body
+  );
 }
 function MultiSelect({
   value,
@@ -1687,6 +1939,6 @@ function percent(fraction, digits = 1) {
   return ((Number(fraction) || 0) * 100).toFixed(digits) + "%";
 }
 
-export { BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, DismissLayerDepth, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, Toggle, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu };
+export { BrandMark, Checkbox, ColumnToggle, Combobox, ConfirmDiscardProvider, ContextMenu, DataTable, DatePicker, DismissLayerDepth, Drawer, DrawerCancel, DrawerFooter, EmptyState, Field, FieldHelp, FilePicker, Modal, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, Toggle, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
