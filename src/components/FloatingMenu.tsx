@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject, type CSSProperties } from 'react';
+import { useDismissLayer } from './DismissLayer';
 
 /**
  * Anchored-popover plumbing. Tracks a trigger's bounding rect so a
@@ -33,7 +34,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type RefObject, type CSSP
  *   2. Dismissing on outside-click. Both the trigger and the portaled
  *      menu are treated as "inside" - clicks within either keep the
  *      menu open.
- *   3. Dismissing on Escape.
+ *   3. Dismissing on Escape, when it is the top layer (see DismissLayer).
  *
  * The returned `menuStyle` is undefined when the menu is closed or the
  * trigger hasn't measured yet - guard your render with `{open && style && …}`
@@ -93,7 +94,8 @@ export function useFloatingMenu<
   }, [open]);
 
   // Dismiss on click outside (both the trigger AND the portaled menu count
-  // as inside) and on Escape.
+  // as inside), and on Escape while this is the top layer.
+  useDismissLayer(open, onClose);
   useEffect(() => {
     if (!open) return;
     const onMouseDown = (e: MouseEvent) => {
@@ -102,15 +104,8 @@ export function useFloatingMenu<
       if (menuRef.current?.contains(t)) return;
       onClose();
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
     window.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('keydown', onKey);
-    };
+    return () => window.removeEventListener('mousedown', onMouseDown);
   }, [open, onClose]);
 
   // Measure the menu so we can (a) flip it above the trigger when it will not

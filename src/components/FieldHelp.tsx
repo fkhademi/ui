@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { HelpCircle } from 'lucide-react';
+import { useDismissLayer } from './DismissLayer';
 
 /**
  * Small (i) icon you place beside a form label. Click pops a card with
@@ -61,16 +62,10 @@ export function FieldHelp({
       }
       setOpen(false);
     }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false);
-    }
     document.addEventListener('mousedown', onDocClick);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDocClick);
-      document.removeEventListener('keydown', onKey);
-    };
+    return () => document.removeEventListener('mousedown', onDocClick);
   }, [open]);
+  useDismissLayer(open, () => setOpen(false));
 
   return (
     <span ref={wrapRef} className="field-help">

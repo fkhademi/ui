@@ -91,7 +91,8 @@ type SelectOption = {
  * PORTALED and positioned by useFloatingMenu, so it is location-aware: it opens
  * downward, flips above the trigger when there is not enough room below, escapes
  * any overflow-hidden ancestor (drawers, settings cards, scroll boxes), and caps
- * its height to the available space. Closes on outside-click and Escape.
+ * its height to the available space. Closes on outside-click and on Escape
+ * (as the top layer, so a drawer underneath stays open).
  * Keyboard: Enter/Space/ArrowDown opens, arrows move, Enter selects, Escape
  * closes. Typing jumps to the first option starting with what you typed, the
  * way a native select does; repeating one letter cycles through the options
@@ -158,14 +159,24 @@ declare function Checkbox({ checked, onChange, label, indeterminate, disabled, b
  * portaled and positioned by useFloatingMenu (opens down, flips up, clamps
  * on-screen) and toggles shut on a second trigger click.
  */
-declare function DatePicker({ value, onChange, placeholder, disabled, block, className, }: {
+declare function DatePicker({ value, onChange, placeholder, disabled, block, size, className, autoFocus, defaultOpen, onBlur, }: {
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;
     disabled?: boolean;
     /** Fill the container width. */
     block?: boolean;
+    /** Heights match Select: md for forms, sm for toolbars and table cells. */
+    size?: 'sm' | 'md';
     className?: string;
+    /** Focus the trigger on mount, as Select does. */
+    autoFocus?: boolean;
+    /** Open the calendar on mount, for a control that appears because the user
+     *  already clicked to edit a date. */
+    defaultOpen?: boolean;
+    /** Focus left the control with the calendar closed: picking a day moves
+     *  focus into the calendar, which is not leaving. */
+    onBlur?: () => void;
 }): react_jsx_runtime.JSX.Element;
 
 /**
@@ -273,7 +284,7 @@ declare function SidebarCollapseToggle({ collapsed, onToggle, }: {
  *   2. Dismissing on outside-click. Both the trigger and the portaled
  *      menu are treated as "inside" - clicks within either keep the
  *      menu open.
- *   3. Dismissing on Escape.
+ *   3. Dismissing on Escape, when it is the top layer (see DismissLayer).
  *
  * The returned `menuStyle` is undefined when the menu is closed or the
  * trigger hasn't measured yet - guard your render with `{open && style && …}`
@@ -304,6 +315,9 @@ interface UseFloatingMenuResult<TriggerEl extends HTMLElement, MenuEl extends HT
     menuStyle: CSSProperties | undefined;
 }
 declare function useFloatingMenu<TriggerEl extends HTMLElement = HTMLButtonElement, MenuEl extends HTMLElement = HTMLDivElement>({ open, onClose, align, gap, }: UseFloatingMenuOptions): UseFloatingMenuResult<TriggerEl, MenuEl>;
+
+declare const DismissLayerDepth: react.Provider<number>;
+declare function useDismissLayer(open: boolean, onDismiss: () => void): number;
 
 /**
  * Show/hide-columns control for data tables. The presentational half of
@@ -827,4 +841,4 @@ declare function compactNumber(n: number): string;
 /** A fraction (0.42) as a percentage (42.0%). */
 declare function percent(fraction: number, digits?: number): string;
 
-export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, type ConfirmDiscard, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, Tooltip, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDrawerClose, useFloatingMenu, useSidebarCollapsed };
+export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, type ConfirmDiscard, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, DismissLayerDepth, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, Toggle, Tooltip, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu, useSidebarCollapsed };

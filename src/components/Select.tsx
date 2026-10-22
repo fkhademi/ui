@@ -10,7 +10,8 @@ export type SelectOption = { value: string; label: string };
  * PORTALED and positioned by useFloatingMenu, so it is location-aware: it opens
  * downward, flips above the trigger when there is not enough room below, escapes
  * any overflow-hidden ancestor (drawers, settings cards, scroll boxes), and caps
- * its height to the available space. Closes on outside-click and Escape.
+ * its height to the available space. Closes on outside-click and on Escape
+ * (as the top layer, so a drawer underneath stays open).
  * Keyboard: Enter/Space/ArrowDown opens, arrows move, Enter selects, Escape
  * closes. Typing jumps to the first option starting with what you typed, the
  * way a native select does; repeating one letter cycles through the options
@@ -124,13 +125,14 @@ export function Select({
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
         e.preventDefault();
         setOpen(true);
-      } else if (e.key === 'Escape') {
-        onEscape?.();
+      } else if (e.key === 'Escape' && onEscape) {
+        // Handled here, so a drawer or dialog underneath stays open.
+        e.preventDefault();
+        onEscape();
       }
       return;
     }
-    if (e.key === 'Escape') setOpen(false);
-    else if (e.key === 'ArrowDown') {
+    if (e.key === 'ArrowDown') {
       e.preventDefault();
       setActive((a) => Math.min(options.length - 1, a + 1));
     } else if (e.key === 'ArrowUp') {

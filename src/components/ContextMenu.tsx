@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useRef } from 'react';
+import { useDismissLayer } from './DismissLayer';
 
 /**
  * Right-click menu, anchored to the cursor at the time of the
@@ -43,21 +44,15 @@ export function ContextMenu(props: {
     if (overflowY > 0) el.style.top = `${props.y - overflowY - 4}px`;
   }, [props.x, props.y]);
 
-  // Escape + outside click close.
+  // Escape (as the top layer) and outside click close.
+  useDismissLayer(true, props.onClose);
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') props.onClose();
-    }
     function onClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) props.onClose();
     }
-    window.addEventListener('keydown', onKey);
     // Use mousedown not click so right-clicking elsewhere immediately closes us.
     window.addEventListener('mousedown', onClick);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      window.removeEventListener('mousedown', onClick);
-    };
+    return () => window.removeEventListener('mousedown', onClick);
   }, [props]);
 
   return (

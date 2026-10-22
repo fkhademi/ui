@@ -627,8 +627,9 @@
     @apply text-sm text-muted-foreground;
   }
 
+  /* Wraps rather than overflowing when the actions do not fit a phone. */
   .drawer-footer {
-    @apply px-5 h-16 border-t border-border flex items-center gap-3;
+    @apply px-5 py-3 min-h-16 border-t border-border flex flex-wrap items-center gap-3;
   }
 
 /* ── Modal ─────────────────────────────────────────────────────────── */

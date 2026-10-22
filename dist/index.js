@@ -2,7 +2,7 @@ import { Tooltip } from './chunk-TH76AULU.js';
 export { SidebarCollapseToggle, Tooltip, useSidebarCollapsed } from './chunk-TH76AULU.js';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { HelpCircle, ChevronDown, Check, Minus, Calendar, ChevronLeft, ChevronRight, SlidersHorizontal, Search, X, ChevronUp, Pencil, PowerOff, Power, Trash2 } from 'lucide-react';
-import { createContext, useState, useRef, useLayoutEffect, useEffect, useMemo, useContext } from 'react';
+import { createContext, useContext, useRef, useEffect, useState, useLayoutEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 
 function PageHeader({
@@ -54,6 +54,34 @@ function SettingsCard({
 function SettingsCards({ children }) {
   return /* @__PURE__ */ jsx("div", { className: "settings-cards", children });
 }
+var Depth = createContext(0);
+var DismissLayerDepth = Depth.Provider;
+var layers = [];
+var opened = 0;
+function onKeyDown(e) {
+  if (e.key !== "Escape" || e.defaultPrevented || layers.length === 0) return;
+  if (e.target?.tagName === "SELECT") return;
+  const top = layers.reduce((a, b) => b.depth > a.depth || b.depth === a.depth && b.order > a.order ? b : a);
+  e.preventDefault();
+  top.dismiss();
+}
+function useDismissLayer(open, onDismiss) {
+  const depth = useContext(Depth) + 1;
+  const dismiss = useRef(onDismiss);
+  dismiss.current = onDismiss;
+  useEffect(() => {
+    if (!open) return;
+    const layer = { depth, order: ++opened, dismiss: () => dismiss.current() };
+    if (layers.length === 0) window.addEventListener("keydown", onKeyDown);
+    layers.push(layer);
+    return () => {
+      const i = layers.indexOf(layer);
+      if (i >= 0) layers.splice(i, 1);
+      if (layers.length === 0) window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open, depth]);
+  return depth;
+}
 function FieldHelp({
   title,
   body
@@ -89,16 +117,10 @@ function FieldHelp({
       }
       setOpen(false);
     }
-    function onKey(e) {
-      if (e.key === "Escape") setOpen(false);
-    }
     document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
+    return () => document.removeEventListener("mousedown", onDocClick);
   }, [open]);
+  useDismissLayer(open, () => setOpen(false));
   return /* @__PURE__ */ jsxs("span", { ref: wrapRef, className: "field-help", children: [
     /* @__PURE__ */ jsx(
       "button",
@@ -165,6 +187,7 @@ function useFloatingMenu({
       window.removeEventListener("scroll", update, true);
     };
   }, [open]);
+  useDismissLayer(open, onClose);
   useEffect(() => {
     if (!open) return;
     const onMouseDown = (e) => {
@@ -173,15 +196,8 @@ function useFloatingMenu({
       if (menuRef.current?.contains(t)) return;
       onClose();
     };
-    const onKey = (e) => {
-      if (e.key === "Escape") onClose();
-    };
     window.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("mousedown", onMouseDown);
   }, [open, onClose]);
   const [size, setSize] = useState({ h: 0, w: 0 });
   useLayoutEffect(() => {
@@ -261,7 +277,7 @@ function Select({
     setActive(found);
     if (!open) onChange(options[found].value);
   }
-  function onKeyDown(e) {
+  function onKeyDown2(e) {
     if (e.key.length === 1 && e.key !== " " && !e.metaKey && !e.ctrlKey && !e.altKey) {
       e.preventDefault();
       jumpTo(e.key.toLowerCase());
@@ -271,13 +287,13 @@ function Select({
       if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
         e.preventDefault();
         setOpen(true);
-      } else if (e.key === "Escape") {
-        onEscape?.();
+      } else if (e.key === "Escape" && onEscape) {
+        e.preventDefault();
+        onEscape();
       }
       return;
     }
-    if (e.key === "Escape") setOpen(false);
-    else if (e.key === "ArrowDown") {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       setActive((a) => Math.min(options.length - 1, a + 1));
     } else if (e.key === "ArrowUp") {
@@ -304,7 +320,7 @@ function Select({
         "aria-haspopup": "listbox",
         "aria-expanded": open,
         onClick: () => setOpen((o) => !o),
-        onKeyDown,
+        onKeyDown: onKeyDown2,
         onBlur: () => {
           if (!open) onBlur?.();
         },
@@ -393,9 +409,13 @@ function DatePicker({
   placeholder = "Pick a date",
   disabled = false,
   block = false,
-  className = ""
+  size = "md",
+  className = "",
+  autoFocus = false,
+  defaultOpen = false,
+  onBlur
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const { triggerRef, menuRef, menuStyle } = useFloatingMenu({
     open,
     onClose: () => setOpen(false),
@@ -424,13 +444,17 @@ function DatePicker({
         ref: triggerRef,
         type: "button",
         disabled,
+        autoFocus,
         "aria-haspopup": "dialog",
         "aria-expanded": open,
         onClick: () => {
           if (selected) setView(selected);
           setOpen((o) => !o);
         },
-        className: `flex ${block ? "w-full" : ""} h-11 items-center justify-between gap-2 rounded-xl border border-input bg-surface px-4 text-sm text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50`,
+        onBlur: () => {
+          if (!open) onBlur?.();
+        },
+        className: `flex ${block ? "w-full" : ""} ${size === "sm" ? "h-9 px-3 text-xs" : "h-11 px-4 text-sm"} items-center justify-between gap-2 rounded-xl border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50`,
         children: [
           /* @__PURE__ */ jsx("span", { className: selected ? "" : "text-muted-foreground", children: selected ? selected.toLocaleDateString(void 0, { year: "numeric", month: "short", day: "numeric" }) : placeholder }),
           /* @__PURE__ */ jsx(Calendar, { size: 14, className: "shrink-0 text-muted-foreground" })
@@ -1012,6 +1036,8 @@ function DataTable(p) {
   }
   function onKey(e) {
     if (sorted.length === 0) return;
+    const target = e.target;
+    if (target.closest('input, textarea, select, [contenteditable="true"], [role="listbox"], [aria-haspopup]')) return;
     const lastSelectedId = [...selected].pop();
     const currentIdx = lastSelectedId ? sorted.findIndex((r) => getRowId(r) === lastSelectedId) : -1;
     switch (e.key) {
@@ -1045,7 +1071,10 @@ function DataTable(p) {
         break;
       }
       case "Escape": {
-        clearSelection();
+        if (selected.size > 0) {
+          e.preventDefault();
+          clearSelection();
+        }
         break;
       }
       case "a":
@@ -1395,19 +1424,13 @@ function ContextMenu(props) {
     if (overflowX > 0) el.style.left = `${props.x - overflowX - 4}px`;
     if (overflowY > 0) el.style.top = `${props.y - overflowY - 4}px`;
   }, [props.x, props.y]);
+  useDismissLayer(true, props.onClose);
   useEffect(() => {
-    function onKey(e) {
-      if (e.key === "Escape") props.onClose();
-    }
     function onClick(e) {
       if (ref.current && !ref.current.contains(e.target)) props.onClose();
     }
-    window.addEventListener("keydown", onKey);
     window.addEventListener("mousedown", onClick);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("mousedown", onClick);
-    };
+    return () => window.removeEventListener("mousedown", onClick);
   }, [props]);
   return /* @__PURE__ */ jsx(
     "div",
@@ -1496,21 +1519,10 @@ function Drawer({
     }
     onClose();
   }
-  useEffect(() => {
-    if (!open) return;
-    function onKey(e) {
-      if (e.key === "Escape") {
-        const target = e.target;
-        if (target && target.tagName === "SELECT") return;
-        requestClose();
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, effectiveDirty]);
+  const depth = useDismissLayer(open, requestClose);
   if (!open) return null;
   return createPortal(
-    /* @__PURE__ */ jsxs(DrawerCloseCtx.Provider, { value: requestClose, children: [
+    /* @__PURE__ */ jsx(DismissLayerDepth, { value: depth, children: /* @__PURE__ */ jsxs(DrawerCloseCtx.Provider, { value: requestClose, children: [
       /* @__PURE__ */ jsx("div", { className: "drawer-overlay", onClick: requestClose }),
       /* @__PURE__ */ jsxs(
         "aside",
@@ -1538,7 +1550,7 @@ function Drawer({
           ]
         }
       )
-    ] }),
+    ] }) }),
     document.body
   );
 }
@@ -1675,6 +1687,6 @@ function percent(fraction, digits = 1) {
   return ((Number(fraction) || 0) * 100).toFixed(digits) + "%";
 }
 
-export { BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, Toggle, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDrawerClose, useFloatingMenu };
+export { BrandMark, Checkbox, ColumnToggle, ContextMenu, DataTable, DatePicker, DismissLayerDepth, Drawer, DrawerFooter, EmptyState, Field, FieldHelp, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, Toggle, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

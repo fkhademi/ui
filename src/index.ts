@@ -25,6 +25,7 @@ export { useSidebarCollapsed, SidebarCollapseToggle } from './components/Sidebar
 // imports react-router-dom, and exporting it here forced that dependency
 // on every consumer of this package.
 export { useFloatingMenu } from './components/FloatingMenu';
+export { useDismissLayer, DismissLayerDepth } from './components/DismissLayer';
 export type {
   UseFloatingMenuOptions,
   UseFloatingMenuResult,

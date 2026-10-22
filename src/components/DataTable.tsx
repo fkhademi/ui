@@ -409,6 +409,10 @@ export function DataTable<T>(p: LegacyProps<T>) {
 
   function onKey(e: KeyboardEvent) {
     if (sorted.length === 0) return;
+    // Keys typed into a control inside a row (an inline editor, an open list)
+    // belong to that control: Enter saves it, Ctrl+A selects its text.
+    const target = e.target as HTMLElement;
+    if (target.closest('input, textarea, select, [contenteditable="true"], [role="listbox"], [aria-haspopup]')) return;
     const lastSelectedId = [...selected].pop();
     const currentIdx = lastSelectedId
       ? sorted.findIndex((r) => getRowId(r) === lastSelectedId)
@@ -445,7 +449,12 @@ export function DataTable<T>(p: LegacyProps<T>) {
         break;
       }
       case 'Escape': {
-        clearSelection();
+        // Clearing a selection uses up the key, so a drawer around the table
+        // stays open; with nothing selected it is left for that drawer.
+        if (selected.size > 0) {
+          e.preventDefault();
+          clearSelection();
+        }
         break;
       }
       case 'a':

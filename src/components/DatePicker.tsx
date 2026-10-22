@@ -16,7 +16,11 @@ export function DatePicker({
   placeholder = 'Pick a date',
   disabled = false,
   block = false,
+  size = 'md',
   className = '',
+  autoFocus = false,
+  defaultOpen = false,
+  onBlur,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -24,9 +28,19 @@ export function DatePicker({
   disabled?: boolean;
   /** Fill the container width. */
   block?: boolean;
+  /** Heights match Select: md for forms, sm for toolbars and table cells. */
+  size?: 'sm' | 'md';
   className?: string;
+  /** Focus the trigger on mount, as Select does. */
+  autoFocus?: boolean;
+  /** Open the calendar on mount, for a control that appears because the user
+   *  already clicked to edit a date. */
+  defaultOpen?: boolean;
+  /** Focus left the control with the calendar closed: picking a day moves
+   *  focus into the calendar, which is not leaving. */
+  onBlur?: () => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const { triggerRef, menuRef, menuStyle } = useFloatingMenu<HTMLButtonElement, HTMLDivElement>({
     open,
     onClose: () => setOpen(false),
@@ -58,13 +72,17 @@ export function DatePicker({
         ref={triggerRef}
         type="button"
         disabled={disabled}
+        autoFocus={autoFocus}
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => {
           if (selected) setView(selected);
           setOpen((o) => !o);
         }}
-        className={`flex ${block ? 'w-full' : ''} h-11 items-center justify-between gap-2 rounded-xl border border-input bg-surface px-4 text-sm text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50`}
+        onBlur={() => {
+          if (!open) onBlur?.();
+        }}
+        className={`flex ${block ? 'w-full' : ''} ${size === 'sm' ? 'h-9 px-3 text-xs' : 'h-11 px-4 text-sm'} items-center justify-between gap-2 rounded-xl border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50`}
       >
         <span className={selected ? '' : 'text-muted-foreground'}>
           {selected

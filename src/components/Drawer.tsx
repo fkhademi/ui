@@ -1,6 +1,7 @@
 import { createContext, FormEvent, ReactNode, useContext, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Tooltip } from './Tooltip';
+import { DismissLayerDepth, useDismissLayer } from './DismissLayer';
 
 /**
  * Universal right-side drawer used by every create/edit form.
@@ -89,23 +90,12 @@ export function Drawer({
     onClose();
   }
 
-  useEffect(() => {
-    if (!open) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        const target = e.target as HTMLElement | null;
-        if (target && target.tagName === 'SELECT') return;
-        requestClose();
-      }
-    }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, effectiveDirty]);
+  const depth = useDismissLayer(open, requestClose);
 
   if (!open) return null;
 
   return createPortal(
+    <DismissLayerDepth value={depth}>
     <DrawerCloseCtx.Provider value={requestClose}>
       <div className="drawer-overlay" onClick={requestClose} />
       <aside
@@ -134,7 +124,8 @@ export function Drawer({
         </header>
         {children}
       </aside>
-    </DrawerCloseCtx.Provider>,
+    </DrawerCloseCtx.Provider>
+    </DismissLayerDepth>,
     document.body,
   );
 }
