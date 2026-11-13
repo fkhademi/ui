@@ -149,10 +149,10 @@ export function Select({
   }
 
   // Fixed heights so the trigger lines up with the rest of the control system:
-  // md matches a .field input / default button (h-11), sm matches a compact
-  // toolbar button like ColumnToggle (h-9). Height, not padding, drives the box
+  // md matches a .field input / default button, sm matches a .btn-sm toolbar
+  // button like ColumnToggle. Height, not padding, drives the box
   // so it never disagrees with a sibling input or button.
-  const sz = size === 'sm' ? 'h-9 px-3 text-xs' : 'h-11 px-4 text-sm';
+  const sz = size === 'sm' ? 'h-11 md:h-8 px-2.5 text-xs' : 'h-11 md:h-8 px-2.5 text-base md:text-[13px]';
 
   return (
     <div className={`${block ? 'block' : 'inline-block'} ${className}`}>
@@ -168,7 +168,7 @@ export function Select({
         onBlur={() => {
           if (!open) onBlur?.();
         }}
-        className={`flex ${block ? 'w-full' : ''} items-center justify-between gap-2 rounded-xl border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`}
+        className={`flex ${block ? 'w-full' : ''} items-center justify-between gap-2 rounded-md border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-[3px] focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`}
       >
         <span className={`truncate ${selected ? '' : 'text-muted-foreground'}`}>
           {selected ? selected.label : placeholder}

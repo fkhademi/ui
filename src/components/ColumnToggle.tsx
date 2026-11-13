@@ -41,7 +41,7 @@ export function ColumnToggle({ items, onToggle, label = 'Columns', className }: 
       <button
         ref={triggerRef}
         type="button"
-        className={`btn-secondary h-9 px-3.5 text-xs${className ? ` ${className}` : ''}`}
+        className={`btn-secondary btn-sm${className ? ` ${className}` : ''}`}
         onClick={() => setOpen(v => !v)}
         aria-haspopup="menu"
         aria-expanded={open}

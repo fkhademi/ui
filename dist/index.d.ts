@@ -296,6 +296,80 @@ declare function Tag({ children }: {
     children: ReactNode;
 }): react_jsx_runtime.JSX.Element;
 
+interface SegmentedOption<T extends string> {
+    value: T;
+    label: ReactNode;
+    disabled?: boolean;
+}
+/**
+ * An exclusive choice shown in full: a time window, a view, a filter with
+ * three to five values. A radio group underneath, so arrow keys move the
+ * choice the way they do in any native radio set.
+ *
+ *   <Segmented value={range} onChange={setRange} ariaLabel="Range"
+ *     options={[{ value: '24h', label: '24 h' }, { value: '7d', label: '7 days' }]} />
+ */
+declare function Segmented<T extends string>({ value, onChange, options, ariaLabel, className, }: {
+    value: T;
+    onChange: (value: T) => void;
+    options: SegmentedOption<T>[];
+    ariaLabel: string;
+    className?: string;
+}): react_jsx_runtime.JSX.Element;
+
+/**
+ * One number with what it counts and a single line of context.
+ *
+ * `tone` colours the value only when it needs looking at; most tiles have
+ * none. Wrap a row of them in <StatTiles>.
+ *
+ *   <StatTile label="Failed" value={6} sub="4 from one IP" tone="attention" />
+ */
+declare function StatTile({ label, value, sub, tone, }: {
+    label: ReactNode;
+    value: ReactNode;
+    sub?: ReactNode;
+    tone?: 'attention' | 'bad';
+}): react_jsx_runtime.JSX.Element;
+declare function StatTiles({ children }: {
+    children: ReactNode;
+}): react_jsx_runtime.JSX.Element;
+
+interface PageTab<T extends string> {
+    key: T;
+    label: ReactNode;
+}
+/**
+ * The sections of one page, under its header. Controlled: the page owns
+ * which tab is open, so it can also be driven from the URL.
+ *
+ *   <PageTabs tabs={tabs} value={tab} onChange={setTab} ariaLabel="Registry" />
+ */
+declare function PageTabs<T extends string>({ tabs, value, onChange, ariaLabel, }: {
+    tabs: PageTab<T>[];
+    value: T;
+    onChange: (key: T) => void;
+    ariaLabel?: string;
+}): react_jsx_runtime.JSX.Element;
+
+/**
+ * A card of settings, one row each, every row saving on its own. Use a
+ * Drawer instead when the values only make sense saved together.
+ *
+ *   <SettingsList title="Registry">
+ *     <SettingsRow title="Enabled" sub="For this tenant"><Toggle ... /></SettingsRow>
+ *   </SettingsList>
+ */
+declare function SettingsList({ title, children }: {
+    title?: ReactNode;
+    children: ReactNode;
+}): react_jsx_runtime.JSX.Element;
+declare function SettingsRow({ title, sub, children, }: {
+    title: ReactNode;
+    sub?: ReactNode;
+    children?: ReactNode;
+}): react_jsx_runtime.JSX.Element;
+
 /**
  * Small wrapper hook + button for collapsing the .app-sidebar rail.
  * Apps that use the shared `.app-sidebar` class can opt in by:
@@ -971,4 +1045,4 @@ declare function compactNumber(n: number): string;
 /** A fraction (0.42) as a percentage (42.0%). */
 declare function percent(fraction: number, digits?: number): string;
 
-export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, Combobox, type ComboboxOption, type ConfirmDiscard, ConfirmDiscardProvider, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, DismissLayerDepth, Drawer, DrawerCancel, DrawerFooter, EmptyState, Field, FieldHelp, FilePicker, MenuButton, Modal, MultiSelect, type MultiSelectOption, PageHeader, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SidebarCollapseToggle, State, type StateTone, Tag, Toggle, Tooltip, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu, useSidebarCollapsed };
+export { BrandMark, type BrandMarkProps, type BrandName, type BrandPalette, type BrandSpec, type BrandSvgSpec, Checkbox, type Column, ColumnToggle, type ColumnToggleItem, type ColumnToggleProps, type ColumnVisibility, Combobox, type ComboboxOption, type ConfirmDiscard, ConfirmDiscardProvider, ContextMenu, type ContextMenuItem, DataTable, type DataTableProps, DatePicker, DismissLayerDepth, Drawer, DrawerCancel, DrawerFooter, EmptyState, Field, FieldHelp, FilePicker, MenuButton, Modal, MultiSelect, type MultiSelectOption, PageHeader, type PageTab, PageTabs, Segmented, type SegmentedOption, Select, type SelectOption, SelectionToolbar, SettingsCard, SettingsCards, SettingsList, SettingsRow, SidebarCollapseToggle, StatTile, StatTiles, State, type StateTone, Tag, Toggle, Tooltip, type UseFloatingMenuOptions, type UseFloatingMenuResult, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu, useSidebarCollapsed };

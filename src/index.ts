@@ -24,6 +24,12 @@ export { DatePicker } from './components/DatePicker';
 export { FieldHelp } from './components/FieldHelp';
 export { EmptyState } from './components/EmptyState';
 export { State, Tag } from './components/State';
+export { Segmented } from './components/Segmented';
+export type { SegmentedOption } from './components/Segmented';
+export { StatTile, StatTiles } from './components/StatTile';
+export { PageTabs } from './components/PageTabs';
+export type { PageTab } from './components/PageTabs';
+export { SettingsList, SettingsRow } from './components/SettingsList';
 export type { StateTone } from './components/State';
 export { useSidebarCollapsed, SidebarCollapseToggle } from './components/SidebarCollapse';
 // AppShell lives at '@doon/ui/app-shell'. It is the only component that

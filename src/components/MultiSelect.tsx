@@ -71,7 +71,7 @@ export function MultiSelect({
         // Lock the panel to the trigger width (menuStyle only sets a MIN width,
         // so long option text would otherwise grow the menu and push it out of a
         // narrow container); long options truncate instead.
-        <div ref={menuRef} style={{ ...menuStyle, overflowY: 'hidden', width: menuStyle.minWidth }} className="z-[1000] flex flex-col rounded-xl border border-border bg-surface shadow-lg">
+        <div ref={menuRef} style={{ ...menuStyle, overflowY: 'hidden', width: menuStyle.minWidth }} className="z-[1000] flex flex-col rounded-lg border border-border bg-surface shadow-lg">
           <div className="flex items-center gap-2 px-3 py-2 border-b border-border shrink-0">
             <Search size={14} className="text-muted-foreground shrink-0" />
             <input

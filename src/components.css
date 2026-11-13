@@ -13,19 +13,17 @@
 
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 h-11 px-5
-           rounded-xl font-medium text-sm
-           transition-all duration-200
-           focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background
+    @apply inline-flex items-center justify-center gap-1.5 h-11 md:h-8 px-3
+           rounded-md font-medium text-sm md:text-[13px] whitespace-nowrap
+           transition-colors duration-150
+           focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1 focus-visible:ring-offset-background
            disabled:opacity-50 disabled:cursor-not-allowed
            select-none;
     transition-timing-function: var(--ease-out);
   }
 
   .btn-primary {
-    @apply btn bg-primary text-primary-foreground shadow-card
-           hover:bg-primary/90 hover:shadow-card-hover
-           active:scale-[0.98];
+    @apply btn bg-primary text-primary-foreground hover:bg-primary/90;
   }
 
   .btn-ghost {
@@ -34,45 +32,44 @@
   }
 
   .btn-secondary {
-    @apply btn bg-foreground/[0.05] text-foreground
-           ring-1 ring-inset ring-foreground/10
-           hover:bg-foreground/[0.08] hover:ring-foreground/15
-           active:scale-[0.98];
+    @apply btn bg-surface text-foreground border border-input hover:bg-accent;
   }
 
   /* A quiet bordered button: the action in an empty state, a secondary
      action that should not compete with the page's primary one. */
   .btn-outline {
-    @apply btn bg-surface text-foreground border border-border hover:bg-accent;
+    @apply btn bg-surface text-foreground border border-input hover:bg-accent;
   }
 
   .btn-danger {
-    @apply btn bg-destructive text-destructive-foreground
-           hover:bg-destructive/90
-           active:scale-[0.98];
+    @apply btn bg-destructive text-destructive-foreground hover:bg-destructive/90;
+  }
+
+  /* A destructive action on a page, as opposed to the confirm that follows
+     it: bordered and red, so it is found without being the loudest thing. */
+  .btn-danger-quiet {
+    @apply btn bg-surface text-destructive border border-destructive/30
+           hover:bg-destructive/10;
   }
 
   /* The affirmative counterpart to .btn-danger, for the approve half of an
      approve/reject pair. Both carry weight, so neither is the quiet one. */
   .btn-success {
-    @apply btn bg-success text-success-foreground
-           hover:bg-success/90
-           active:scale-[0.98];
+    @apply btn bg-success text-success-foreground hover:bg-success/90;
   }
 
   .btn-icon {
-    @apply inline-flex items-center justify-center w-10 h-10 rounded-lg
+    @apply inline-flex items-center justify-center w-10 h-10 md:w-8 md:h-8 rounded-md
            text-muted-foreground
-           transition-all duration-200
-           hover:bg-accent hover:text-foreground
-           active:scale-[0.96];
+           transition-colors duration-150
+           hover:bg-accent hover:text-foreground;
   }
 
-  /* A round outlined icon button for a header's secondary actions, beside a
-     small primary button; full touch size on a phone. */
+  /* An outlined icon button for a header's secondary actions, the same box
+     as the buttons beside it; full touch size on a phone. */
   .btn-icon-outline {
-    @apply inline-flex items-center justify-center w-11 h-11 md:w-9 md:h-9 rounded-full
-           border border-border bg-surface text-foreground/80
+    @apply inline-flex items-center justify-center w-11 h-11 md:w-8 md:h-8 rounded-md
+           border border-input bg-surface text-foreground/80
            transition-colors hover:bg-accent hover:text-foreground;
   }
 
@@ -80,29 +77,29 @@
      overrides the base height/padding/text. Matches the ColumnToggle trigger
      and a small Select, so filters, actions, and toggles line up in a toolbar. */
   .btn-sm {
-    @apply h-11 md:h-9 px-3.5 text-xs;
+    @apply h-11 md:h-8 px-2.5 text-xs;
   }
 
 /* ── Fields ─────────────────────────────────────────────────────────── */
 
 
   .field {
-    @apply h-11 w-full rounded-xl bg-surface border border-input
-           px-4 text-base text-foreground placeholder:text-muted-foreground
-           outline-none transition-all duration-200
-           focus:border-primary focus:ring-2 focus:ring-primary/20;
+    @apply h-11 md:h-8 w-full rounded-md bg-surface border border-input
+           px-2.5 text-base md:text-[13px] text-foreground placeholder:text-muted-foreground
+           outline-none transition-colors duration-150
+           focus:border-primary focus:ring-[3px] focus:ring-primary/20;
   }
 
   .field-mono {
-    @apply field font-mono text-sm;
+    @apply field font-mono text-sm md:text-xs;
   }
 
   /* A multi-line field: the .field box without the fixed height. */
   .field-area {
-    @apply w-full min-h-24 rounded-xl bg-surface border border-input
-           px-4 py-3 text-base text-foreground placeholder:text-muted-foreground
-           outline-none transition-all duration-200 resize-y
-           focus:border-primary focus:ring-2 focus:ring-primary/20;
+    @apply w-full min-h-24 rounded-md bg-surface border border-input
+           px-2.5 py-2 text-base md:text-[13px] text-foreground placeholder:text-muted-foreground
+           outline-none transition-colors duration-150 resize-y
+           focus:border-primary focus:ring-[3px] focus:ring-primary/20;
   }
 
   .file-picker {
@@ -114,7 +111,7 @@
   }
 
   .field-label {
-    @apply block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide;
+    @apply block text-xs font-medium text-foreground/80 mb-1;
   }
 
   .field-hint {
@@ -144,7 +141,7 @@
   .field-help-pop {
     /* fixed-positioned; inline `top` / `left` / `width` come from the
        component's layout-effect (smart edge detection). */
-    @apply fixed z-50 rounded-xl bg-surface ring-1 ring-border shadow-lg
+    @apply fixed z-50 rounded-lg bg-surface ring-1 ring-border shadow-lg
            px-3.5 py-2.5;
   }
 
@@ -170,9 +167,9 @@
 
   select.field,
   select.field-mono {
-    @apply appearance-none pr-10 bg-no-repeat;
+    @apply appearance-none pr-8 bg-no-repeat;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-    background-position: right 0.75rem center;
+    background-position: right 0.625rem center;
     background-size: 0.75rem 0.75rem;
   }
 
@@ -195,7 +192,7 @@
        defeat the sticky height. The sidebar itself scrolls when its
        contents overflow the viewport. The width transition runs when
        the .app-sidebar--collapsed modifier is toggled. */
-    @apply hidden md:flex md:flex-col md:w-60 md:shrink-0
+    @apply hidden md:flex md:flex-col md:w-56 md:shrink-0
            md:border-r md:border-border md:bg-surface
            md:sticky md:top-0 md:h-[100dvh] md:self-start md:overflow-y-auto
            md:transition-[width] md:duration-200;
@@ -262,7 +259,7 @@
   }
 
   .app-sidebar-brand {
-    @apply flex items-center justify-between gap-2 px-4 h-14
+    @apply flex items-center justify-between gap-2 px-4 h-12
            border-b border-border
            text-sm font-semibold tracking-tight text-foreground;
   }
@@ -276,19 +273,19 @@
   }
 
   .app-sidebar-heading {
-    @apply flex items-center gap-1.5 mt-3 mb-1 px-2 text-[10px]
-           uppercase tracking-wider text-muted-foreground;
+    @apply flex items-center gap-1.5 mt-3 mb-1 px-2 text-[11px]
+           font-medium text-muted-foreground;
   }
 
   .app-sidebar-item {
-    @apply flex items-center gap-2.5 px-2.5 py-1.5 rounded-md
-           text-sm text-foreground/80
+    @apply flex items-center gap-2 px-2 h-[30px] rounded-md
+           text-[13px] text-foreground/80
            cursor-pointer transition-colors
            hover:bg-accent hover:text-foreground;
   }
 
   .app-sidebar-item--active {
-    @apply bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary;
+    @apply bg-primary/10 text-primary font-medium hover:bg-primary/15 hover:text-primary;
   }
 
   .app-sidebar-footer {
@@ -312,7 +309,7 @@
   }
 
   .app-sidebar-user-plan {
-    @apply text-[10px] uppercase tracking-wider text-muted-foreground;
+    @apply text-[11px] text-muted-foreground;
   }
 
   .app-sidebar-theme {
@@ -347,11 +344,11 @@
 
 
   .page-header {
-    @apply flex items-center justify-between px-6 pt-8 pb-4 gap-3;
+    @apply flex items-center justify-between px-6 pt-5 pb-3 gap-3;
   }
 
   .page-title {
-    @apply text-2xl font-semibold tracking-tight text-foreground
+    @apply text-lg font-semibold text-foreground
            flex items-center gap-2;
   }
 
@@ -364,7 +361,7 @@
   }
 
   .stat-icon {
-    @apply w-11 h-11 rounded-xl grid place-items-center shrink-0;
+    @apply w-9 h-9 rounded-lg grid place-items-center shrink-0;
   }
 
   .stat-icon--primary { @apply bg-primary/15 text-primary; }
@@ -377,7 +374,7 @@
 
   .stat-icon--info { @apply bg-foreground/10 text-foreground/80; }
 
-  .stat-label { @apply text-[11px] uppercase tracking-wider text-muted-foreground; }
+  .stat-label { @apply text-xs text-muted-foreground; }
 
   .stat-value { @apply text-xl font-semibold text-foreground mt-0.5 num; }
 
@@ -388,8 +385,7 @@
 
 
   .list-card {
-    @apply mx-6 rounded-2xl bg-surface ring-1 ring-border shadow-card
-           overflow-hidden;
+    @apply mx-6 rounded-lg bg-surface ring-1 ring-border overflow-hidden;
   }
 
 /* ── DataTable (universal list primitive) ──────────────────────────── */
@@ -409,10 +405,10 @@
   }
 
   .dt-search {
-    @apply h-9 w-full md:w-72 rounded-lg bg-surface border border-input
-           pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground
-           outline-none transition-all duration-200
-           focus:border-primary focus:ring-2 focus:ring-primary/20;
+    @apply h-11 md:h-8 w-full md:w-72 rounded-md bg-surface border border-input
+           pl-8 pr-2.5 text-base md:text-[13px] text-foreground placeholder:text-muted-foreground
+           outline-none transition-colors duration-150
+           focus:border-primary focus:ring-[3px] focus:ring-primary/20;
   }
 
   .dt-search-icon {
@@ -424,20 +420,20 @@
   }
 
   .dt-card {
-    @apply rounded-2xl bg-surface ring-1 ring-border shadow-card overflow-hidden;
+    @apply rounded-lg bg-surface ring-1 ring-border overflow-hidden;
   }
 
   .dt-table {
-    @apply w-full text-sm border-collapse;
+    @apply w-full text-sm md:text-[13px] border-collapse;
   }
 
   .dt-thead {
-    @apply bg-foreground/[0.02];
+    @apply bg-transparent;
   }
 
   .dt-th {
-    @apply text-left text-[10px] uppercase tracking-wider font-medium
-           text-muted-foreground px-4 py-2.5 select-none border-b border-border;
+    @apply text-left text-xs font-medium whitespace-nowrap
+           text-muted-foreground px-3 py-2 select-none border-b border-border;
   }
 
   .dt-th--right { @apply text-right; }
@@ -461,7 +457,7 @@
 
   /* The same box as the small Select beside it in the filter row. */
   .dt-filter-input {
-    @apply w-full h-9 bg-surface border border-input rounded-xl px-3
+    @apply w-full h-8 bg-surface border border-input rounded-md px-2.5
            text-xs text-foreground placeholder:text-muted-foreground
            focus:outline-none focus:ring-2 focus:ring-primary/40;
   }
@@ -497,7 +493,7 @@
   }
 
   .dt-td {
-    @apply px-4 py-3 text-foreground align-middle;
+    @apply px-3 py-2 text-foreground align-middle;
   }
 
   .dt-td--right { @apply text-right num; }
@@ -572,8 +568,8 @@
 
 
   .status-badge {
-    @apply inline-flex items-center px-1.5 py-0.5 rounded-full
-           text-[10px] font-medium uppercase tracking-wide shrink-0;
+    @apply inline-flex items-center px-2 py-px rounded-full
+           text-[11px] font-medium shrink-0;
   }
 
   .status-badge--success { @apply bg-success/15 text-success; }
@@ -589,11 +585,11 @@
 /* A state (active, expired, at risk) is a dot and its word; the colour is the
    meaning. A category (a type, a stage, a source) is a quiet tag. */
   .state {
-    @apply inline-flex items-center gap-2 text-sm text-foreground whitespace-nowrap;
+    @apply inline-flex items-center gap-1.5 text-sm md:text-[13px] text-foreground whitespace-nowrap;
   }
 
   .state-dot {
-    @apply w-2 h-2 rounded-full shrink-0;
+    @apply w-[7px] h-[7px] rounded-full shrink-0;
   }
 
   .state-dot--good { @apply bg-success; }
@@ -602,8 +598,8 @@
   .state-dot--off { @apply bg-muted-foreground/50; }
 
   .tag {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-foreground/[0.05]
-           text-xs text-muted-foreground whitespace-nowrap;
+    @apply inline-flex items-center gap-1 px-1.5 py-px rounded-sm bg-muted
+           text-[11px] text-foreground/75 whitespace-nowrap;
   }
 
 /* ── Health badge (endpoints / monitors) ───────────────────────────── */
@@ -648,12 +644,12 @@
 
 
   .drawer-overlay {
-    @apply fixed inset-0 z-40 bg-black/40 backdrop-blur-sm;
+    @apply fixed inset-0 z-40 bg-black/40;
   }
 
   .drawer-panel {
     @apply fixed right-0 top-0 z-50 h-[100dvh] w-full md:max-w-md
-           bg-surface text-foreground shadow-2xl
+           bg-surface text-foreground shadow-xl
            border-l border-border flex flex-col;
   }
 
@@ -669,7 +665,7 @@
   }
 
   .drawer-header {
-    @apply flex items-center justify-between px-5 h-14 border-b border-border;
+    @apply flex items-center justify-between px-5 h-12 border-b border-border;
   }
 
   .drawer-title {
@@ -686,7 +682,7 @@
 
   /* Wraps rather than overflowing when the actions do not fit a phone. */
   .drawer-footer {
-    @apply px-5 py-3 min-h-16 border-t border-border flex flex-wrap items-center gap-3;
+    @apply px-5 py-3 min-h-14 border-t border-border flex flex-wrap items-center gap-2;
   }
 
 /* ── Modal ─────────────────────────────────────────────────────────── */
@@ -703,8 +699,8 @@
   }
 
   .modal {
-    @apply w-[min(92vw,520px)] max-h-[90vh] rounded-2xl
-           bg-surface ring-1 ring-border shadow-2xl
+    @apply w-[min(92vw,520px)] max-h-[90vh] rounded-lg
+           bg-surface ring-1 ring-border shadow-xl
            flex flex-col overflow-hidden pointer-events-auto;
   }
 
@@ -713,11 +709,11 @@
   .modal-xl { @apply w-[min(92vw,960px)]; }
 
   .modal-overlay {
-    @apply fixed inset-0 z-50 bg-black/40 backdrop-blur-sm;
+    @apply fixed inset-0 z-50 bg-black/40;
   }
 
   .modal-header {
-    @apply flex items-center justify-between px-5 h-14 border-b border-border shrink-0;
+    @apply flex items-center justify-between px-5 h-12 border-b border-border shrink-0;
   }
 
   .modal-title {
@@ -729,7 +725,7 @@
   }
 
   .modal-footer {
-    @apply px-5 py-3 min-h-16 border-t border-border flex flex-wrap items-center justify-end gap-2 shrink-0;
+    @apply px-5 py-3 min-h-14 border-t border-border flex flex-wrap items-center justify-end gap-2 shrink-0;
   }
 
 /* ── Workspace dashboard ──────────────────────────────────────────── */
@@ -846,34 +842,34 @@
 
 
   .toggle {
-    @apply relative w-11 h-6 rounded-full bg-foreground/15
-           transition-colors duration-200 shrink-0;
+    @apply relative w-8 h-[18px] rounded-full bg-foreground/20
+           transition-colors duration-150 shrink-0;
   }
 
   .toggle--on { @apply bg-primary; }
 
   .toggle-thumb {
-    @apply absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white
-           shadow-card transition-transform duration-200;
+    @apply absolute top-0.5 left-0.5 w-3.5 h-3.5 rounded-full bg-white
+           shadow-sm transition-transform duration-150;
   }
 
-  .toggle--on .toggle-thumb { @apply translate-x-5; }
+  .toggle--on .toggle-thumb { @apply translate-x-3.5; }
 
 /* ── Tag chips ─────────────────────────────────────────────────────── */
 
 
   .tag-chips-row {
-    @apply flex flex-wrap items-center gap-1.5 min-h-11
-           rounded-xl bg-surface border border-input px-2.5 py-1.5;
+    @apply flex flex-wrap items-center gap-1 min-h-11 md:min-h-8
+           rounded-md bg-surface border border-input px-2 py-1;
   }
 
   .tag-chip {
-    @apply inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-full
+    @apply inline-flex items-center gap-1 pl-2 pr-1 py-0.5 rounded-sm
            bg-primary/10 text-primary text-xs font-medium;
   }
 
   .tag-chip button {
-    @apply inline-flex items-center justify-center w-4 h-4 rounded-full
+    @apply inline-flex items-center justify-center w-4 h-4 rounded-sm
            hover:bg-primary/20;
   }
 
@@ -881,13 +877,13 @@
 
 
   .menu {
-    @apply fixed z-50 min-w-[220px] rounded-xl
-           bg-surface ring-1 ring-border shadow-2xl
+    @apply fixed z-50 min-w-[220px] rounded-lg
+           bg-surface ring-1 ring-border shadow-xl
            p-1 text-sm;
   }
 
   .menu-item {
-    @apply flex items-center gap-2.5 w-full px-3 py-2 rounded-lg
+    @apply flex items-center gap-2 w-full px-2.5 py-1.5 rounded-md
            text-foreground/90 text-left
            cursor-pointer transition-colors
            hover:bg-accent;
@@ -902,7 +898,7 @@
   }
 
   .menu-heading {
-    @apply px-2.5 py-1 text-[10px] uppercase tracking-wider text-muted-foreground;
+    @apply px-2.5 py-1 text-[11px] font-medium text-muted-foreground;
   }
 
 /* Checkbox indicator used by ColumnToggle menu items. Square box that
@@ -921,17 +917,17 @@
 
 
   .cmdk-overlay {
-    @apply fixed inset-0 z-50 bg-black/40 backdrop-blur-sm
+    @apply fixed inset-0 z-50 bg-black/40
            grid place-items-start pt-[15vh];
   }
 
   .cmdk-panel {
-    @apply w-full max-w-lg mx-4 rounded-2xl
-           bg-surface ring-1 ring-border shadow-2xl overflow-hidden;
+    @apply w-full max-w-lg mx-4 rounded-lg
+           bg-surface ring-1 ring-border shadow-xl overflow-hidden;
   }
 
   .cmdk-input {
-    @apply w-full h-12 px-5 text-base bg-transparent text-foreground
+    @apply w-full h-11 px-4 text-sm bg-transparent text-foreground
            placeholder:text-muted-foreground outline-none
            border-b border-border;
   }
@@ -941,7 +937,7 @@
   }
 
   .cmdk-item {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+    @apply flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13px]
            text-foreground cursor-pointer transition-colors
            data-[selected=true]:bg-accent;
   }
@@ -951,14 +947,14 @@
   }
 
   .cmdk-group-heading {
-    @apply px-3 pt-3 pb-1 text-[10px] uppercase tracking-wider text-muted-foreground;
+    @apply px-2.5 pt-3 pb-1 text-[11px] font-medium text-muted-foreground;
   }
 
 /* ── Toast / countdown ─────────────────────────────────────────────── */
 
 
   .toast {
-    @apply flex items-center gap-3 min-w-[280px] px-4 py-3 rounded-xl
+    @apply flex items-center gap-3 min-w-[280px] px-4 py-3 rounded-lg
            bg-surface ring-1 ring-border shadow-card-hover;
   }
 
@@ -998,14 +994,14 @@
 
 
   .confirm-overlay {
-    @apply fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm
+    @apply fixed inset-0 z-[60] bg-black/50
            flex items-center justify-center px-4;
   }
 
   .confirm-panel {
-    @apply w-full max-w-md rounded-2xl
-           bg-surface ring-1 ring-border shadow-2xl
-           p-6 flex flex-col gap-3;
+    @apply w-full max-w-md rounded-lg
+           bg-surface ring-1 ring-border shadow-xl
+           p-5 flex flex-col gap-2;
   }
 
   .confirm-title {
@@ -1029,7 +1025,7 @@
 
 
   .toolbar-btn {
-    @apply inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg
+    @apply inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md
            text-sm text-foreground/80
            transition-colors hover:bg-foreground/[0.06] shrink-0;
   }
@@ -1042,13 +1038,13 @@
 
 
   .menu {
-    @apply fixed z-50 rounded-xl
-           bg-surface ring-1 ring-border shadow-2xl
+    @apply fixed z-50 rounded-lg
+           bg-surface ring-1 ring-border shadow-xl
            p-1 text-sm min-w-[160px];
   }
 
   .menu-item {
-    @apply flex items-center gap-2.5 w-full px-3 py-2 rounded-lg
+    @apply flex items-center gap-2 w-full px-2.5 py-1.5 rounded-md
            text-foreground/90 text-left
            cursor-pointer transition-colors
            hover:bg-accent
@@ -1077,8 +1073,8 @@
     @apply fixed z-40
            left-1/2 -translate-x-1/2
            bottom-6
-           flex items-center gap-2 px-3 py-2 rounded-2xl
-           bg-surface/90 backdrop-blur-xl
+           flex items-center gap-2 px-2 py-1.5 rounded-lg
+           bg-surface
            ring-1 ring-border shadow-xl shadow-black/10
            max-w-[calc(100vw-2rem)] overflow-hidden;
   }
@@ -1106,12 +1102,12 @@
 
 
   .auth-card {
-    @apply w-full max-w-sm rounded-2xl bg-surface ring-1 ring-border shadow-xl
+    @apply w-full max-w-sm rounded-lg bg-surface ring-1 ring-border shadow-lg
            p-6 flex flex-col gap-3;
   }
 
   .auth-icon {
-    @apply w-10 h-10 rounded-xl bg-primary/15 text-primary grid place-items-center;
+    @apply w-9 h-9 rounded-lg bg-primary/15 text-primary grid place-items-center;
   }
 
   .auth-title {
@@ -1145,12 +1141,12 @@
 
 
   .reveal-card {
-    @apply mx-6 mb-6 rounded-2xl bg-primary/5 ring-1 ring-primary/30 p-5
+    @apply mx-6 mb-6 rounded-lg bg-primary/5 ring-1 ring-primary/30 p-4
            flex items-start gap-3;
   }
 
   .reveal-icon {
-    @apply w-10 h-10 rounded-xl bg-primary/15 text-primary grid place-items-center shrink-0;
+    @apply w-9 h-9 rounded-lg bg-primary/15 text-primary grid place-items-center shrink-0;
   }
 
   .reveal-body {
@@ -1171,7 +1167,7 @@
 
   .reveal-secret {
     @apply flex-1 font-mono text-xs bg-foreground/[0.04] border border-border
-           rounded-lg px-3 py-2 break-all;
+           rounded-md px-2.5 py-1.5 break-all;
   }
 
 /* ── Live-dig result panel ─────────────────────────────────────────── */
@@ -1199,7 +1195,7 @@
   }
 
   .settings-card {
-    @apply rounded-xl border border-border bg-surface shadow-card overflow-hidden;
+    @apply rounded-lg border border-border bg-surface overflow-hidden;
   }
 
   .settings-card-header {
@@ -1211,7 +1207,7 @@
   }
 
   .settings-card-icon {
-    @apply w-9 h-9 rounded-lg bg-primary/10 text-primary
+    @apply w-8 h-8 rounded-md bg-primary/10 text-primary
            grid place-items-center shrink-0;
   }
 
@@ -1245,16 +1241,16 @@
      where collapsing adds no value. */
 
   .settings-section {
-    @apply mx-6 mb-6 rounded-2xl bg-foreground/[0.02] ring-1 ring-border
+    @apply mx-6 mb-6 rounded-lg bg-surface ring-1 ring-border
            flex flex-col;
   }
 
   .settings-section-header {
-    @apply px-5 py-4 border-b border-border flex items-start gap-3;
+    @apply px-4 py-3 border-b border-border flex items-start gap-3;
   }
 
   .settings-section-icon {
-    @apply w-9 h-9 rounded-xl bg-foreground/[0.05] text-foreground grid place-items-center shrink-0;
+    @apply w-8 h-8 rounded-md bg-muted text-foreground grid place-items-center shrink-0;
   }
 
   .settings-section-title {
@@ -1266,15 +1262,108 @@
   }
 
   .settings-section-body {
-    @apply px-5 py-4 flex flex-col gap-4;
+    @apply px-4 py-4 flex flex-col gap-4;
   }
 
   .settings-section-footer {
-    @apply px-5 py-3 border-t border-border flex items-center justify-end gap-2;
+    @apply px-4 py-3 border-t border-border flex items-center justify-end gap-2;
   }
 
   .settings-section-divider {
-    @apply mt-2 pt-3 border-t border-border text-xs uppercase tracking-wider text-muted-foreground;
+    @apply mt-2 pt-3 border-t border-border text-xs font-medium text-muted-foreground;
+  }
+
+  /* ── Segmented control ────────────────────────────────────────────── */
+  /* A short, exclusive choice that is always visible: a time window, a
+     view. Three to five options; more than that belongs in a Select. */
+
+  .segmented {
+    @apply inline-flex items-stretch h-11 md:h-8 p-0.5 rounded-md bg-muted
+           text-xs font-medium;
+  }
+
+  .segmented-item {
+    @apply inline-flex items-center gap-1.5 px-3 rounded-sm text-muted-foreground
+           transition-colors hover:text-foreground cursor-pointer
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .segmented-item--active {
+    @apply bg-surface text-foreground shadow-sm hover:text-foreground;
+  }
+
+  /* ── Stat tile ────────────────────────────────────────────────────── */
+  /* One number above a table or a chart. The label says what is counted,
+     the sub line gives the one comparison that makes the number mean
+     something. */
+
+  .stat-tiles {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-3;
+  }
+
+  .stat-tile {
+    @apply rounded-lg bg-surface ring-1 ring-border px-3.5 py-3 min-w-0;
+  }
+
+  .stat-tile-value--attention { @apply text-warning; }
+  .stat-tile-value--bad { @apply text-destructive; }
+
+  /* ── Page tabs ────────────────────────────────────────────────────── */
+  /* Sections of one page, under its header. Scrolls sideways on a phone
+     rather than wrapping, so the active tab never jumps to a second row. */
+
+  .page-tabs {
+    @apply flex gap-5 px-6 border-b border-border overflow-x-auto;
+    scrollbar-width: none;
+  }
+
+  .page-tabs::-webkit-scrollbar { display: none; }
+
+  .page-tab {
+    @apply pt-2 pb-2.5 -mb-px border-b-2 border-transparent whitespace-nowrap
+           text-[13px] font-medium text-muted-foreground
+           hover:text-foreground cursor-pointer;
+  }
+
+  .page-tab--active {
+    @apply text-primary border-primary hover:text-primary;
+  }
+
+  /* ── Settings list ────────────────────────────────────────────────── */
+  /* A card of rows, each a setting and its control. Lighter than a form:
+     every row saves on its own, so there is no footer to look for. */
+
+  .settings-list {
+    @apply rounded-lg bg-surface ring-1 ring-border overflow-hidden;
+  }
+
+  .settings-list-title {
+    @apply px-4 pt-3.5 pb-2.5 text-sm font-semibold text-foreground;
+  }
+
+  .settings-row {
+    @apply flex items-center justify-between gap-4 px-4 py-2.5
+           border-t border-border first:border-t-0 text-[13px];
+  }
+
+  .settings-list-title + .settings-row {
+    @apply border-t;
+  }
+
+  .settings-row-text {
+    @apply min-w-0;
+  }
+
+  .settings-row-title {
+    @apply font-medium text-foreground;
+  }
+
+  .settings-row-sub {
+    @apply text-xs text-muted-foreground mt-0.5;
+  }
+
+  .settings-row-control {
+    @apply shrink-0 flex items-center gap-2;
   }
 
 }

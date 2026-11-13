@@ -115,7 +115,7 @@ export function Combobox({
     }
   }
 
-  const sz = size === 'sm' ? 'h-9 px-3 text-xs' : 'h-11 px-4 text-sm';
+  const sz = size === 'sm' ? 'h-11 md:h-8 px-2.5 text-xs' : 'h-11 md:h-8 px-2.5 text-base md:text-[13px]';
 
   return (
     <div ref={triggerRef} className={`relative w-full ${className}`}>
@@ -147,7 +147,7 @@ export function Combobox({
           else close();
           onBlur?.();
         }}
-        className={`w-full rounded-xl border border-input bg-surface pr-9 text-foreground placeholder:text-muted-foreground transition focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`}
+        className={`w-full rounded-md border border-input bg-surface pr-8 text-foreground placeholder:text-muted-foreground transition focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`}
       />
       <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
       {open && menuStyle && (typed || shown.length > 0) && (

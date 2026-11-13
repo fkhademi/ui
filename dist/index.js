@@ -308,7 +308,7 @@ function Select({
       }
     }
   }
-  const sz = size === "sm" ? "h-9 px-3 text-xs" : "h-11 px-4 text-sm";
+  const sz = size === "sm" ? "h-11 md:h-8 px-2.5 text-xs" : "h-11 md:h-8 px-2.5 text-base md:text-[13px]";
   return /* @__PURE__ */ jsxs("div", { className: `${block ? "block" : "inline-block"} ${className}`, children: [
     /* @__PURE__ */ jsxs(
       "button",
@@ -324,7 +324,7 @@ function Select({
         onBlur: () => {
           if (!open) onBlur?.();
         },
-        className: `flex ${block ? "w-full" : ""} items-center justify-between gap-2 rounded-xl border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`,
+        className: `flex ${block ? "w-full" : ""} items-center justify-between gap-2 rounded-md border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-[3px] focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`,
         children: [
           /* @__PURE__ */ jsx("span", { className: `truncate ${selected ? "" : "text-muted-foreground"}`, children: selected ? selected.label : placeholder }),
           /* @__PURE__ */ jsx(ChevronDown, { size: 14, className: "shrink-0 text-muted-foreground" })
@@ -425,7 +425,7 @@ function Combobox({
       else if (offerFree || allowFree && typed) pick(text.trim());
     }
   }
-  const sz = size === "sm" ? "h-9 px-3 text-xs" : "h-11 px-4 text-sm";
+  const sz = size === "sm" ? "h-11 md:h-8 px-2.5 text-xs" : "h-11 md:h-8 px-2.5 text-base md:text-[13px]";
   return /* @__PURE__ */ jsxs("div", { ref: triggerRef, className: `relative w-full ${className}`, children: [
     /* @__PURE__ */ jsx(
       "input",
@@ -456,7 +456,7 @@ function Combobox({
           else close();
           onBlur?.();
         },
-        className: `w-full rounded-xl border border-input bg-surface pr-9 text-foreground placeholder:text-muted-foreground transition focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`
+        className: `w-full rounded-md border border-input bg-surface pr-8 text-foreground placeholder:text-muted-foreground transition focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 ${sz}`
       }
     ),
     /* @__PURE__ */ jsx(ChevronDown, { size: 14, className: "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" }),
@@ -642,7 +642,7 @@ function DatePicker({
         onBlur: () => {
           if (!open) onBlur?.();
         },
-        className: `flex ${block ? "w-full" : ""} ${size === "sm" ? "h-9 px-3 text-xs" : "h-11 px-4 text-sm"} items-center justify-between gap-2 rounded-xl border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50`,
+        className: `flex ${block ? "w-full" : ""} ${size === "sm" ? "h-11 md:h-8 px-2.5 text-xs" : "h-11 md:h-8 px-2.5 text-base md:text-[13px]"} items-center justify-between gap-2 rounded-md border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-[3px] focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50`,
         children: [
           /* @__PURE__ */ jsx("span", { className: selected ? "" : "text-muted-foreground", children: selected ? selected.toLocaleDateString(void 0, { year: "numeric", month: "short", day: "numeric" }) : placeholder }),
           /* @__PURE__ */ jsx(Calendar, { size: 14, className: "shrink-0 text-muted-foreground" })
@@ -655,7 +655,7 @@ function DatePicker({
         ref: menuRef,
         role: "dialog",
         style: menuStyle,
-        className: "z-50 rounded-xl border border-border bg-surface p-3 shadow-lg",
+        className: "z-50 rounded-lg border border-border bg-surface p-3 shadow-lg",
         children: [
           /* @__PURE__ */ jsxs("div", { className: "mb-2 flex items-center justify-between", children: [
             /* @__PURE__ */ jsx(
@@ -681,7 +681,7 @@ function DatePicker({
             )
           ] }),
           /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-7 gap-0.5 text-center", children: [
-            WEEKDAYS.map((w) => /* @__PURE__ */ jsx("div", { className: "py-1 text-[10px] font-medium uppercase text-muted-foreground", children: w }, w)),
+            WEEKDAYS.map((w) => /* @__PURE__ */ jsx("div", { className: "py-1 text-[11px] font-medium text-muted-foreground", children: w }, w)),
             cells.map(
               (d, i) => d === null ? /* @__PURE__ */ jsx("div", {}, i) : /* @__PURE__ */ jsx(
                 "button",
@@ -749,6 +749,113 @@ function State({ tone, children }) {
 function Tag({ children }) {
   return /* @__PURE__ */ jsx("span", { className: "tag", children });
 }
+function Segmented({
+  value,
+  onChange,
+  options,
+  ariaLabel,
+  className = ""
+}) {
+  const enabled = options.filter((o) => !o.disabled);
+  const move = (group, step) => {
+    const at = enabled.findIndex((o) => o.value === value);
+    const next = enabled[(at + step + enabled.length) % enabled.length];
+    if (!next) return;
+    onChange(next.value);
+    group.querySelectorAll('[role="radio"]')[options.indexOf(next)]?.focus();
+  };
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      role: "radiogroup",
+      "aria-label": ariaLabel,
+      className: `segmented ${className}`,
+      onKeyDown: (e) => {
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+          e.preventDefault();
+          move(e.currentTarget, 1);
+        }
+        if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+          e.preventDefault();
+          move(e.currentTarget, -1);
+        }
+      },
+      children: options.map((o) => {
+        const active = o.value === value;
+        return /* @__PURE__ */ jsx(
+          "button",
+          {
+            type: "button",
+            role: "radio",
+            "aria-checked": active,
+            tabIndex: active ? 0 : -1,
+            disabled: o.disabled,
+            onClick: () => onChange(o.value),
+            className: `segmented-item${active ? " segmented-item--active" : ""}`,
+            children: o.label
+          },
+          o.value
+        );
+      })
+    }
+  );
+}
+function StatTile({
+  label,
+  value,
+  sub,
+  tone
+}) {
+  return /* @__PURE__ */ jsxs("div", { className: "stat-tile", children: [
+    /* @__PURE__ */ jsx("div", { className: "stat-label", children: label }),
+    /* @__PURE__ */ jsx("div", { className: `stat-value${tone ? ` stat-tile-value--${tone}` : ""}`, children: value }),
+    sub != null && /* @__PURE__ */ jsx("div", { className: "stat-sub", children: sub })
+  ] });
+}
+function StatTiles({ children }) {
+  return /* @__PURE__ */ jsx("div", { className: "stat-tiles", children });
+}
+function PageTabs({
+  tabs,
+  value,
+  onChange,
+  ariaLabel
+}) {
+  return /* @__PURE__ */ jsx("div", { role: "tablist", "aria-label": ariaLabel, className: "page-tabs", children: tabs.map((t) => {
+    const active = t.key === value;
+    return /* @__PURE__ */ jsx(
+      "button",
+      {
+        type: "button",
+        role: "tab",
+        "aria-selected": active,
+        onClick: () => onChange(t.key),
+        className: `page-tab${active ? " page-tab--active" : ""}`,
+        children: t.label
+      },
+      t.key
+    );
+  }) });
+}
+function SettingsList({ title, children }) {
+  return /* @__PURE__ */ jsxs("section", { className: "settings-list", children: [
+    title != null && /* @__PURE__ */ jsx("h2", { className: "settings-list-title", children: title }),
+    children
+  ] });
+}
+function SettingsRow({
+  title,
+  sub,
+  children
+}) {
+  return /* @__PURE__ */ jsxs("div", { className: "settings-row", children: [
+    /* @__PURE__ */ jsxs("div", { className: "settings-row-text", children: [
+      /* @__PURE__ */ jsx("div", { className: "settings-row-title", children: title }),
+      sub != null && /* @__PURE__ */ jsx("div", { className: "settings-row-sub", children: sub })
+    ] }),
+    children != null && /* @__PURE__ */ jsx("div", { className: "settings-row-control", children })
+  ] });
+}
 function ColumnToggle({ items, onToggle, label = "Columns", className }) {
   const [open, setOpen] = useState(false);
   const { triggerRef, menuRef, menuStyle } = useFloatingMenu({
@@ -762,7 +869,7 @@ function ColumnToggle({ items, onToggle, label = "Columns", className }) {
       {
         ref: triggerRef,
         type: "button",
-        className: `btn-secondary h-9 px-3.5 text-xs${className ? ` ${className}` : ""}`,
+        className: `btn-secondary btn-sm${className ? ` ${className}` : ""}`,
         onClick: () => setOpen((v) => !v),
         "aria-haspopup": "menu",
         "aria-expanded": open,
@@ -1918,7 +2025,7 @@ function MultiSelect({
       // Lock the panel to the trigger width (menuStyle only sets a MIN width,
       // so long option text would otherwise grow the menu and push it out of a
       // narrow container); long options truncate instead.
-      /* @__PURE__ */ jsxs("div", { ref: menuRef, style: { ...menuStyle, overflowY: "hidden", width: menuStyle.minWidth }, className: "z-[1000] flex flex-col rounded-xl border border-border bg-surface shadow-lg", children: [
+      /* @__PURE__ */ jsxs("div", { ref: menuRef, style: { ...menuStyle, overflowY: "hidden", width: menuStyle.minWidth }, className: "z-[1000] flex flex-col rounded-lg border border-border bg-surface shadow-lg", children: [
         /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 px-3 py-2 border-b border-border shrink-0", children: [
           /* @__PURE__ */ jsx(Search, { size: 14, className: "text-muted-foreground shrink-0" }),
           /* @__PURE__ */ jsx(
@@ -1977,6 +2084,6 @@ function percent(fraction, digits = 1) {
   return ((Number(fraction) || 0) * 100).toFixed(digits) + "%";
 }
 
-export { BrandMark, Checkbox, ColumnToggle, Combobox, ConfirmDiscardProvider, ContextMenu, DataTable, DatePicker, DismissLayerDepth, Drawer, DrawerCancel, DrawerFooter, EmptyState, Field, FieldHelp, FilePicker, MenuButton, Modal, MultiSelect, PageHeader, Select, SelectionToolbar, SettingsCard, SettingsCards, State, Tag, Toggle, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu };
+export { BrandMark, Checkbox, ColumnToggle, Combobox, ConfirmDiscardProvider, ContextMenu, DataTable, DatePicker, DismissLayerDepth, Drawer, DrawerCancel, DrawerFooter, EmptyState, Field, FieldHelp, FilePicker, MenuButton, Modal, MultiSelect, PageHeader, PageTabs, Segmented, Select, SelectionToolbar, SettingsCard, SettingsCards, SettingsList, SettingsRow, StatTile, StatTiles, State, Tag, Toggle, aigwBrand, brands, compactNumber, dnswizBrand, doonBrand, money, percent, pgwizBrand, useColumnVisibility, useDismissLayer, useDrawerClose, useFloatingMenu };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

@@ -82,7 +82,7 @@ export function DatePicker({
         onBlur={() => {
           if (!open) onBlur?.();
         }}
-        className={`flex ${block ? 'w-full' : ''} ${size === 'sm' ? 'h-9 px-3 text-xs' : 'h-11 px-4 text-sm'} items-center justify-between gap-2 rounded-xl border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50`}
+        className={`flex ${block ? 'w-full' : ''} ${size === 'sm' ? 'h-11 md:h-8 px-2.5 text-xs' : 'h-11 md:h-8 px-2.5 text-base md:text-[13px]'} items-center justify-between gap-2 rounded-md border border-input bg-surface text-foreground transition hover:bg-accent/40 focus:outline-none focus:ring-[3px] focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50`}
       >
         <span className={selected ? '' : 'text-muted-foreground'}>
           {selected
@@ -96,7 +96,7 @@ export function DatePicker({
           ref={menuRef}
           role="dialog"
           style={menuStyle}
-          className="z-50 rounded-xl border border-border bg-surface p-3 shadow-lg"
+          className="z-50 rounded-lg border border-border bg-surface p-3 shadow-lg"
         >
             <div className="mb-2 flex items-center justify-between">
               <button
@@ -121,7 +121,7 @@ export function DatePicker({
             </div>
             <div className="grid grid-cols-7 gap-0.5 text-center">
               {WEEKDAYS.map((w) => (
-                <div key={w} className="py-1 text-[10px] font-medium uppercase text-muted-foreground">
+                <div key={w} className="py-1 text-[11px] font-medium text-muted-foreground">
                   {w}
                 </div>
               ))}
